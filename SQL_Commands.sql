@@ -1,197 +1,191 @@
--- Master Tables 
-
-
--- USERS
-CREATE TABLE USERS (
-    user_id BIGINT PRIMARY KEY,
-    user_type VARCHAR(20) NOT NULL,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NULL,
-    mobile_no VARCHAR(15) UNIQUE,
-    email VARCHAR(150) UNIQUE,
-    password_hash VARCHAR(500) NOT NULL,
-    gender CHAR(1) NULL,
-    dob DATE NULL,
-    address VARCHAR(500) NULL,
-    qualification VARCHAR(200) NULL,
-    joining_date DATE NULL,
-    is_active BIT DEFAULT 1
+-- users
+Create table users (
+    user_id number(19) primary key,
+    user_type varchar2(20) not null,
+    first_name varchar2(100) not null,
+    last_name varchar2(100),
+    mobile_no varchar2(15) unique,
+    email varchar2(150) unique,
+    password_hash varchar2(500) not null,
+    gender char(1),
+    dob date,
+    address varchar2(500),
+    qualification varchar2(200),
+    joining_date date,
+    is_active number(1) default 1 not null
 );
 
--- COURSES
-CREATE TABLE COURSES (
-    course_id BIGINT PRIMARY KEY,
-    course_name VARCHAR(200) NOT NULL,
-    class_name VARCHAR(50) NOT NULL,
-    division_name VARCHAR(50) NULL,
-    subjects TEXT NOT NULL,
-    duration_months INT NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    fee_amount DECIMAL(12,2) NOT NULL
+-- courses
+Create table courses (
+    course_id number(19) primary key,
+    course_name varchar2(200) not null,
+    class_name varchar2(50) not null,
+    division_name varchar2(50),
+    subjects clob not null,
+    duration_months number(10) not null,
+    start_date date not null,
+    end_date date not null,
+    fee_amount number(12,2) not null
 );
 
--- BATCHES
-CREATE TABLE BATCHES (
-    batch_id BIGINT PRIMARY KEY,
-    batch_name VARCHAR(100) NOT NULL,
-    course_id BIGINT,
-    classroom VARCHAR(50) NOT NULL,
-    start_time TIME NOT NULL,
-    end_time TIME NOT NULL,
-    days_of_week VARCHAR(50) NOT NULL,
-    faculty_id BIGINT,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    CONSTRAINT FK_BATCHES_COURSE FOREIGN KEY (course_id)
-        REFERENCES COURSES(course_id),
-    CONSTRAINT FK_BATCHES_FACULTY FOREIGN KEY (faculty_id)
-        REFERENCES USERS(user_id)
+-- batches
+Create table batches (
+    batch_id number(19) primary key,
+    batch_name varchar2(100) not null,
+    course_id number(19),
+    classroom varchar2(50) not null,
+    start_time varchar2(8) not null,
+    end_time varchar2(8) not null,
+    days_of_week varchar2(50) not null,
+    faculty_id number(19),
+    start_date date not null,
+    end_date date not null,
+    constraint fk_batches_course foreign key (course_id)
+        references courses(course_id),
+    constraint fk_batches_faculty foreign key (faculty_id)
+        references users(user_id)
 );
 
--- FEE_MASTER
-CREATE TABLE FEE_MASTER (
-    fee_id BIGINT PRIMARY KEY,
-    course_id BIGINT,
-    registration_fee DECIMAL(12,2) NOT NULL,
-    tuition_fee DECIMAL(12,2) NOT NULL,
-    exam_fee DECIMAL(12,2) NULL,
-    material_fee DECIMAL(12,2) NULL,
-    total_fee DECIMAL(12,2) NOT NULL,
-    CONSTRAINT FK_FEE_MASTER_COURSE FOREIGN KEY (course_id)
-        REFERENCES COURSES(course_id)
+-- fee_master
+Create table fee_master (
+    fee_id number(19) primary key,
+    course_id number(19),
+    registration_fee number(12,2) not null,
+    tuition_fee number(12,2) not null,
+    exam_fee number(12,2),
+    material_fee number(12,2),
+    total_fee number(12,2) not null,
+    constraint fk_fee_master_course foreign key (course_id)
+        references courses(course_id)
 );
 
--- EXAM_MASTER
-CREATE TABLE EXAM_MASTER (
-    exam_id BIGINT PRIMARY KEY,
-    exam_name VARCHAR(100) NOT NULL,
-    course_id BIGINT,
-    total_marks INT NOT NULL,
-    exam_date DATE NOT NULL,
-    CONSTRAINT FK_EXAM_MASTER_COURSE FOREIGN KEY (course_id)
-        REFERENCES COURSES(course_id)
+-- exam_master
+Create table exam_master (
+    exam_id number(19) primary key,
+    exam_name varchar2(100) not null,
+    course_id number(19),
+    total_marks number(10) not null,
+    exam_date date not null,
+    constraint fk_exam_master_course foreign key (course_id)
+        references courses(course_id)
 );
 
--- ASSIGNMENT_MASTER
-CREATE TABLE ASSIGNMENT_MASTER (
-    assignment_id BIGINT PRIMARY KEY,
-    title VARCHAR(200) NOT NULL,
-    batch_id BIGINT,
-    due_date DATE NOT NULL,
-    CONSTRAINT FK_ASSIGNMENT_MASTER_BATCH FOREIGN KEY (batch_id)
-        REFERENCES BATCHES(batch_id)
+-- assignment_master
+Create table assignment_master (
+    assignment_id number(19) primary key,
+    title varchar2(200) not null,
+    batch_id number(19),
+    due_date date not null,
+    constraint fk_assignment_master_batch foreign key (batch_id)
+        references batches(batch_id)
 );
 
--- SETTINGS
-CREATE TABLE SETTINGS (
-    setting_id BIGINT PRIMARY KEY,
-    setting_name VARCHAR(100) UNIQUE,
-    setting_value VARCHAR(500) NOT NULL
+-- settings
+Create table settings (
+    setting_id number(19) primary key,
+    setting_name varchar2(100) unique,
+    setting_value varchar2(500) not null
 );
 
--- NOTIFICATIONS
-CREATE TABLE NOTIFICATIONS (
-    notification_id BIGINT PRIMARY KEY,
-    title VARCHAR(200) NOT NULL,
-    message TEXT NOT NULL,
-    target_role VARCHAR(20) NOT NULL
+-- notifications
+Create table notifications (
+    notification_id number(19) primary key,
+    title varchar2(200) not null,
+    message clob not null,
+    target_role varchar2(20) not null
 );
 
-
--- Transaction Tables 
-
--- STUDENT_ENROLLMENT
-CREATE TABLE STUDENT_ENROLLMENT (
-    enrollment_id BIGINT PRIMARY KEY,
-    student_id BIGINT,
-    course_id BIGINT,
-    batch_id BIGINT,
-    admission_date DATE NOT NULL,
-    status VARCHAR(20) NOT NULL,
-    CONSTRAINT FK_ENROLLMENT_STUDENT FOREIGN KEY (student_id)
-        REFERENCES USERS(user_id),
-    CONSTRAINT FK_ENROLLMENT_COURSE FOREIGN KEY (course_id)
-        REFERENCES COURSES(course_id),
-    CONSTRAINT FK_ENROLLMENT_BATCH FOREIGN KEY (batch_id)
-        REFERENCES BATCHES(batch_id)
+-- student_enrollment
+Create table student_enrollment (
+    enrollment_id number(19) primary key,
+    student_id number(19),
+    course_id number(19),
+    batch_id number(19),
+    admission_date date not null,
+    status varchar2(20) not null,
+    constraint fk_enrollment_student foreign key (student_id)
+        references users(user_id),
+    constraint fk_enrollment_course foreign key (course_id)
+        references courses(course_id),
+    constraint fk_enrollment_batch foreign key (batch_id)
+        references batches(batch_id)
 );
 
--- ATTENDANCE
-CREATE TABLE ATTENDANCE (
-    attendance_id BIGINT PRIMARY KEY,
-    attendance_date DATE NOT NULL,
-    student_id BIGINT,
-    batch_id BIGINT,
-    status CHAR(1) NOT NULL,
-    CONSTRAINT FK_ATTENDANCE_STUDENT FOREIGN KEY (student_id)
-        REFERENCES USERS(user_id),
-    CONSTRAINT FK_ATTENDANCE_BATCH FOREIGN KEY (batch_id)
-        REFERENCES BATCHES(batch_id)
+-- attendance
+Create table attendance (
+    attendance_id number(19) primary key,
+    attendance_date date not null,
+    student_id number(19),
+    batch_id number(19),
+    status char(1) not null,
+    constraint fk_attendance_student foreign key (student_id)
+        references users(user_id),
+    constraint fk_attendance_batch foreign key (batch_id)
+        references batches(batch_id)
 );
 
--- FEES
-CREATE TABLE FEES (
-    fee_transaction_id BIGINT PRIMARY KEY,
-    student_id BIGINT,
-    course_id BIGINT,
-    total_fee DECIMAL(12,2) NOT NULL,
-    paid_amount DECIMAL(12,2) NOT NULL,
-    balance_amount DECIMAL(12,2) NOT NULL,
-    payment_date DATE NULL,
-    payment_mode VARCHAR(20) NULL,
-    transaction_type VARCHAR(20) NOT NULL,
-    CONSTRAINT FK_FEES_STUDENT FOREIGN KEY (student_id)
-        REFERENCES USERS(user_id),
-    CONSTRAINT FK_FEES_COURSE FOREIGN KEY (course_id)
-        REFERENCES COURSES(course_id)
+-- fees
+Create table fees (
+    fee_transaction_id number(19) primary key,
+    student_id number(19),
+    course_id number(19),
+    total_fee number(12,2) not null,
+    paid_amount number(12,2) not null,
+    balance_amount number(12,2) not null,
+    payment_date date,
+    payment_mode varchar2(20),
+    transaction_type varchar2(20) not null,
+    constraint fk_fees_student foreign key (student_id)
+        references users(user_id),
+    constraint fk_fees_course foreign key (course_id)
+        references courses(course_id)
 );
 
--- ASSIGNMENT_SUBMISSION
-CREATE TABLE ASSIGNMENT_SUBMISSION (
-    submission_id BIGINT PRIMARY KEY,
-    assignment_id BIGINT,
-    student_id BIGINT,
-    submitted_date DATE NOT NULL,
-    marks DECIMAL(5,2) NULL,
-    CONSTRAINT FK_ASSIGNMENT_SUBMISSION_ASSIGNMENT FOREIGN KEY (assignment_id)
-        REFERENCES ASSIGNMENT_MASTER(assignment_id),
-    CONSTRAINT FK_ASSIGNMENT_SUBMISSION_STUDENT FOREIGN KEY (student_id)
-        REFERENCES USERS(user_id)
+-- assignment_submission
+Create table assignment_submission (
+    submission_id number(19) primary key,
+    assignment_id number(19),
+    student_id number(19),
+    submitted_date date not null,
+    marks number(5,2),
+    constraint fk_assignment_submission_assignment foreign key (assignment_id)
+        references assignment_master(assignment_id),
+    constraint fk_assignment_submission_student foreign key (student_id)
+        references users(user_id)
 );
 
--- EXAM_RESULTS
-CREATE TABLE EXAM_RESULTS (
-    result_id BIGINT PRIMARY KEY,
-    exam_id BIGINT,
-    student_id BIGINT,
-    marks_obtained DECIMAL(5,2) NOT NULL,
-    grade VARCHAR(10) NULL,
-    CONSTRAINT FK_EXAM_RESULTS_EXAM FOREIGN KEY (exam_id)
-        REFERENCES EXAM_MASTER(exam_id),
-    CONSTRAINT FK_EXAM_RESULTS_STUDENT FOREIGN KEY (student_id)
-        REFERENCES USERS(user_id)
+-- exam_results
+Create table exam_results (
+    result_id number(19) primary key,
+    exam_id number(19),
+    student_id number(19),
+    marks_obtained number(5,2) not null,
+    grade varchar2(10),
+    constraint fk_exam_results_exam foreign key (exam_id)
+        references exam_master(exam_id),
+    constraint fk_exam_results_student foreign key (student_id)
+        references users(user_id)
 );
 
--- USER_MESSAGES
-CREATE TABLE USER_MESSAGES (
-    message_id BIGINT PRIMARY KEY,
-    sender_id BIGINT,
-    receiver_id BIGINT,
-    message_text TEXT NOT NULL,
-    sent_date DATETIME NOT NULL,
-    CONSTRAINT FK_USER_MESSAGES_SENDER FOREIGN KEY (sender_id)
-        REFERENCES USERS(user_id),
-    CONSTRAINT FK_USER_MESSAGES_RECEIVER FOREIGN KEY (receiver_id)
-        REFERENCES USERS(user_id)
+-- user_messages
+Create table user_messages (
+    message_id number(19) primary key,
+    sender_id number(19),
+    receiver_id number(19),
+    message_text clob not null,
+    sent_date timestamp not null,
+    constraint fk_user_messages_sender foreign key (sender_id)
+        references users(user_id),
+    constraint fk_user_messages_receiver foreign key (receiver_id)
+        references users(user_id)
 );
 
--- AUDIT_LOG
-CREATE TABLE AUDIT_LOG (
-    audit_id BIGINT PRIMARY KEY,
-    user_id BIGINT,
-    action VARCHAR(100) NOT NULL,
-    action_date DATETIME NOT NULL,
-    CONSTRAINT FK_AUDIT_LOG_USER FOREIGN KEY (user_id)
-        REFERENCES USERS(user_id)
+-- audit_log
+Create table audit_log (
+    audit_id number(19) primary key,
+    user_id number(19),
+    action varchar2(100) not null,
+    action_date timestamp not null,
+    constraint fk_audit_log_user foreign key (user_id)
+        references users(user_id)
 );
