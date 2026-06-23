@@ -1,0 +1,171 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background: #FFF8F3;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:30px;
+}
+
+.content{
+    width:100%;
+    max-width:1400px;
+}
+
+.main{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.form{
+    width:100%;
+    max-width:1200px;
+    background: #FFE8DC;
+    border-radius:30px;
+    padding:50px 80px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+.main-title{
+    width:fit-content;
+    margin:0 auto 20px;
+    background:#5A4032;
+    color:white;
+    padding:15px 60px;
+    border-radius:15px;
+    font-size:32px;
+    font-weight:700;
+}
+
+.sub-title{
+    width:fit-content;
+    margin:0 auto 40px;
+    background:#5A4032;
+    color:white;
+    padding:12px 40px;
+    border-radius:15px;
+    font-size:20px;
+    font-weight:600;
+}
+
+.stackinputs{
+    display:flex;
+    gap:40px;
+    margin-bottom:25px;
+}
+
+.form-group{
+    flex:1;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:8px;
+    font-size:16px;
+    font-weight:600;
+    color:#333;
+}
+
+.form-group input,
+.form-group textarea{
+    width:100%;
+    border:2px solid #e3e3e3;
+    border-radius:12px;
+    padding:12px 15px;
+    font-size:15px;
+    outline:none;
+    transition:0.3s;
+}
+
+.form-group input{
+    height:55px;
+}
+
+.form-group textarea{
+    min-height:120px;
+    resize:none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus{
+    border-color:#6d4ef5;
+}
+
+.full-width{
+    margin-bottom:25px;
+}
+
+.button-container{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    margin-top:35px;
+}
+
+.btn{
+    border:none;
+    border-radius:12px;
+    padding:14px 35px;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.save-btn{
+    background:#F28C7A;
+    color:white;
+}
+
+.save-btn:hover{
+    transform:translateY(-2px);
+    background:#E67965;
+}
+
+.nav-btn{
+    background:#ffb186;
+    color:#5A4032;
+}
+
+.nav-btn:hover{
+    transform:translateY(-2px);
+}
+
+.exit-btn{
+    background:white;
+    color:#e74c3c;
+    border:2px solid #f1b5af;
+}
+
+.exit-btn:hover{
+    background:#fff5f5;
+}
+
+@media(max-width:768px){
+
+    .form{
+        padding:30px;
+    }
+
+    .stackinputs{
+        flex-direction:column;
+        gap:20px;
+    }
+
+    .main-title{
+        font-size:24px;
+        text-align:center;
+    }
+
+    .sub-title{
+        font-size:18px;
+    }
+}
