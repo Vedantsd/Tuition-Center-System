@@ -1,194 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PaperLeak Academy</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background-color: #f4f4f4;
-        }
-
-        .content {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between; 
-            gap: 15px;
-            padding: 20px;
-            background-color: #222;
-            color: white;
-        }
-
-        .logocontainer {
-            display: flex;
-            flex-direction: row;
-            gap: 15px;
-        }
-
-        .logo img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-
-        .title h1 {
-            font-size: 2rem;
-        }
-
-        .nav {
-            display: flex;
-            flex-direction: row;
-            text-decoration: none;
-            list-style-type: none;
-            flex-wrap: wrap;
-        }
-
-        .nav li {
-            margin-left: 2vw;
-            font-size: 1.1em;
-        }
-
-        .nav li a {
-            color: white;
-            text-decoration: none;
-        }
-
-        .main {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 40px;
-        }
-
-        .form {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 80%;
-            max-width: 900px;
-        }
-
-        .form h2 {
-            margin-bottom: 20px;
-            text-align: left;
-            
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .form-group input {
-            width: 100%;
-            height: 5vh;
-            padding: 8px;
-        }
-
-        .stackinputs {
-            display: flex;
-            gap: 20px;
-        }
-
-        .stackinputs .form-group {
-            flex: 1;
-        }
-
-        .footer {
-            background-color: #222;
-            color: white;
-            text-align: center;
-            padding: 25px;
-        }
-
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styles/reuseable-design.css">
+<title>PaperLeak Academy</title>
 </head>
+
 <body>
 
-    <div class="content">
+<div class="content">
 
-        <div class="header">
-            <div class="logocontainer">
-                <div class="logo">
-                    <img src="src/logo.png" alt="PaperLeak Logo">
-                </div>
+    <div class="main">
 
-                <div class="title">
-                    <h1>PaperLeak Academy</h1>
-                </div>
+        <div class="form">
+            <div class="main-title">
+                PaperLeak Academy
             </div>
 
-            <ul class="nav">
-                <li><a href="#">About</a></li>
-                <li><a href="#">Admissions</a></li>
-                <li><a href="#">Achievements</a></li>
-                <li><a href="#">Contact Us</a></li>
-            </ul>
-        </div>
+            <div class="sub-title">
+                Assignment Master
+            </div>
 
 
-        <!------------------------------------------------------------------------>
+            <div class="stackinputs">
 
-        <!-- Paste the div form group outside stackinputs to occupy full space-->
-        <!-- Paste it in stackinputs to stack the entries -->
-        <div class="main">
-            <div class="form">
-                <h2>Assignment Details</h2>
-
-                <div class="stackinputs">
-                    <div class="form-group">
-                        <label for="assignment_id">Assignment ID</label>
-                        <input type="text" id="id" placeholder="Enter assignment id">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="title">Title</label>
-                        <input type="text" id="title" placeholder="Enter assignment title">
-                    </div>
+                <div class="form-group">
+                    <label>Assignment id</label>
+                    <input type="text">
                 </div>
 
                 <div class="form-group">
-                    <label for="batch_id">Batch ID</label>
-                    <input type="text" id="batch_id" placeholder="Enter batch id">
-                </div>
-
-                <div class="form-group">
-                    <label for="due_date">Due Date</label>
-                    <input type="date" id="due_date" placeholder="Enter due date">
+                    <label>Title</label>
+                    <input type="text">
                 </div>
 
             </div>
-        </div>
 
-        <!------------------------------------------------------------------------>
+            <div class="stackinputs">
+
+                <div class="form-group">
+                    <label>Batch ID</label>
+                    <input type="text">
+                </div>
+
+                <div class="form-group">
+                    <label>Due date</label>
+                    <input type="date">
+                </div>
+
+            </div>
 
 
-        <div class="footer">
-            &copy; 2026 PaperLeak Academy | All rights reserved
+            <div class="button-container">
+                <button class="btn save-btn">Save</button>
+                <button class="btn nav-btn">◀</button>
+                <button class="btn nav-btn">▶</button>
+                <button class="btn exit-btn">Exit</button>
+            </div>
+
         </div>
 
     </div>
+
+</div>
 
 </body>
 </html>
