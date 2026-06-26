@@ -14,105 +14,80 @@
     <div class="main">
 
         <div class="form">
+
             <div class="main-title">
                 Tuition Centre System
             </div>
 
-            <!-- FORM NAME -->
             <div class="sub-title">
                 Users Details
             </div>
 
             <div id="statusMessage" class="status-message"></div>
-           
 
+            <!-- Row 1 -->
             <div class="stackinputs">
-                    <div class="form-group">
-                        <label for="User ID">User ID <span class="required">*</span></label>
-                        <input type="number" id="User ID" required>
-                    </div>
+                <label for="UserID">User ID <span class="required">*</span></label>
+                <input type="number" id="UserID" required>
 
-                    <div class="form-group">
-                        <label for="User Type">User Type <span class="required">*</span></label>
+                <label for="UserType">User Type <span class="required">*</span></label>
+                <select id="UserType" required>
+                    <option value="">--Select User Type--</option>
+                </select>
+            </div>
 
-                        <select id="User Type" required
-                            style="width: 500px; height: 50px; padding: 10px; font-size: 18px; border-radius: 10px;">
-                            <option value="">--Select User Type--</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="stackinputs">
-                    <div class="form-group">
-                        <label for="First Name">First Name <span class="required">*</span></label>
-                        <input type="text" id="First Name" required >
-                    </div>
+            <!-- Row 2 -->
+            <div class="stackinputs">
+                <label for="FirstName">First Name <span class="required">*</span></label>
+                <input type="text" id="FirstName" required>
 
-                    <div class="form-group">
-                        <label for="Last Name">Last Name <span class="required">*</span></label>
-                        <input type="text" id="Last Name"  required>
-                    </div>
-                </div>
-                
-                <div class="stackinputs">
-                    <div class="form-group">
-                        <label for="Mobile No.">Mobile No.</label>
-                        <input type="number" id="Mobile No." >
-                    </div>
+                <label for="LastName">Last Name <span class="required">*</span></label>
+                <input type="text" id="LastName" required>
+            </div>
 
-                    <div class="form-group">
-                        <label for="Email">Email <span class="required">*</span></label>
-                        <input type="email" id="Email"  required>
-                    </div>
-                </div>
+            <!-- Row 3 -->
+            <div class="stackinputs">
+                <label for="MobileNo">Mobile No.</label>
+                <input type="number" id="MobileNo">
 
-                <div class="stackinputs">
-                    <div class="form-group">
-                        <label for="Password">Password <span class="required">*</span></label>
-                        <input type="password" id="Password" requried>
-                    </div>
+                <label for="Email">Email <span class="required">*</span></label>
+                <input type="email" id="Email" required>
+            </div>
 
-                    <div class="form-group">
-                        <label for="DOB">DOB <span class="required">*</span></label>
-                        <input type="date" id="DOB" requried>
-                    </div>
-                </div>
+            <!-- Row 4 -->
+            <div class="stackinputs">
+                <label for="Password">Password <span class="required">*</span></label>
+                <input type="password" id="Password" required>
 
-                <div class="stackinputs">
-                    <div class="form-group">
-                        <label for="Address">Address</label>
-                        <input type="text" id="Address" >
-                    </div>
+                <label for="DOB">DOB <span class="required">*</span></label>
+                <input type="date" id="DOB" required>
+            </div>
 
-                    <div class="form-group">
-                        <label for="Qualification">Qualification</label>
-                        <input type="text" id="Qualification" >
-                    </div>
-                </div>
+            <!-- Row 5 -->
+            <div class="stackinputs">
+                <label for="Address">Address</label>
+                <input type="text" id="Address">
 
-                <div class="stackinputs">
-                    <div class="form-group">
-                        <label for="Joining Date">Joining Date</label>
-                        <input type="date" id="Joining Date" >
-                    </div>
+                <label for="Qualification">Qualification</label>
+                <input type="text" id="Qualification">
+            </div>
 
-                    <div class="form-group">
-                        <label for="Gender">Gender</label>
-                        <select name="Gender" id="Gender" style="width: 500px; height: 50px; padding: 10px; font-size: 18px; border-radius: 10px;">
-                            <option value="">--Select--</option>
-                            <option value="Female">Female</option>
-                            <option value="Male">Male</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
+            <!-- Row 6 -->
+            <div class="stackinputs">
+                <label for="JoiningDate">Joining Date</label>
+                <input type="date" id="JoiningDate">
 
-                </div>
-
+                <label for="Gender">Gender</label>
+                <select id="Gender">
+                    <option value="">--Select--</option>
+                    <option>Female</option>
+                    <option>Male</option>
+                    <option>Other</option>
+                </select>
+            </div>
 
             <div class="button-container">
-                <button type="button" class="btn save-btn">
-                    Save
-                </button>
+                <button class="btn save-btn">Save</button>
                 <button class="btn nav-btn">◀</button>
                 <button class="btn nav-btn">▶</button>
                 <button class="btn exit-btn">Exit</button>
@@ -126,5 +101,6 @@
 
 <script src="js/db-api.js"></script>
 <script src="js/users.js"></script>
+
 </body>
 </html>
