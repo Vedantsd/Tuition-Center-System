@@ -6,7 +6,7 @@
 }
 
 body{
-    background: #FFF8F3;
+    background: #F5F7FC;
     min-height:100vh;
     display:flex;
     justify-content:center;
@@ -28,7 +28,7 @@ body{
 .form{
     width:100%;
     max-width:1200px;
-    background: #FFE8DC;
+    background: White;
     border-radius:30px;
     padding:50px 80px;
     box-shadow:0 10px 30px rgba(0,0,0,0.08);
@@ -37,7 +37,7 @@ body{
 .main-title{
     width:fit-content;
     margin:0 auto 20px;
-    background:#5A4032;
+    background:#6C4CF1;
     color:white;
     padding:15px 60px;
     border-radius:15px;
@@ -48,7 +48,7 @@ body{
 .sub-title{
     width:fit-content;
     margin:0 auto 40px;
-    background:#5A4032;
+    background:#5E3FD4;
     color:white;
     padding:12px 40px;
     border-radius:15px;
@@ -121,18 +121,18 @@ body{
 }
 
 .save-btn{
-    background:#F28C7A;
+    background:#18C08F;
     color:white;
 }
 
 .save-btn:hover{
     transform:translateY(-2px);
-    background:#E67965;
+    background:#159E75;
 }
 
 .nav-btn{
-    background:#ffb186;
-    color:#5A4032;
+    background:#6C4CF1;
+    color:white;
 }
 
 .nav-btn:hover{
@@ -140,13 +140,14 @@ body{
 }
 
 .exit-btn{
-    background:white;
-    color:#e74c3c;
-    border:2px solid #f1b5af;
+    background:#ebdbd9;
+    color:#eb5252;
+    border:2px solid #F06B6B;
+    
 }
 
 .exit-btn:hover{
-    background:#fff5f5;
+    background:#e0a49e;
 }
 
 @media(max-width:768px){
@@ -168,4 +169,9 @@ body{
     .sub-title{
         font-size:18px;
     }
+
 }
+
+    .required{
+        color: red;
+    }
