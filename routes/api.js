@@ -92,3 +92,44 @@ router.post("/users", async (req, res) => {
 });
 
 module.exports = router;
+
+router.get("/user-types", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(
+            `SELECT
+                USER_TYPE_ID,
+                USER_TYPE
+             FROM USER_TYPE
+             ORDER BY USER_TYPE_ID`
+        );
+
+        const userTypes = result.rows.map(row => ({
+            user_type_id: row[0],
+            user_type: row[1]
+        }));
+
+        res.json(userTypes);
+
+    } catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    } finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});

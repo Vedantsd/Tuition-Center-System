@@ -23,6 +23,7 @@
                 Users Details
             </div>
 
+            <div id="statusMessage" class="status-message"></div>
            
 
             <div class="stackinputs">
@@ -33,7 +34,11 @@
 
                     <div class="form-group">
                         <label for="User Type">User Type <span class="required">*</span></label>
-                        <input type="text" id="User Type" required>
+
+                        <select id="User Type" required
+                            style="width: 500px; height: 50px; padding: 10px; font-size: 18px; border-radius: 10px;">
+                            <option value="">--Select User Type--</option>
+                        </select>
                     </div>
                 </div>
                 
@@ -94,6 +99,7 @@
                     <div class="form-group">
                         <label for="Gender">Gender</label>
                         <select name="Gender" id="Gender" style="width: 500px; height: 50px; padding: 10px; font-size: 18px; border-radius: 10px;">
+                            <option value="">--Select--</option>
                             <option value="Female">Female</option>
                             <option value="Male">Male</option>
                             <option value="Other">Other</option>

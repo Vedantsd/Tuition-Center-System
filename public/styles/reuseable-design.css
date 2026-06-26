@@ -150,6 +150,33 @@ body{
     background:#e0a49e;
 }
 
+.status-message {
+    min-height: 22px;
+    margin-top: 8px;
+    margin-bottom: 15px;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.status-message.show {
+    opacity: 1;
+}
+
+.status-message.success {
+    color: #198754;   
+}
+
+.status-message.error {
+    color: #dc3545;   
+}
+
+.status-message.info {
+    color: #0d6efd;   
+}
+
 @media(max-width:768px){
 
     .form{

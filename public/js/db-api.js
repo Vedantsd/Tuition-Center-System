@@ -1,5 +1,29 @@
 class DatabaseAPI {
 
+    static async get(url) {
+
+        try {
+
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            return await response.json();
+
+        } catch (err) {
+
+            return {
+                success: false,
+                message: err.message
+            };
+
+        }
+
+    }
+
     static async post(url, data) {
 
         try {
