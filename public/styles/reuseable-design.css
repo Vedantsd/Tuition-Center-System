@@ -30,6 +30,7 @@ body{
     background:#fff;
     border-radius:30px;
     padding:50px 70px;
+    border: 2px solid black;
     box-shadow:0 10px 30px rgba(0,0,0,.08);
 }
 
@@ -59,14 +60,14 @@ body{
 
 .stackinputs{
     display:grid;
-    grid-template-columns:170px 1fr 170px 1fr;
+    grid-template-columns:170px  1fr  170px 1fr ;
     align-items:center;
     column-gap:25px;
     margin-bottom:22px;
 }
 
 .stackinputs label{
-    font-size:17px;
+    font-size:20px;
     font-weight:600;
     color:#333;
 }
@@ -186,4 +187,32 @@ body{
     .button-container{
         flex-wrap:wrap;
     }
+}
+
+/*================== INFO ICON ================*/
+
+.info-icon{
+    position:relative;
+    color:#6C4CF1;
+    margin-left:5px;
+}
+
+.tooltip{
+    position:absolute;
+    bottom:25px;
+    left:0;
+
+    background:#333;
+    color:#fff;
+
+    padding:8px 12px;
+    border-radius:6px;
+
+    width:220px;
+
+    display:none;
+}
+
+.info-icon:hover .tooltip{
+    display:block;
 }
