@@ -3,6 +3,7 @@
     padding:0;
     box-sizing:border-box;
     font-family:'Segoe UI',sans-serif;
+    
 }
 
 body{
@@ -12,6 +13,7 @@ body{
     justify-content:center;
     align-items:center;
     padding:30px;
+    
 }
 
 .content{
@@ -22,16 +24,18 @@ body{
 .main{
     display:flex;
     justify-content:center;
+    
 }
 
 .form{
-    width:100%;
-    max-width:1250px;
+    width:90vw;
+    max-width:1800px;
     background:#fff;
     border-radius:30px;
     padding:50px 70px;
     border: 2px solid black;
     box-shadow:0 10px 30px rgba(0,0,0,.08);
+    
 }
 
 .main-title{
@@ -60,7 +64,7 @@ body{
 
 .stackinputs{
     display:grid;
-    grid-template-columns:170px  1fr  170px 1fr ;
+    grid-template-columns:170px  1fr 60px 170px 1fr ;
     align-items:center;
     column-gap:25px;
     margin-bottom:22px;
@@ -79,7 +83,7 @@ body{
     border:2px solid #DDD;
     border-radius:12px;
     padding:0 15px;
-    font-size:16px;
+    font-size:18px;
     outline:none;
     transition:.3s;
     background:#fff;
@@ -195,6 +199,7 @@ body{
     position:relative;
     color:#6C4CF1;
     margin-left:5px;
+    font-size: medium;
 }
 
 .tooltip{
