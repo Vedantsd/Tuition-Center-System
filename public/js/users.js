@@ -57,7 +57,7 @@ async function saveUser() {
 
 async function loadUserTypes() {
 
-    const select = document.getElementById("User Type");
+    const select = document.getElementById("UserType");
 
     try {
 
