@@ -27,115 +27,166 @@
 
             <!-- Row 1 -->
             <div class="stackinputs">
-                <label for="UserID">User ID <span class="required">*</span>
-                    <span class="info-icon" >ⓘ
-                        <span class="tooltip">Enter a unique numerical value</span>
+
+                <label for="UserID">
+                    User ID <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter a unique numerical value.</span>
                     </span>
                 </label>
 
-                <input type="number" id="UserID" required> 
+                <input type="number" id="UserID" required>
 
-                <div>   </div>
+                <div></div>
 
-                <label for="UserType">User Type <span class="required">*</span>
-                    <span class="info-icon" >ⓘ
-                        <span class="tooltip">Select the appropriate user type from the list.</span>
+                <label for="UserType">
+                    User Type <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Select the appropriate user type.</span>
                     </span>
                 </label>
+
                 <select id="UserType" required>
                     <option value="">--Select User Type--</option>
                 </select>
+
             </div>
 
             <!-- Row 2 -->
             <div class="stackinputs">
-                <label for="FirstName">First Name <span class="required">*</span>
-                    <span class="info-icon" >ⓘ
-                        <span class="tooltip">Please enter a valid first name using only letters and spaces.</span>
+
+                <label for="FirstName">
+                    First Name <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter the user's first name.</span>
                     </span>
                 </label>
+
                 <input type="text" id="FirstName" required>
 
-                <div>   </div>
+                <div></div>
 
-                <label for="LastName">Last Name <span class="required">*</span>
-                    <span class="info-icon" >ⓘ
-                        <span class="tooltip">Please enter a valid last name using only letters and spaces.</span>
+                <label for="LastName">
+                    Last Name <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter the user's last name.</span>
                     </span>
                 </label>
+
                 <input type="text" id="LastName" required>
+
             </div>
 
             <!-- Row 3 -->
             <div class="stackinputs">
-                <label for="MobileNo">Mobile No.</label>
-                <input type="number" id="MobileNo" >
 
-                <div>   </div>
-
-                <label for="Email">Email <span class="required">*</span>
+                <label for="MobileNo">
+                    Mobile No.
                     <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter a valid email id (Example: name@gmail.com)</span>
+                        <span class="tooltip">Enter the mobile number.</span>
                     </span>
                 </label>
+
+                <input type="number" id="MobileNo">
+
+                <div></div>
+
+                <label for="Email">
+                    Email <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter a valid email address.</span>
+                    </span>
+                </label>
+
                 <input type="email" id="Email" required>
+
             </div>
 
             <!-- Row 4 -->
             <div class="stackinputs">
-                <label for="Password">Password <span class="required">*</span>
-                    <span class="info-icon" >ⓘ
+
+                <label for="Password">
+                    Password <span class="required">*</span>
+                    <span class="info-icon">ⓘ
                         <span class="tooltip">Password must contain at least 8 characters.</span>
                     </span>
                 </label>
+
                 <input type="password" id="Password" minlength="8" required>
 
-                <div>   </div>
-                
-                <label for="DOB">DOB <span class="required">*</span>
-                    <span class="info-icon" >ⓘ
-                        <span class="tooltip">Please select the user's date of birth.</span>
+                <div></div>
+
+                <label for="DOB">
+                    DOB <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Select the user's date of birth.</span>
                     </span>
                 </label>
+
                 <input type="date" id="DOB" required>
+
             </div>
 
             <!-- Row 5 -->
             <div class="stackinputs">
-                <label for="Address">Address</label>
-                <input type="text" id="Address">
 
-                <div>   </div>
-
-                <label for="Qualification">Qualification
-                    <span class="info-icon" >ⓘ
-                        <span class="tooltip">Please enter the user's qualification.</span>
+                <label for="Address">
+                    Address
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter the residential address.</span>
                     </span>
                 </label>
+
+                <input type="text" id="Address">
+
+                <div></div>
+
+                <label for="Qualification">
+                    Qualification
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter the qualification.</span>
+                    </span>
+                </label>
+
                 <input type="text" id="Qualification">
+
             </div>
 
             <!-- Row 6 -->
             <div class="stackinputs">
-                <label for="JoiningDate">Joining Date</label>
+
+                <label for="JoiningDate">
+                    Joining Date
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Select the joining date.</span>
+                    </span>
+                </label>
+
                 <input type="date" id="JoiningDate">
 
-                <div>   </div>
+                <div></div>
 
-                <label for="Gender">Gender</label>
+                <label for="Gender">
+                    Gender
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Select the gender.</span>
+                    </span>
+                </label>
+
                 <select id="Gender">
                     <option value="">--Select--</option>
-                    <option>Female</option>
-                    <option>Male</option>
-                    <option>Other</option>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Other">Other</option>
                 </select>
+
             </div>
 
             <div class="button-container">
-                <button class="btn save-btn">Save</button>
-                <button class="btn nav-btn">◀</button>
-                <button class="btn nav-btn">▶</button>
-                <button class="btn exit-btn">Exit</button>
+                <button type="button" class="btn save-btn">Save</button>
+                <button type="button" class="btn nav-btn">◀</button>
+                <button type="button" class="btn nav-btn">▶</button>
+                <button type="button" class="btn exit-btn">Exit</button>
             </div>
 
         </div>

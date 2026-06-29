@@ -1,8 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
-    loadUserTypes();
-});
 
-document.querySelector(".save-btn").addEventListener("click", saveUser);
+    loadUserTypes();
+
+    document
+        .getElementById("UserID")
+        .addEventListener("blur", loadUser);
+
+    document
+        .querySelector(".save-btn")
+        .addEventListener("click", saveUser);
+
+});
 
 let messageTimer;
 
@@ -14,50 +22,130 @@ function showMessage(message, type = "info") {
 
     status.className = "status-message";
 
-    status.classList.add(type, "show");
+    status.classList.add(type);
+
     status.textContent = message;
 
     messageTimer = setTimeout(() => {
-        status.classList.remove("show");
+
+        status.className = "status-message";
         status.textContent = "";
-    }, 10000);
+
+    }, 5000);
+
 }
 
-async function saveUser() {
+function clearForm() {
 
-    const data = {
-        user_id: document.getElementById("User ID").value,
-        user_type: document.getElementById("User Type").value,
-        first_name: document.getElementById("First Name").value,
-        last_name: document.getElementById("Last Name").value,
-        mobile_no: document.getElementById("Mobile No.").value,
-        email: document.getElementById("Email").value,
-        password: document.getElementById("Password").value,
-        dob: document.getElementById("DOB").value,
-        address: document.getElementById("Address").value,
-        qualification: document.getElementById("Qualification").value,
-        joining_date: document.getElementById("Joining Date").value,
-        gender: document.getElementById("Gender").value
-    };
+    document.getElementById("UserType").value = "";
+    document.getElementById("FirstName").value = "";
+    document.getElementById("LastName").value = "";
+    document.getElementById("MobileNo").value = "";
+    document.getElementById("Email").value = "";
+    document.getElementById("Password").value = "";
+    document.getElementById("DOB").value = "";
+    document.getElementById("Address").value = "";
+    document.getElementById("Qualification").value = "";
+    document.getElementById("JoiningDate").value = "";
+    document.getElementById("Gender").value = "";
+
+}
+
+function populateForm(user) {
+
+    document.getElementById("UserType").value = user.user_type;
+    document.getElementById("FirstName").value = user.first_name;
+    document.getElementById("LastName").value = user.last_name;
+    document.getElementById("MobileNo").value = user.mobile_no;
+    document.getElementById("Email").value = user.email;
+
+    document.getElementById("Password").value = "";
+
+    document.getElementById("DOB").value = user.dob;
+    document.getElementById("Address").value = user.address;
+    document.getElementById("Qualification").value = user.qualification;
+    document.getElementById("JoiningDate").value = user.joining_date;
+
+    if(user.gender==="M")
+        document.getElementById("Gender").value="Male";
+
+    else if(user.gender==="F")
+        document.getElementById("Gender").value="Female";
+
+    else
+        document.getElementById("Gender").value="Other";
+
+}
+
+async function loadUser() {
+
+    const id = document.getElementById("UserID").value;
+
+    if (!id)
+        return;
 
     try {
 
-        const result = await DatabaseAPI.post("/api/users", data);
+        const result = await DatabaseAPI.get("/api/users/" + id);
 
-        if (result.success) {
-            showMessage(result.message, "success");
-        } else {
-            showMessage(result.message, "error");
+        if (!result.success) {
+
+            clearForm();
+            return;
+
         }
 
-    } catch (err) {
-        showMessage("Unable to save user. Please try again.", "error");
+        populateForm(result);
+
+        showMessage("Existing user loaded.", "success");
+
     }
+
+    catch (err) {
+
+        console.error(err);
+
+    }
+
+}
+
+async function loadUser() {
+
+    const id = document.getElementById("UserID").value;
+
+    if (!id)
+        return;
+
+    try {
+
+        const result = await DatabaseAPI.get("/api/users/" + id);
+
+        if (!result.success) {
+
+            clearForm();
+            return;
+
+        }
+
+        populateForm(result);
+
+        showMessage("Existing user loaded.", "success");
+
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+    }
+
 }
 
 async function loadUserTypes() {
 
     const select = document.getElementById("UserType");
+
+    select.innerHTML = '<option value="">--Select User Type--</option>';
 
     try {
 
@@ -71,10 +159,27 @@ async function loadUserTypes() {
             option.textContent = type.user_type;
 
             select.appendChild(option);
+
         });
 
-    } catch (err) {
-        console.error("Failed to load user types.", err);
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+        showMessage("Unable to load user types.", "error");
+
     }
 
 }
+
+if (result.success && !existing.success) {
+
+    clearForm();
+
+    document.getElementById("UserID").value = "";
+
+}
+showMessage(result.message, "success");
+
