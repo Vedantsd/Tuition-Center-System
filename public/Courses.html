@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="styles/reuseable-design.css">
 <title>Tuition Centre System</title>
-
 </head>
 
 <body>
@@ -24,66 +23,118 @@
                 Course Master Entry
             </div>
 
+            <div id="statusMessage" class="status-message"></div>
+
+            <!-- Row 1 -->
             <div class="stackinputs">
 
-                <div class="form-group">
-                    <label>Course ID <span class="required">*</span></label>
-                    <input type="number" required>
-                </div>
+                <label for="CourseID">
+                    Course ID <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter a unique course ID.</span>
+                    </span>
+                </label>
+                <input type="number" id="CourseID" required>
 
-                <div class="form-group">
-                    <label>Course Name <span class="required">*</span></label>
-                    <input type="text" required>
-                </div>
+                <div></div>
+
+                <label for="CourseName">
+                    Course Name <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter the course name.</span>
+                    </span>
+                </label>
+                <input type="text" id="CourseName" required>
 
             </div>
 
+            <!-- Row 2 -->
             <div class="stackinputs">
 
-                <div class="form-group">
-                    <label>Class Name <span class="required">*</span></label>
-                    <input type="text" required>
-                </div>
+                <label for="ClassName">
+                    Class Name <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter the class name.</span>
+                    </span>
+                </label>
+                <input type="text" id="ClassName" required>
 
-                <div class="form-group">
-                    <label>Division Name</label>
-                    <input type="text">
-                </div>
+                <div></div>
+
+                <label for="DivisionName">
+                    Division Name
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter the division name.</span>
+                    </span>
+                </label>
+                <input type="text" id="DivisionName">
 
             </div>
 
-            <div class="full-width form-group">
-                <label>Subject <span class="required">*</span></label>
-                <input type="text" required>
-            </div>
-
-            <div class="full-width form-group">
-                <label>Duration (Months) <span class="required">*</span></label>
-                <input type="number"required>
-            </div>
-
+            <!-- Row 3 -->
             <div class="stackinputs">
 
-                <div class="form-group">
-                    <label>Start Date <span class="required">*</span></label>
-                    <input type="date" required>
-                </div>
+                <label for="Subject">
+                    Subject <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter the subject name.</span>
+                    </span>
+                </label>
+                <input type="text" id="Subject" required>
 
-                <div class="form-group">
-                    <label>End Date <span class="required">*</span></label>
-                    <input type="date" required>
-                </div>
+                <div></div>
+
+                <label for="Duration">
+                    Duration (Months) <span class="required">*</span>
+                </label>
+                <input type="number" id="Duration" required>
 
             </div>
 
-            <div class="full-width form-group">
-                <label>Fee Amount <span class="required">*</span></label>
-                <input type="number" required>
+            <!-- Row 4 -->
+            <div class="stackinputs">
+
+                <label for="StartDate">
+                    Start Date <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Select the course start date.</span>
+                    </span>
+                </label>
+                <input type="date" id="StartDate" required>
+
+                <div></div>
+
+                <label for="EndDate">
+                    End Date <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Select the course end date.</span>
+                    </span>
+                </label>
+                <input type="date" id="EndDate" required>
+
             </div>
 
-            <div class="full-width form-group">
-                <label>Description</label>
-                <textarea></textarea>
+            <!-- Row 5 -->
+            <div class="stackinputs">
+
+                <label for="FeeAmount">
+                    Fee Amount <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter the total course fee.</span>
+                    </span>
+                </label>
+                <input type="number" id="FeeAmount" required>
+
+                <div></div>
+
+                <label for="Description">
+                    Description
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter additional details about the course.</span>
+                    </span>
+                </label>
+                <input type="text" id="Description">
+
             </div>
 
             <div class="button-container">

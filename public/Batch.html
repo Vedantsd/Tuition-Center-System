@@ -14,79 +14,131 @@
     <div class="main">
 
         <div class="form">
+
             <div class="main-title">
                 Tuition Centre System
             </div>
 
-            <!-- FORM NAME -->
             <div class="sub-title">
                 Batch Entry
             </div>
 
-            <!-- ADD OR REMOVE FIELDS BELOW AS NEEDED -->
+            <div id="statusMessage" class="status-message"></div>
 
-           <div class="stackinputs">
-                    <div class="form-group">
-                        <label for="Batch ID">Batch ID  <span class="required">*</span></label>
-                        <input type="number" id="Batch ID" required>
-                    </div>
+            <!-- Row 1 -->
+            <div class="stackinputs">
 
-                    <div class="form-group">
-                        <label for="Batch Name">Batch Name  <span class="required">*</span></label>
-                        <input type="text" id="Batch Name" required>
-                    </div>
-                </div>
-                
-                <div class="stackinputs">
-                    <div class="form-group">
-                        <label for="Course Id">Course Id</label>
-                        <input type="text" id="Course Id" >
-                    </div>
+                <label for="BatchID">
+                    Batch ID <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter a unique batch ID.</span>
+                    </span>
+                </label>
+                <input type="number" id="BatchID" required>
 
-                    <div class="form-group">
-                        <label for="Classroom">Classroom  <span class="required">*</span></label>
-                        <input type="text" id="classroom" required>
-                    </div>
-                </div>
-                
-            
+                <div></div>
 
-                <div class="stackinputs">
-                    <div class="form-group">
-                        <label for="Start Time">Start Time</label>
-                        <input type="time" id="Start Time" >
-                    </div>
+                <label for="BatchName">
+                    Batch Name <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter the name of the batch.</span>
+                    </span>
+                </label>
+                <input type="text" id="BatchName" required>
 
-                    <div class="form-group">
-                        <label for="End Time">End Time</label>
-                        <input type="time" id="End Time" >
-                    </div>
-                </div>
+            </div>
 
-                <div class="stackinputs">
-                    <div class="form-group">
-                        <label for="Days of week">Days of week  <span class="required">*</span></label>
-                        <input type="text" id="Days of week"  requried>
-                    </div>
+            <!-- Row 2 -->
+            <div class="stackinputs">
 
-                    <div class="form-group">
-                        <label for="Faculty_ID">Faculty ID</label>
-                        <input type="number" id="Faculty ID" >
-                    </div>
-                </div>
+                <label for="CourseID">
+                    Course ID
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter the associated course ID.</span>
+                    </span>
+                </label>
+                <input type="text" id="CourseID">
 
-                <div class="stackinputs">
-                    <div class="form-group">
-                        <label for="Start Date">Start Date</label>
-                        <input type="date" id="Start Date" >
-                    </div>
+                <div></div>
 
-                    <div class="form-group">
-                        <label for="End Date">End Date</label>
-                        <input type="date" id="End Date" >
-                    </div>
-                </div>
+                <label for="Classroom">
+                    Classroom <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter the classroom assigned to this batch.</span>
+                    </span>
+                </label>
+                <input type="text" id="Classroom" required>
 
+            </div>
+
+            <!-- Row 3 -->
+            <div class="stackinputs">
+
+                <label for="StartTime">
+                    Start Time
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Select the batch start time.</span>
+                    </span>
+                </label>
+                <input type="time" id="StartTime">
+
+                <div></div>
+
+                <label for="EndTime">
+                    End Time
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Select the batch end time.</span>
+                    </span>
+                </label>
+                <input type="time" id="EndTime">
+
+            </div>
+
+            <!-- Row 4 -->
+            <div class="stackinputs">
+
+                <label for="DaysOfWeek">
+                    Days of Week <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter the scheduled days (e.g., Monday, Wednesday, Friday).</span>
+                    </span>
+                </label>
+                <input type="text" id="DaysOfWeek" required>
+
+                <div></div>
+
+                <label for="FacultyID">
+                    Faculty ID
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Enter the faculty ID assigned to this batch.</span>
+                    </span>
+                </label>
+                <input type="number" id="FacultyID">
+
+            </div>
+
+            <!-- Row 5 -->
+            <div class="stackinputs">
+
+                <label for="StartDate">
+                    Start Date
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Select the batch start date.</span>
+                    </span>
+                </label>
+                <input type="date" id="StartDate">
+
+                <div></div>
+
+                <label for="EndDate">
+                    End Date
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">Select the batch end date.</span>
+                    </span>
+                </label>
+                <input type="date" id="EndDate">
+
+            </div>
 
             <div class="button-container">
                 <button class="btn save-btn">Save</button>
