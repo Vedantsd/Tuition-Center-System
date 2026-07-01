@@ -262,6 +262,8 @@ async function saveUser() {
 
         showMessage(result.message || "User saved successfully.", "success");
 
+        clearForm();
+
     }
     catch (err) {
 

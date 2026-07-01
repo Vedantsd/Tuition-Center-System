@@ -283,3 +283,8 @@ body{
 .find-btn:hover{
     background:#0b5ed7;
 }
+
+.short-input{
+    width:200px !important;
+    flex:none !important;   
+}
