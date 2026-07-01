@@ -3,8 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
     loadUserTypes();
 
     document
-        .getElementById("UserID")
-        .addEventListener("blur", loadUser);
+        .getElementById("findBtn")
+        .addEventListener("click", loadUser);
 
     document
         .querySelector(".save-btn")
@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 let messageTimer;
+let isExistingUser = false;
 
 function showMessage(message, type = "info") {
 
@@ -21,9 +22,7 @@ function showMessage(message, type = "info") {
     clearTimeout(messageTimer);
 
     status.className = "status-message";
-
     status.classList.add(type);
-
     status.textContent = message;
 
     messageTimer = setTimeout(() => {
@@ -32,6 +31,12 @@ function showMessage(message, type = "info") {
         status.textContent = "";
 
     }, 5000);
+
+}
+
+function setSaveButtonText(text) {
+
+    document.querySelector(".save-btn").textContent = text;
 
 }
 
@@ -49,6 +54,9 @@ function clearForm() {
     document.getElementById("JoiningDate").value = "";
     document.getElementById("Gender").value = "";
 
+    isExistingUser = false;
+    setSaveButtonText("Save");
+
 }
 
 function populateForm(user) {
@@ -59,6 +67,8 @@ function populateForm(user) {
     document.getElementById("MobileNo").value = user.mobile_no;
     document.getElementById("Email").value = user.email;
 
+    // Password is never pre-filled; leave blank so a blank value
+    // on update means "keep existing password" (per the PUT route).
     document.getElementById("Password").value = "";
 
     document.getElementById("DOB").value = user.dob;
@@ -66,14 +76,15 @@ function populateForm(user) {
     document.getElementById("Qualification").value = user.qualification;
     document.getElementById("JoiningDate").value = user.joining_date;
 
-    if(user.gender==="M")
-        document.getElementById("Gender").value="Male";
-
-    else if(user.gender==="F")
-        document.getElementById("Gender").value="Female";
-
+    if (user.gender === "M")
+        document.getElementById("Gender").value = "Male";
+    else if (user.gender === "F")
+        document.getElementById("Gender").value = "Female";
     else
-        document.getElementById("Gender").value="Other";
+        document.getElementById("Gender").value = "Other";
+
+    isExistingUser = true;
+    setSaveButtonText("Update");
 
 }
 
@@ -81,8 +92,12 @@ async function loadUser() {
 
     const id = document.getElementById("UserID").value;
 
-    if (!id)
+    if (!id) {
+
+        showMessage("Please enter a User ID to search.", "error");
         return;
+
+    }
 
     try {
 
@@ -91,6 +106,7 @@ async function loadUser() {
         if (!result.success) {
 
             clearForm();
+            showMessage("No existing user found. You can create a new one.", "info");
             return;
 
         }
@@ -100,42 +116,10 @@ async function loadUser() {
         showMessage("Existing user loaded.", "success");
 
     }
-
     catch (err) {
 
         console.error(err);
-
-    }
-
-}
-
-async function loadUser() {
-
-    const id = document.getElementById("UserID").value;
-
-    if (!id)
-        return;
-
-    try {
-
-        const result = await DatabaseAPI.get("/api/users/" + id);
-
-        if (!result.success) {
-
-            clearForm();
-            return;
-
-        }
-
-        populateForm(result);
-
-        showMessage("Existing user loaded.", "success");
-
-    }
-
-    catch (err) {
-
-        console.error(err);
+        showMessage("Error searching for user.", "error");
 
     }
 
@@ -163,23 +147,127 @@ async function loadUserTypes() {
         });
 
     }
-
     catch (err) {
 
         console.error(err);
-
         showMessage("Unable to load user types.", "error");
 
     }
 
 }
 
-if (result.success && !existing.success) {
+function getFormData() {
 
-    clearForm();
+    return {
 
-    document.getElementById("UserID").value = "";
+        user_id: document.getElementById("UserID").value,
+        user_type: document.getElementById("UserType").value,
+        first_name: document.getElementById("FirstName").value.trim(),
+        last_name: document.getElementById("LastName").value.trim(),
+        mobile_no: document.getElementById("MobileNo").value,
+        email: document.getElementById("Email").value.trim(),
+        password: document.getElementById("Password").value,
+        dob: document.getElementById("DOB").value,
+        address: document.getElementById("Address").value.trim(),
+        qualification: document.getElementById("Qualification").value.trim(),
+        joining_date: document.getElementById("JoiningDate").value,
+        gender: document.getElementById("Gender").value
+
+    };
 
 }
-showMessage(result.message, "success");
 
+function validateForm(data) {
+
+    if (!data.user_id) {
+        showMessage("User ID is required.", "error");
+        return false;
+    }
+
+    if (!data.user_type) {
+        showMessage("User Type is required.", "error");
+        return false;
+    }
+
+    if (!data.first_name) {
+        showMessage("First Name is required.", "error");
+        return false;
+    }
+
+    if (!data.last_name) {
+        showMessage("Last Name is required.", "error");
+        return false;
+    }
+
+    if (!data.email) {
+        showMessage("Email is required.", "error");
+        return false;
+    }
+
+    if (!data.dob) {
+        showMessage("DOB is required.", "error");
+        return false;
+    }
+
+    // Password only required when creating a brand-new user.
+    if (!isExistingUser) {
+
+        if (!data.password) {
+            showMessage("Password is required.", "error");
+            return false;
+        }
+
+        if (data.password.length < 8) {
+            showMessage("Password must be at least 8 characters.", "error");
+            return false;
+        }
+
+    }
+
+    return true;
+
+}
+
+async function saveUser() {
+
+    const data = getFormData();
+
+    if (!validateForm(data))
+        return;
+
+    try {
+
+        let result;
+
+        if (isExistingUser) {
+
+            result = await DatabaseAPI.put("/api/users/" + data.user_id, data);
+
+        }
+        else {
+
+            result = await DatabaseAPI.post("/api/users", data);
+
+        }
+
+        if (!result.success) {
+
+            showMessage(result.message || "Unable to save user.", "error");
+            return;
+
+        }
+
+        isExistingUser = true;
+        setSaveButtonText("Update");
+
+        showMessage(result.message || "User saved successfully.", "success");
+
+    }
+    catch (err) {
+
+        console.error(err);
+        showMessage("Error saving user.", "error");
+
+    }
+
+}

@@ -221,3 +221,65 @@ body{
 .info-icon:hover .tooltip{
     display:block;
 }
+
+.find-btn-container{
+    display:flex;
+    justify-content:center;
+}
+
+.find-btn{
+    background:#0d6efd;
+    color:#fff;
+    padding:0 18px;
+    height:52px;
+    font-size:15px;
+}
+
+.find-btn:hover{
+    background:#0b5ed7;
+}
+
+.stackinputs{
+    display:grid;
+    grid-template-columns:170px minmax(0,1fr) 60px 170px minmax(0,1fr);
+    align-items:center;
+    column-gap:25px;
+    margin-bottom:22px;
+}
+
+.id-find-group{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:100%;      
+    min-width:0;
+}
+
+.id-find-group input{
+    flex:1;          
+    min-width:0;
+    height:52px;
+    border:2px solid #DDD;
+    border-radius:12px;
+    padding:0 15px;
+    font-size:18px;
+    outline:none;
+}
+
+.id-find-group input:focus{
+    border-color:#6C4CF1;
+}
+
+.find-btn{
+    background:#0d6efd;
+    color:#fff;
+    padding:0 22px;
+    height:52px;
+    font-size:15px;
+    white-space:nowrap;
+    flex:none;       
+}
+
+.find-btn:hover{
+    background:#0b5ed7;
+}
