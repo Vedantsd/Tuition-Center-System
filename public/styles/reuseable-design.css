@@ -7,13 +7,23 @@
 }
 
 body{
-    background:#F5F7FC;
+    background:#F0F8FF;
     min-height:100vh;
     display:flex;
     justify-content:center;
+    align-items:center;    
+}
+
+.body {
+    width:100%;
+    height:100vh;
+    display:flex;
+    justify-content:center;
     align-items:center;
-    padding:30px;
-    
+    margin:20px;
+    background:#FAF9F6;
+    border: 1px solid black;
+    border-radius: 20px;
 }
 
 .content{
