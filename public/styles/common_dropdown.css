@@ -1,0 +1,151 @@
+body{
+    margin:0;
+    background: #f4f6f4;
+    font-family: Arial;
+}
+
+#page {
+    width:760px;
+    margin-left:auto;
+    margin-right:auto;
+    background: transparent;
+}
+
+#mainHeading{
+    background-color:#5b3caf;
+    color:white;
+    width:600px;
+    margin:auto;
+    margin-top:35px;
+    text-align:center;
+    padding:14px;
+    font-size:22px;
+    font-weight:bold;
+    border-radius:6px;
+}
+
+#subHeading {
+    width:360px;
+    background:#aa8ee8;
+    margin:15px auto;
+    text-align:center;
+    padding:10px;
+    font-weight:bold;
+    font-size:18px;
+    border-radius:5px;
+}
+
+#msg{
+    text-align:center;
+    color:darkred;
+    height:22px;
+    font-weight:bold;
+    margin-bottom:5px;
+}
+
+#formbox {
+    background-color:#f8f3fc;
+    width: 500px;
+    margin:auto;
+    margin-top:20px;
+    padding:30px;
+    border:1px solid #c9acd9;
+    border-radius:8px;
+    box-shadow:0px 4px 12px #d7d7d7;
+}
+
+.row{
+    margin-bottom:35px;
+}
+
+label {
+    display:inline-block;
+    width:130px;
+    font-weight:bold;
+}
+
+input{
+    padding:8px;
+    font-size:15px;
+    border-radius:4px;
+    border:1px solid #888;
+}
+
+#modeButton{
+    margin-left:8px;
+    padding:9px 18px;
+    background-color:#5b9bd5;
+    color:white;
+    border:none;
+    border-radius:4px;
+    font-weight:bold;
+}
+
+#buttonBox{
+    margin-top:25px;
+    text-align:center;
+}
+
+#buttonBox button {
+    padding:10px 25px;
+    margin:7px;
+    border:none;
+    color:white;
+    border-radius:5px;
+    font-weight:bold;
+}
+
+#saveBtn{
+    background:#22c55e;
+}
+
+#prevBtn {
+    background-color:#64748b;
+}
+
+#nextBtn{
+    background:#f59e0b;
+}
+
+#exitBtn {
+    background-color:#ef4444;
+}
+
+button{
+    cursor:pointer;
+}
+
+#fieldName{
+    width: 170px;
+}
+
+#optionValue{
+    width: 246px;
+}
+
+#status{
+    width:246px;
+}
+
+.smallMsg{
+    color:red;
+    font-size:13px;
+    margin-left:10px;
+}
+
+
+#outerbox{
+    width:88%;
+    min-height:88vh;
+    background:white;
+    margin:auto;
+    margin-top:25px;
+    padding-top:30px;
+    padding-bottom:30px;
+    border-radius:22px;
+    box-shadow:0px 0px 25px #d8dce5;
+}
+
+.star{
+    color:red;
+}

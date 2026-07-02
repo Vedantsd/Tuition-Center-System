@@ -1,0 +1,56 @@
+<html>
+<head>
+    <title>LOV Master</title>
+    <link rel="stylesheet" href="styles/common_dropdown.css">
+</head>
+
+<body>
+
+<div id="outerbox">
+    <div id="page">
+
+        <div id="mainHeading">Time Table Management System</div>
+
+        <div id="subHeading">LOV Master</div>
+
+        <p id="msg" ></p>
+
+        <div id="formbox" >
+
+            <div class="row">
+                <label>Field Name <span class="star" >*</span> :</label>
+                <input type="text" id="fieldName" >
+                <button type="button" id="modeButton" onclick="mode_change()" >Find</button>
+                <div id="fieldMsg" class="smallMsg" ></div>  
+            </div>
+
+            <div class="row">
+                <label>Option Value <span class="star" >*</span> :</label>
+                <input type="text" id="optionValue" >
+                <div id="optionMsg" class="smallMsg" ></div>
+            </div>
+
+            <div class="row">
+                <label>Status <span class="star" >*</span> :</label>
+                <input type="text" id="status" >
+                <div id="statusMsg" class="smallMsg" ></div>
+            </div>
+
+        </div>
+
+
+        <div id="buttonBox">
+
+            <button type="button" id="saveBtn" onclick="save_data()" >Save</button>
+            <button type="button" id="prevBtn" onclick="previous_data()"  >Previous</button>
+            <button type="button" id="nextBtn" onclick="next_data()" >Next</button>
+            <button type="button" id="exitBtn" onclick="exit_page()" >Exit</button>
+        </div>
+
+    </div>
+    </div>
+
+<script src="js/common_dropdown.js" ></script>
+
+</body>
+</html>

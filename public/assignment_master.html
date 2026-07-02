@@ -34,7 +34,7 @@
                         <span class="tooltip">Enter a unique assignment ID.</span>
                     </span>
                 </label>
-                <input type="number" id="AssignmentID" required>
+                <input type="number" id="AssignmentID" readonly required>
 
                 <div></div>
 
@@ -57,7 +57,7 @@
                         <span class="tooltip">Enter the batch ID for this assignment.</span>
                     </span>
                 </label>
-                <input type="number" id="BatchID">
+                <input type="number" id="BatchID" readonly>
 
                 <div></div>
 
@@ -73,16 +73,73 @@
 
             <div class="button-container">
                 <button class="btn save-btn">Save</button>
-                <button class="btn nav-btn">◀</button>
-                <button class="btn nav-btn">▶</button>
+                <button class="btn previous-btn">◀</button>
+                <button class="btn next-btn">▶</button>
                 <button class="btn exit-btn">Exit</button>
             </div>
 
         </div>
 
     </div>
+<div id="assignmentPopup" class="popup">
+
+    <div class="popup-content">
+
+        <div class="popup-header">
+            <span>Select Assignment</span>
+            <button type="button" onclick="closeAssignmentPopup()">✖</button>
+        </div>
+
+        <table id="assignmentTable" class="popup-table">
+
+            <thead>
+                <tr>
+                    <th>Assignment ID</th>
+                    <th>Title</th>
+                    <th>Batch ID</th>
+                    <th>Due Date</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            </tbody>
+
+        </table>
+
+    </div>
 
 </div>
+<!-- Batch Popup -->
+<div id="batchPopup" class="popup">
 
+    <div class="popup-content">
+
+        <div class="popup-header">
+            <span>Select Batch</span>
+            <button type="button" onclick="closeBatchPopup()">✖</button>
+        </div>
+
+        <table id="batchTable" class="popup-table">
+
+            <thead>
+                <tr>
+                    <th>Batch ID</th>
+                    <th>Batch Name</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+</div>
+<script src="js/db-api.js"></script>
+<script src="js/assignment_master.js"></script>
 </body>
 </html>
