@@ -132,6 +132,46 @@ router.get("/user-types", async (req, res) => {
 
 });
 
+router.get("/users/newid", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+            SELECT NVL(MAX(USER_ID),0)+1
+            FROM USERS
+        `);
+
+        res.json({
+            success: true,
+            user_id: result.rows[0][0]
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+
+            success: false,
+            message: err.message
+
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
 router.get("/users/:id", async (req, res) => {
 
     let connection;
@@ -622,3 +662,50 @@ router.get("/batches", async (req, res) => {
 });
 
 module.exports = router;
+
+router.get("/users", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(
+            `SELECT
+                USER_ID,
+                FIRST_NAME,
+                LAST_NAME
+             FROM USERS
+             ORDER BY USER_ID`
+        );
+
+        const users = result.rows.map(row => ({
+            user_id: row[0],
+            first_name: row[1],
+            last_name: row[2]
+        }));
+
+        res.json(users);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+
+            success: false,
+            message: err.message
+
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});

@@ -1,10 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     loadUserTypes();
+    loadUserIds();
+    loadNewUserId();
 
     document
         .getElementById("findBtn")
         .addEventListener("click", loadUser);
+
+    document
+        .querySelector(".prevButton")
+        .addEventListener("click", goToPrevUser);
+
+    document
+        .querySelector(".nextButton")
+        .addEventListener("click", goToNextUser);
 
     document
         .querySelector(".save-btn")
@@ -14,6 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 let messageTimer;
 let isExistingUser = false;
+
+let allUserIds = [];
+let currentIndex = -1;
 
 function showMessage(message, type = "info") {
 
@@ -67,8 +80,6 @@ function populateForm(user) {
     document.getElementById("MobileNo").value = user.mobile_no;
     document.getElementById("Email").value = user.email;
 
-    // Password is never pre-filled; leave blank so a blank value
-    // on update means "keep existing password" (per the PUT route).
     document.getElementById("Password").value = "";
 
     document.getElementById("DOB").value = user.dob;
@@ -88,6 +99,92 @@ function populateForm(user) {
 
 }
 
+async function loadUserIds() {
+
+    try {
+
+        const response = await DatabaseAPI.get("/api/users");
+
+        const users = Array.isArray(response)
+            ? response
+            : response.data || response.users || [];
+
+        if (!Array.isArray(users) || users.length === 0) {
+
+            console.warn("loadUserIds: no users returned from /api/users", response);
+            allUserIds = [];
+            return;
+
+        }
+
+        allUserIds = users
+            .map(u => Number(u.user_id))
+            .sort((a, b) => a - b);
+
+    }
+    catch (err) {
+
+        console.error("loadUserIds failed:", err);
+        showMessage("Unable to load user list for navigation.", "error");
+
+    }
+
+}
+
+async function loadNewUserId() {
+
+    try {
+
+        const result = await DatabaseAPI.get("/api/users/newid");
+
+        if (!result.success) {
+
+            console.warn("loadNewUserId: unable to fetch next id", result);
+            return;
+
+        }
+
+        document.getElementById("UserID").value = result.user_id;
+
+    }
+    catch (err) {
+
+        console.error("loadNewUserId failed:", err);
+
+    }
+
+}
+
+async function loadUserById(id) {
+
+    try {
+
+        const result = await DatabaseAPI.get("/api/users/" + id);
+
+        if (!result.success) {
+
+            clearForm();
+            document.getElementById("UserID").value = id;
+            showMessage("No existing user found. You can create a new one.", "info");
+            return;
+
+        }
+
+        document.getElementById("UserID").value = id;
+        populateForm(result);
+
+        showMessage("Existing user loaded.", "success");
+
+    }
+    catch (err) {
+
+        console.error(err);
+        showMessage("Error loading user.", "error");
+
+    }
+
+}
+
 async function loadUser() {
 
     const id = document.getElementById("UserID").value;
@@ -99,29 +196,51 @@ async function loadUser() {
 
     }
 
-    try {
+    await loadUserById(id);
 
-        const result = await DatabaseAPI.get("/api/users/" + id);
+    currentIndex = allUserIds.indexOf(Number(id));
 
-        if (!result.success) {
+}
 
-            clearForm();
-            showMessage("No existing user found. You can create a new one.", "info");
-            return;
+async function goToPrevUser() {
 
-        }
+    if (allUserIds.length === 0) {
 
-        populateForm(result);
-
-        showMessage("Existing user loaded.", "success");
+        showMessage("No users to navigate.", "info");
+        return;
 
     }
-    catch (err) {
 
-        console.error(err);
-        showMessage("Error searching for user.", "error");
+    if (currentIndex <= 0) {
+
+        showMessage("Already at the first user.", "info");
+        return;
 
     }
+
+    currentIndex--;
+    await loadUserById(allUserIds[currentIndex]);
+
+}
+
+async function goToNextUser() {
+
+    if (allUserIds.length === 0) {
+
+        showMessage("No users to navigate.", "info");
+        return;
+
+    }
+
+    if (currentIndex >= allUserIds.length - 1) {
+
+        showMessage("Already at the last user.", "info");
+        return;
+
+    }
+
+    currentIndex++;
+    await loadUserById(allUserIds[currentIndex]);
 
 }
 
@@ -209,7 +328,6 @@ function validateForm(data) {
         return false;
     }
 
-    // Password only required when creating a brand-new user.
     if (!isExistingUser) {
 
         if (!data.password) {
@@ -263,6 +381,9 @@ async function saveUser() {
         showMessage(result.message || "User saved successfully.", "success");
 
         clearForm();
+
+        await loadUserIds();
+        await loadNewUserId();
 
     }
     catch (err) {
