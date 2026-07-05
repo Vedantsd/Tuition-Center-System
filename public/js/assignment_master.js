@@ -6,6 +6,17 @@ let currentIndex = -1;
 document.addEventListener("DOMContentLoaded", () => {
 
     generateNextAssignmentID();
+    loadAssignmentList();
+    const dueDateInput = document.getElementById("DueDate");
+
+    const today = new Date();
+    const localToday = new Date(
+        today.getTime() - today.getTimezoneOffset() * 60000
+    )
+        .toISOString()
+        .split("T")[0];
+
+    dueDateInput.min = localToday;
 
     document
         .getElementById("findAssignmentBtn")
@@ -215,46 +226,134 @@ async function findAssignment() {
     }
 
 }
+async function loadAssignmentList() {
+
+    try {
+
+        assignmentList = await DatabaseAPI.get("/api/assignments");
+
+        return true;
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        showMessage("Unable to load assignments.", "error");
+
+        return false;
+
+    }
+
+}
 function previousRecord() {
 
-    if (assignmentList.length == 0)
-        return;
+    if (assignmentList.length === 0) {
 
-    if (currentIndex <= 0) {
+        showMessage("No assignment records found.", "info");
 
-        showMessage("First Record", "info");
         return;
 
     }
 
-    currentIndex--;
+    const currentId = Number(
+        document.getElementById("AssignmentID").value
+    );
+
+    currentIndex = assignmentList.findIndex(
+        row => Number(row[0]) === currentId
+    );
+
+    if (currentIndex === -1) {
+
+        currentIndex = assignmentList.length - 1;
+
+    }
+    else if (currentIndex <= 0) {
+
+        showMessage("First Record", "info");
+
+        return;
+
+    }
+    else {
+
+        currentIndex--;
+
+    }
 
     populateForm(assignmentList[currentIndex]);
 
     editMode = true;
 
+    currentAssignmentId = assignmentList[currentIndex][0];
+
     document.querySelector(".save-btn").textContent = "Update";
+    document.getElementById("findAssignmentBtn").textContent = "New";
+
+    document.getElementById("AssignmentID").readOnly = true;
 
 }
 function nextRecord() {
 
-    if (assignmentList.length == 0)
-        return;
+    if (assignmentList.length === 0) {
 
-    if (currentIndex >= assignmentList.length - 1) {
+        showMessage("No assignment records found.", "info");
 
-        showMessage("Last Record", "info");
         return;
 
     }
 
-    currentIndex++;
+    const currentId = Number(
+        document.getElementById("AssignmentID").value
+    );
+
+    currentIndex = assignmentList.findIndex(
+        row => Number(row[0]) === currentId
+    );
+
+    if (currentIndex === -1) {
+
+        currentIndex = 0;
+
+    }
+    else if (currentIndex >= assignmentList.length - 1) {
+
+    clearForm();
+
+    editMode = false;
+    currentAssignmentId = null;
+    currentIndex = -1;
+
+    document.querySelector(".save-btn").textContent = "Save";
+
+    document.getElementById("findAssignmentBtn").textContent = "Find";
+
+    document.getElementById("AssignmentID").readOnly = true;
+
+    generateNextAssignmentID();
+
+    showMessage("New assignment record.", "info");
+
+    return;
+
+}
+    else {
+
+        currentIndex++;
+
+    }
 
     populateForm(assignmentList[currentIndex]);
 
     editMode = true;
 
+    currentAssignmentId = assignmentList[currentIndex][0];
+
     document.querySelector(".save-btn").textContent = "Update";
+    document.getElementById("findAssignmentBtn").textContent = "New";
+
+    document.getElementById("AssignmentID").readOnly = true;
 
 }
 
@@ -385,6 +484,8 @@ async function saveAssignment() {
 
         await generateNextAssignmentID();
 
+        await loadAssignmentList();
+
     }
 
     catch (err) {
@@ -427,6 +528,24 @@ function validateForm() {
 
         return false;
 
+    }
+    const selectedDate = document.getElementById("DueDate").value;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const dueDate = new Date(selectedDate + "T00:00:00");
+
+    if (dueDate < today) {
+
+        showMessage(
+            "Due Date cannot be before today's date.",
+            "error"
+        );
+
+        document.getElementById("DueDate").focus();
+
+        return false;
     }
 
     return true;

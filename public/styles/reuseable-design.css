@@ -395,3 +395,9 @@ body{
     background:#d9ebff;
 
 }
+.assignment-id-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
