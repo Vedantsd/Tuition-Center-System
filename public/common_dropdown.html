@@ -1,56 +1,137 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>LOV Master</title>
-    <link rel="stylesheet" href="styles/common_dropdown.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOV Master</title>
+
+<link rel="stylesheet" href="styles/reuseable-design.css">
 </head>
 
 <body>
 
-<div id="outerbox">
-    <div id="page">
+<div class="body">
+<div class="content">
 
-        <div id="mainHeading">Time Table Management System</div>
+    <div class="main">
 
-        <div id="subHeading">LOV Master</div>
+        <div class="form">
 
-        <p id="msg" ></p>
-
-        <div id="formbox" >
-
-            <div class="row">
-                <label>Field Name <span class="star" >*</span> :</label>
-                <input type="text" id="fieldName" >
-                <button type="button" id="modeButton" onclick="mode_change()" >Find</button>
-                <div id="fieldMsg" class="smallMsg" ></div>  
+            <div class="main-title">
+                Tuition Centre System
             </div>
 
-            <div class="row">
-                <label>Option Value <span class="star" >*</span> :</label>
-                <input type="text" id="optionValue" >
-                <div id="optionMsg" class="smallMsg" ></div>
+            <div class="sub-title">
+                LOV Master
             </div>
 
-            <div class="row">
-                <label>Status <span class="star" >*</span> :</label>
-                <input type="text" id="status" >
-                <div id="statusMsg" class="smallMsg" ></div>
+            <div id="msg" class="status-message"></div>
+
+            <!-- Row 1 -->
+            <div class="stackinputs">
+
+                <label for="fieldName">
+                    Field Name <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">
+                            Enter the field name.
+                        </span>
+                    </span>
+                </label>
+
+                <div class="id-find-group">
+                    <input type="text" id="fieldName" class="short-input">
+                    <button
+                        type="button"
+                        id="modeButton"
+                        class="btn find-btn"
+                        onclick="mode_change()">
+                        Find
+                    </button>
+                </div>
+
+                <div></div>
+
+                <label for="status">
+                    Status <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">
+                            Enter the status.
+                        </span>
+                    </span>
+                </label>
+
+                <input type="text" id="status">
+
+            </div>
+
+            <!-- Row 2 -->
+            <div class="stackinputs">
+
+                <label for="optionValue">
+                    Option Value <span class="required">*</span>
+                    <span class="info-icon">ⓘ
+                        <span class="tooltip">
+                            Enter the option value.
+                        </span>
+                    </span>
+                </label>
+
+                <input type="text" id="optionValue">
+
+                <div></div>
+
+                <div></div>
+
+                <div></div>
+
+            </div>
+
+            <div class="button-container">
+
+                <button
+                    type="button"
+                    id="saveBtn"
+                    class="btn save-btn"
+                    onclick="save_data()">
+                    Save
+                </button>
+
+                <button
+                    type="button"
+                    id="prevBtn"
+                    class="btn nav-btn"
+                    onclick="previous_data()">
+                    ◀
+                </button>
+
+                <button
+                    type="button"
+                    id="nextBtn"
+                    class="btn nav-btn"
+                    onclick="next_data()">
+                    ▶
+                </button>
+
+                <button
+                    type="button"
+                    id="exitBtn"
+                    class="btn exit-btn"
+                    onclick="exit_page()">
+                    Exit
+                </button>
+
             </div>
 
         </div>
 
-
-        <div id="buttonBox">
-
-            <button type="button" id="saveBtn" onclick="save_data()" >Save</button>
-            <button type="button" id="prevBtn" onclick="previous_data()"  >Previous</button>
-            <button type="button" id="nextBtn" onclick="next_data()" >Next</button>
-            <button type="button" id="exitBtn" onclick="exit_page()" >Exit</button>
-        </div>
-
-    </div>
     </div>
 
-<script src="js/common_dropdown.js" ></script>
+</div>
+</div>
+
+<script src="js/db-api.js"></script>
+<script src="js/common_dropdown.js"></script>
 
 </body>
 </html>

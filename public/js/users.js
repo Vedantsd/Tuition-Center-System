@@ -6,6 +6,7 @@ let currentIndex = -1;
 document.addEventListener("DOMContentLoaded", () => {
 
     loadUserTypes();
+    loadGenderOptions();
     loadNewUserId();
     loadUserList();
 
@@ -115,10 +116,33 @@ function clearForm() {
 
 }
 
+function setSelectValueCaseInsensitive(selectId, storedValue) {
+
+    const select = document.getElementById(selectId);
+    const target = (storedValue || "").toLowerCase();
+
+    let matched = false;
+
+    for (const option of select.options) {
+
+        if (option.value.toLowerCase() === target) {
+
+            select.value = option.value;
+            matched = true;
+            break;
+
+        }
+
+    }
+
+    if (!matched)
+        select.value = "";
+
+}
+
 function populateForm(user) {
 
     document.getElementById("UserID").value = user.user_id ?? "";
-    document.getElementById("UserType").value = user.user_type ?? "";
     document.getElementById("FirstName").value = user.first_name ?? "";
     document.getElementById("LastName").value = user.last_name ?? "";
     document.getElementById("MobileNo").value = user.mobile_no ?? "";
@@ -131,12 +155,8 @@ function populateForm(user) {
     document.getElementById("Qualification").value = user.qualification ?? "";
     document.getElementById("JoiningDate").value = user.joining_date ?? "";
 
-    if (user.gender === "M")
-        document.getElementById("Gender").value = "Male";
-    else if (user.gender === "F")
-        document.getElementById("Gender").value = "Female";
-    else
-        document.getElementById("Gender").value = "Other";
+    setSelectValueCaseInsensitive("UserType", user.user_type);
+    setSelectValueCaseInsensitive("Gender", user.gender);
 
     isExistingUser = true;
     setSaveButtonText("Update");
@@ -381,14 +401,25 @@ async function loadUserTypes() {
 
     try {
 
-        const userTypes = await DatabaseAPI.get("/api/user-types");
+        const result = await DatabaseAPI.get(
+            "/api/lookup-values/active?type=user_type"
+        );
 
-        userTypes.forEach(type => {
+        if (!result.success) {
+
+            showMessage("Unable to load user types.", "error");
+            return;
+
+        }
+
+        result.data.forEach(item => {
 
             const option = document.createElement("option");
 
-            option.value = type.user_type_id;
-            option.textContent = type.user_type;
+            option.value = item.lookup_value;
+            option.textContent =
+                item.lookup_value.charAt(0).toUpperCase() +
+                item.lookup_value.slice(1);
 
             select.appendChild(option);
 
@@ -399,6 +430,48 @@ async function loadUserTypes() {
 
         console.error(err);
         showMessage("Unable to load user types.", "error");
+
+    }
+
+}
+
+async function loadGenderOptions() {
+
+    const select = document.getElementById("Gender");
+
+    select.innerHTML = '<option value="">--Select--</option>';
+
+    try {
+
+        const result = await DatabaseAPI.get(
+            "/api/lookup-values/active?type=gender"
+        );
+
+        if (!result.success) {
+
+            showMessage("Unable to load gender options.", "error");
+            return;
+
+        }
+
+        result.data.forEach(item => {
+
+            const option = document.createElement("option");
+
+            option.value = item.lookup_value;
+            option.textContent =
+                item.lookup_value.charAt(0).toUpperCase() +
+                item.lookup_value.slice(1);
+
+            select.appendChild(option);
+
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+        showMessage("Unable to load gender options.", "error");
 
     }
 
