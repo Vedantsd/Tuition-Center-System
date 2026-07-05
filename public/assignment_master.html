@@ -34,7 +34,10 @@
                         <span class="tooltip">Enter a unique assignment ID.</span>
                     </span>
                 </label>
-                <input type="number" id="AssignmentID" readonly required>
+                <div class="id-find-group">
+                    <input class="short-input" type="number" id="AssignmentID" readonly required>
+                    <button type="button" class="btn find-btn" id="findAssignmentBtn">Find</button>
+                </div>
 
                 <div></div>
 
@@ -57,7 +60,7 @@
                         <span class="tooltip">Enter the batch ID for this assignment.</span>
                     </span>
                 </label>
-                <input type="number" id="BatchID" readonly>
+                <input class="short-input" type="number" id="BatchID" readonly>
 
                 <div></div>
 
@@ -81,35 +84,6 @@
         </div>
 
     </div>
-<div id="assignmentPopup" class="popup">
-
-    <div class="popup-content">
-
-        <div class="popup-header">
-            <span>Select Assignment</span>
-            <button type="button" onclick="closeAssignmentPopup()">✖</button>
-        </div>
-
-        <table id="assignmentTable" class="popup-table">
-
-            <thead>
-                <tr>
-                    <th>Assignment ID</th>
-                    <th>Title</th>
-                    <th>Batch ID</th>
-                    <th>Due Date</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
 <!-- Batch Popup -->
 <div id="batchPopup" class="popup">
 

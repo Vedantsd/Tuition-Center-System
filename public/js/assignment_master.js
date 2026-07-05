@@ -4,16 +4,31 @@ let messageTimer = null;
 let assignmentList = [];
 let currentIndex = -1;
 document.addEventListener("DOMContentLoaded", () => {
+
     generateNextAssignmentID();
+
+    document
+        .getElementById("findAssignmentBtn")
+        .addEventListener("click", handleFindNew);
+
     document
         .getElementById("AssignmentID")
-        .addEventListener("click", openAssignmentPopup);
+        .addEventListener("keydown", function (event) {
+
+            if (event.key === "Enter" && !this.readOnly) {
+                findAssignment();
+            }
+
+        });
+
     document
         .getElementById("BatchID")
         .addEventListener("click", openBatchPopup);
+
     document
         .querySelector(".save-btn")
         .addEventListener("click", saveAssignment);
+
     document
         .querySelector(".previous-btn")
         .addEventListener("click", previousRecord);
@@ -21,7 +36,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document
         .querySelector(".next-btn")
         .addEventListener("click", nextRecord);
-      });
+
+});
 
 async function generateNextAssignmentID() {
 
@@ -104,85 +120,100 @@ function populateForm(row) {
     document.getElementById("DueDate").value = row[3];
 
 }
+function handleFindNew() {
 
-async function openAssignmentPopup() {
+    const button = document.getElementById("findAssignmentBtn");
+    const assignmentInput = document.getElementById("AssignmentID");
+
+    if (button.textContent === "Find") {
+
+        clearForm();
+
+        assignmentInput.value = "";
+        assignmentInput.readOnly = false;
+        assignmentInput.focus();
+
+        button.textContent = "New";
+
+        editMode = false;
+
+        document.querySelector(".save-btn").textContent = "Save";
+
+        showMessage("Enter Assignment ID and press Enter.", "info");
+
+    }
+    else {
+
+        clearForm();
+
+        assignmentInput.readOnly = true;
+
+        button.textContent = "Find";
+
+        generateNextAssignmentID();
+
+    }
+
+}
+async function findAssignment() {
+
+    const assignmentInput = document.getElementById("AssignmentID");
+
+    const assignmentId = assignmentInput.value.trim();
+
+    if (assignmentId === "") {
+
+        showMessage("Enter Assignment ID.", "error");
+
+        assignmentInput.focus();
+
+        return;
+
+    }
 
     try {
 
-        const popup = document.getElementById("assignmentPopup");
+        const result = await DatabaseAPI.get(
+            "/api/assignments/" + assignmentId
+        );
 
-        const input = document.getElementById("AssignmentID");
+        if (!result.success) {
 
-        popup.style.display = "block";
+            clearForm();
 
-        popup.style.width = "600px";
+            showMessage("Assignment not found.", "error");
 
-        popup.style.left = input.offsetLeft + "px";
+            assignmentInput.focus();
 
-        popup.style.top = (input.offsetTop + input.offsetHeight + 2) + "px";
+            return;
 
-        const tbody = document.querySelector("#assignmentTable tbody");
+        }
 
-        tbody.innerHTML = "";
+        assignmentInput.value = result.assignment_id;
 
-        const assignments = await DatabaseAPI.get("/api/assignments");
-        assignmentList = assignments;
+        document.getElementById("Title").value = result.title;
 
-        assignments.forEach(row => {
+        document.getElementById("BatchID").value = result.batch_id;
 
-            const tr = document.createElement("tr");
+        document.getElementById("DueDate").value = result.due_date;
 
-            tr.innerHTML = `
-                <td>${row[0]}</td>
-                <td>${row[1]}</td>
-                <td>${row[2]}</td>
-                <td>${row[3]}</td>
-            `;
+        editMode = true;
 
-            tr.onclick = function () {
+        currentAssignmentId = result.assignment_id;
 
-                selectAssignment(row);
+        document.querySelector(".save-btn").textContent = "Update";
 
-            };
-
-            tbody.appendChild(tr);
-
-        });
+        showMessage("Assignment loaded successfully.", "success");
 
     }
     catch (err) {
 
         console.error(err);
 
-        showMessage("Unable to load assignments", "error");
+        showMessage("Unable to find assignment.", "error");
 
     }
 
-}
-
-function closeAssignmentPopup() {
-
-    document.getElementById("assignmentPopup").style.display = "none";
-
-}
-
-
-function selectAssignment(row) {
-
-    populateForm(row);
-
-    editMode = true;
-
-    currentAssignmentId = row[0];
-
-    document.querySelector(".save-btn").textContent = "Update";
-
-    closeAssignmentPopup();
-
-    showMessage("Assignment loaded successfully.", "success");
-    currentIndex = assignmentList.findIndex(
-        item => item[0] == row[0]
-    );
 }
 function previousRecord() {
 
@@ -401,17 +432,12 @@ function validateForm() {
     return true;
 
 }
-document.addEventListener("click", function(e){
+document.addEventListener("click", function(e) {
 
-    if(!e.target.closest("#assignmentPopup") &&
-       !e.target.closest("#AssignmentID")){
-
-        closeAssignmentPopup();
-
-    }
-
-    if(!e.target.closest("#batchPopup") &&
-       !e.target.closest("#BatchID")){
+    if (
+        !e.target.closest("#batchPopup") &&
+        !e.target.closest("#BatchID")
+    ) {
 
         closeBatchPopup();
 
