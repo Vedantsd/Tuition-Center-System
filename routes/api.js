@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const router = express.Router();
 const getConnection = require("../config/oracle");
+const oracledb = require("oracledb");
 
 router.post("/users", async (req, res) => {
 
@@ -697,6 +698,307 @@ router.get("/batches", async (req, res) => {
             success: false,
             message: err.message
 
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/courses/newid", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+            SELECT NVL(MAX(COURSE_ID),0)+1
+            FROM COURSES
+        `);
+
+        res.json({
+            success: true,
+            course_id: result.rows[0][0]
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/courses/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(
+            `SELECT
+                COURSE_ID,
+                COURSE_NAME,
+                CLASS_NAME,
+                DIVISION_NAME,
+                SUBJECTS,
+                DURATION_MONTHS,
+                TO_CHAR(START_DATE,'YYYY-MM-DD'),
+                TO_CHAR(END_DATE,'YYYY-MM-DD'),
+                FEE_AMOUNT
+             FROM COURSES
+             WHERE COURSE_ID = :id`,
+            {
+                id: req.params.id
+            },
+            {
+                fetchInfo: {
+                    "SUBJECTS": { type: oracledb.STRING }
+                }
+            }
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.json({
+                success: false,
+                message: "Course not found."
+            });
+
+        }
+
+        const row = result.rows[0];
+
+        res.json({
+
+            success: true,
+
+            course_id: row[0],
+            course_name: row[1],
+            class_name: row[2],
+            division_name: row[3],
+            subjects: row[4],
+            duration_months: row[5],
+            start_date: row[6],
+            end_date: row[7],
+            fee_amount: row[8]
+
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/courses", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(
+            `SELECT
+                COURSE_ID,
+                COURSE_NAME
+             FROM COURSES
+             ORDER BY COURSE_ID`
+        );
+
+        const courses = result.rows.map(row => ({
+            course_id: row[0],
+            course_name: row[1]
+        }));
+
+        res.json(courses);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.post("/courses", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const sql = `
+        INSERT INTO COURSES
+        (
+            COURSE_ID,
+            COURSE_NAME,
+            CLASS_NAME,
+            DIVISION_NAME,
+            SUBJECTS,
+            DURATION_MONTHS,
+            START_DATE,
+            END_DATE,
+            FEE_AMOUNT
+        )
+        VALUES
+        (
+            :course_id,
+            :course_name,
+            :class_name,
+            :division_name,
+            :subjects,
+            :duration_months,
+            TO_DATE(:start_date,'YYYY-MM-DD'),
+            TO_DATE(:end_date,'YYYY-MM-DD'),
+            :fee_amount
+        )
+        `;
+
+        await connection.execute(sql, {
+
+            course_id: req.body.course_id,
+            course_name: req.body.course_name,
+            class_name: req.body.class_name,
+            division_name: req.body.division_name,
+            subjects: req.body.subjects,
+            duration_months: req.body.duration_months,
+            start_date: req.body.start_date,
+            end_date: req.body.end_date,
+            fee_amount: req.body.fee_amount
+
+        }, {
+            autoCommit: true
+        });
+
+        res.json({
+            success: true,
+            message: "Course saved successfully."
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.put("/courses/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const sql = `
+            UPDATE COURSES SET
+
+                COURSE_NAME = :course_name,
+                CLASS_NAME = :class_name,
+                DIVISION_NAME = :division_name,
+                SUBJECTS = :subjects,
+                DURATION_MONTHS = :duration_months,
+                START_DATE = TO_DATE(:start_date,'YYYY-MM-DD'),
+                END_DATE = TO_DATE(:end_date,'YYYY-MM-DD'),
+                FEE_AMOUNT = :fee_amount
+
+            WHERE COURSE_ID = :course_id
+        `;
+
+        const binds = {
+
+            course_id: req.params.id,
+            course_name: req.body.course_name,
+            class_name: req.body.class_name,
+            division_name: req.body.division_name,
+            subjects: req.body.subjects,
+            duration_months: req.body.duration_months,
+            start_date: req.body.start_date,
+            end_date: req.body.end_date,
+            fee_amount: req.body.fee_amount
+
+        };
+
+        await connection.execute(sql, binds, {
+            autoCommit: true
+        });
+
+        res.json({
+            success: true,
+            message: "Course updated successfully."
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
         });
 
     }
