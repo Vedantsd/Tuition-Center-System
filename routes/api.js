@@ -11,7 +11,6 @@ router.post("/users", async (req, res) => {
 
         connection = await getConnection();
 
-        // Hash password
         const passwordHash = await bcrypt.hash(req.body.password, 10);
 
         const sql = `
@@ -56,7 +55,7 @@ router.post("/users", async (req, res) => {
             mobile_no: req.body.mobile_no,
             email: req.body.email,
             password_hash: passwordHash,
-            gender: req.body.gender.charAt(0), // F, M or O
+            gender: req.body.gender.charAt(0),
             dob: req.body.dob,
             address: req.body.address,
             qualification: req.body.qualification,
@@ -171,6 +170,10 @@ router.get("/users/newid", async (req, res) => {
     }
 
 });
+
+// IMPORTANT: this must stay ABOVE "/users/:id" — otherwise
+// "/users/newid" would incorrectly match the :id pattern.
+// (It already does in this file — keep it that way.)
 
 router.get("/users/:id", async (req, res) => {
 
@@ -351,6 +354,55 @@ router.put("/users/:id", async (req, res) => {
             message: "User updated successfully."
 
         });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+
+            success: false,
+            message: err.message
+
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+// Moved above module.exports — was previously defined AFTER the export,
+// which is unsafe/fragile route placement.
+router.get("/users", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(
+            `SELECT
+                USER_ID,
+                FIRST_NAME,
+                LAST_NAME
+             FROM USERS
+             ORDER BY USER_ID`
+        );
+
+        const users = result.rows.map(row => ({
+            user_id: row[0],
+            first_name: row[1],
+            last_name: row[2]
+        }));
+
+        res.json(users);
 
     }
     catch (err) {
@@ -615,10 +667,6 @@ router.put("/assignments/:id", async(req,res)=>{
 
 });
 
-// =======================
-// Get All Batches
-// =======================
-
 router.get("/batches", async (req, res) => {
 
     let connection;
@@ -662,50 +710,3 @@ router.get("/batches", async (req, res) => {
 });
 
 module.exports = router;
-
-router.get("/users", async (req, res) => {
-
-    let connection;
-
-    try {
-
-        connection = await getConnection();
-
-        const result = await connection.execute(
-            `SELECT
-                USER_ID,
-                FIRST_NAME,
-                LAST_NAME
-             FROM USERS
-             ORDER BY USER_ID`
-        );
-
-        const users = result.rows.map(row => ({
-            user_id: row[0],
-            first_name: row[1],
-            last_name: row[2]
-        }));
-
-        res.json(users);
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-
-            success: false,
-            message: err.message
-
-        });
-
-    }
-    finally {
-
-        if (connection)
-            await connection.close();
-
-    }
-
-});

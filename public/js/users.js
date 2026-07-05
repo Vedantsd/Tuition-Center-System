@@ -1,32 +1,75 @@
+let messageTimer = null;
+let isExistingUser = false;
+let userList = [];
+let currentIndex = -1;
+
 document.addEventListener("DOMContentLoaded", () => {
 
     loadUserTypes();
-    loadUserIds();
     loadNewUserId();
+    loadUserList();
 
     document
         .getElementById("findBtn")
-        .addEventListener("click", loadUser);
+        .addEventListener("click", handleFindNew);
 
     document
-        .querySelector(".prevButton")
-        .addEventListener("click", goToPrevUser);
+        .getElementById("UserID")
+        .addEventListener("keydown", function (event) {
 
-    document
-        .querySelector(".nextButton")
-        .addEventListener("click", goToNextUser);
+            if (event.key === "Enter" && !this.readOnly) {
+                findUser();
+            }
+
+        });
 
     document
         .querySelector(".save-btn")
         .addEventListener("click", saveUser);
 
+    document
+        .querySelector(".prevButton")
+        .addEventListener("click", previousRecord);
+
+    document
+        .querySelector(".nextButton")
+        .addEventListener("click", nextRecord);
+
 });
 
-let messageTimer;
-let isExistingUser = false;
+async function loadNewUserId() {
 
-let allUserIds = [];
-let currentIndex = -1;
+    try {
+
+        const result = await DatabaseAPI.get("/api/users/newid");
+
+        if (!result.success) {
+
+            showMessage(result.message, "error");
+            return;
+
+        }
+
+        document.getElementById("UserID").value = result.user_id;
+
+        document.getElementById("UserID").readOnly = true;
+
+        document.getElementById("findBtn").textContent = "Find";
+
+        isExistingUser = false;
+
+        setSaveButtonText("Save");
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        showMessage("Unable to generate User ID", "error");
+
+    }
+
+}
 
 function showMessage(message, type = "info") {
 
@@ -43,7 +86,7 @@ function showMessage(message, type = "info") {
         status.className = "status-message";
         status.textContent = "";
 
-    }, 5000);
+    }, 4000);
 
 }
 
@@ -74,18 +117,19 @@ function clearForm() {
 
 function populateForm(user) {
 
-    document.getElementById("UserType").value = user.user_type;
-    document.getElementById("FirstName").value = user.first_name;
-    document.getElementById("LastName").value = user.last_name;
-    document.getElementById("MobileNo").value = user.mobile_no;
-    document.getElementById("Email").value = user.email;
+    document.getElementById("UserID").value = user.user_id ?? "";
+    document.getElementById("UserType").value = user.user_type ?? "";
+    document.getElementById("FirstName").value = user.first_name ?? "";
+    document.getElementById("LastName").value = user.last_name ?? "";
+    document.getElementById("MobileNo").value = user.mobile_no ?? "";
+    document.getElementById("Email").value = user.email ?? "";
 
     document.getElementById("Password").value = "";
 
-    document.getElementById("DOB").value = user.dob;
-    document.getElementById("Address").value = user.address;
-    document.getElementById("Qualification").value = user.qualification;
-    document.getElementById("JoiningDate").value = user.joining_date;
+    document.getElementById("DOB").value = user.dob ?? "";
+    document.getElementById("Address").value = user.address ?? "";
+    document.getElementById("Qualification").value = user.qualification ?? "";
+    document.getElementById("JoiningDate").value = user.joining_date ?? "";
 
     if (user.gender === "M")
         document.getElementById("Gender").value = "Male";
@@ -99,7 +143,90 @@ function populateForm(user) {
 
 }
 
-async function loadUserIds() {
+function handleFindNew() {
+
+    const button = document.getElementById("findBtn");
+    const userIdInput = document.getElementById("UserID");
+
+    if (button.textContent === "Find") {
+
+        clearForm();
+
+        userIdInput.value = "";
+        userIdInput.readOnly = false;
+        userIdInput.focus();
+
+        button.textContent = "New";
+
+        isExistingUser = false;
+
+        setSaveButtonText("Save");
+
+        showMessage("Enter User ID and press Enter.", "info");
+
+    }
+    else {
+
+        clearForm();
+
+        userIdInput.readOnly = true;
+
+        button.textContent = "Find";
+
+        loadNewUserId();
+
+    }
+
+}
+
+async function findUser() {
+
+    const userIdInput = document.getElementById("UserID");
+
+    const userId = userIdInput.value.trim();
+
+    if (userId === "") {
+
+        showMessage("Enter User ID.", "error");
+
+        userIdInput.focus();
+
+        return;
+
+    }
+
+    try {
+
+        const result = await DatabaseAPI.get("/api/users/" + userId);
+
+        if (!result.success) {
+
+            clearForm();
+
+            showMessage("User not found.", "error");
+
+            userIdInput.focus();
+
+            return;
+
+        }
+
+        populateForm(result);
+
+        showMessage("User loaded successfully.", "success");
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        showMessage("Unable to find user.", "error");
+
+    }
+
+}
+
+async function loadUserList() {
 
     try {
 
@@ -109,138 +236,140 @@ async function loadUserIds() {
             ? response
             : response.data || response.users || [];
 
-        if (!Array.isArray(users) || users.length === 0) {
-
-            console.warn("loadUserIds: no users returned from /api/users", response);
-            allUserIds = [];
-            return;
-
-        }
-
-        allUserIds = users
+        userList = users
             .map(u => Number(u.user_id))
             .sort((a, b) => a - b);
 
-    }
-    catch (err) {
-
-        console.error("loadUserIds failed:", err);
-        showMessage("Unable to load user list for navigation.", "error");
-
-    }
-
-}
-
-async function loadNewUserId() {
-
-    try {
-
-        const result = await DatabaseAPI.get("/api/users/newid");
-
-        if (!result.success) {
-
-            console.warn("loadNewUserId: unable to fetch next id", result);
-            return;
-
-        }
-
-        document.getElementById("UserID").value = result.user_id;
-
-    }
-    catch (err) {
-
-        console.error("loadNewUserId failed:", err);
-
-    }
-
-}
-
-async function loadUserById(id) {
-
-    try {
-
-        const result = await DatabaseAPI.get("/api/users/" + id);
-
-        if (!result.success) {
-
-            clearForm();
-            document.getElementById("UserID").value = id;
-            showMessage("No existing user found. You can create a new one.", "info");
-            return;
-
-        }
-
-        document.getElementById("UserID").value = id;
-        populateForm(result);
-
-        showMessage("Existing user loaded.", "success");
+        return true;
 
     }
     catch (err) {
 
         console.error(err);
-        showMessage("Error loading user.", "error");
+
+        showMessage("Unable to load users.", "error");
+
+        return false;
 
     }
 
 }
 
-async function loadUser() {
+async function loadAndPopulateUser(userId) {
 
-    const id = document.getElementById("UserID").value;
+    try {
 
-    if (!id) {
+        const result = await DatabaseAPI.get("/api/users/" + userId);
 
-        showMessage("Please enter a User ID to search.", "error");
-        return;
+        if (!result.success) {
+
+            showMessage("User not found.", "error");
+            return;
+
+        }
+
+        populateForm(result);
+
+        document.getElementById("findBtn").textContent = "New";
+
+        document.getElementById("UserID").readOnly = true;
 
     }
+    catch (err) {
 
-    await loadUserById(id);
+        console.error(err);
 
-    currentIndex = allUserIds.indexOf(Number(id));
+        showMessage("Unable to load user.", "error");
+
+    }
 
 }
 
-async function goToPrevUser() {
+async function previousRecord() {
 
-    if (allUserIds.length === 0) {
+    if (userList.length === 0) {
 
-        showMessage("No users to navigate.", "info");
+        showMessage("No user records found.", "info");
+
         return;
 
     }
 
-    if (currentIndex <= 0) {
+    const currentId = Number(
+        document.getElementById("UserID").value
+    );
 
-        showMessage("Already at the first user.", "info");
+    currentIndex = userList.indexOf(currentId);
+
+    if (currentIndex === -1) {
+
+        currentIndex = userList.length - 1;
+
+    }
+    else if (currentIndex <= 0) {
+
+        showMessage("First Record", "info");
+
         return;
 
     }
+    else {
 
-    currentIndex--;
-    await loadUserById(allUserIds[currentIndex]);
+        currentIndex--;
+
+    }
+
+    await loadAndPopulateUser(userList[currentIndex]);
 
 }
 
-async function goToNextUser() {
+async function nextRecord() {
 
-    if (allUserIds.length === 0) {
+    if (userList.length === 0) {
 
-        showMessage("No users to navigate.", "info");
+        showMessage("No user records found.", "info");
+
         return;
 
     }
 
-    if (currentIndex >= allUserIds.length - 1) {
+    const currentId = Number(
+        document.getElementById("UserID").value
+    );
 
-        showMessage("Already at the last user.", "info");
+    currentIndex = userList.indexOf(currentId);
+
+    if (currentIndex === -1) {
+
+        currentIndex = 0;
+
+    }
+    else if (currentIndex >= userList.length - 1) {
+
+        clearForm();
+
+        currentIndex = -1;
+
+        setSaveButtonText("Save");
+
+        document.getElementById("findBtn").textContent = "Find";
+
+        document.getElementById("UserID").readOnly = true;
+
+        loadNewUserId();
+
+        showMessage("New user record.", "info");
+
         return;
 
     }
+    else {
 
-    currentIndex++;
-    await loadUserById(allUserIds[currentIndex]);
+        currentIndex++;
+
+    }
+
+    await loadAndPopulateUser(userList[currentIndex]);
 
 }
 
@@ -375,15 +504,12 @@ async function saveUser() {
 
         }
 
-        isExistingUser = true;
-        setSaveButtonText("Update");
-
         showMessage(result.message || "User saved successfully.", "success");
 
         clearForm();
 
-        await loadUserIds();
         await loadNewUserId();
+        await loadUserList();
 
     }
     catch (err) {
