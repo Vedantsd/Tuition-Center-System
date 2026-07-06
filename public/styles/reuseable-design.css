@@ -144,6 +144,71 @@ body{
 .nav-btn:hover{
     background:#5535d6;
 }
+.assignment-nav-btn {
+    background: #6C4CF1;
+    color: white;
+}
+
+.assignment-nav-btn:hover {
+    background: #5535d6;
+}
+
+.mode-toggle {
+    display: flex;
+    height: 52px;
+    border: 2px solid #6C4CF1;
+    border-radius: 12px;
+    overflow: hidden;
+    flex: none;
+}
+
+.mode-btn {
+    border: none;
+    background: white;
+    color: #6C4CF1;
+    padding: 0 18px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.mode-btn + .mode-btn {
+    border-left: 1px solid #6C4CF1;
+}
+
+.mode-btn:hover {
+    background: #6C4CF1;
+    color: white;
+}
+
+.assignment-mode-toggle {
+    display: flex;
+    height: 52px;
+    border: 2px solid #1677ff;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.assignment-mode-btn {
+    border: none;
+    background: #ffffff;
+    color: #1677ff;
+    padding: 0 16px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.assignment-mode-btn + .assignment-mode-btn {
+    border-left: 1px solid #1677ff;
+}
+
+.assignment-mode-btn.active {
+    background: #1677ff;
+    color: #ffffff;
+}
+
 
 .exit-btn{
     background:#FFEAEA;
