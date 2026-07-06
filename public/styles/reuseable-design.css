@@ -70,8 +70,6 @@ body{
     font-weight:600;
 }
 
-/*================ FORM =================*/
-
 .stackinputs{
     display:grid;
     grid-template-columns:170px  1fr 60px 170px 1fr ;
@@ -107,8 +105,6 @@ body{
 .required{
     color:red;
 }
-
-/*================ BUTTONS =================*/
 
 .button-container{
     margin-top:40px;
@@ -220,7 +216,6 @@ body{
     background:#ffd8d8;
 }
 
-/*================ STATUS =================*/
 
 .status-message{
     min-height:25px;
@@ -241,7 +236,6 @@ body{
     color:#0d6efd;
 }
 
-/*================ MOBILE =================*/
 
 @media(max-width:900px){
 
@@ -268,7 +262,6 @@ body{
     }
 }
 
-/*================== INFO ICON ================*/
 
 .info-icon{
     position:relative;
