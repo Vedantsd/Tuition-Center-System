@@ -11,8 +11,12 @@ document.addEventListener("DOMContentLoaded", () => {
     loadUserList();
 
     document
-        .getElementById("findBtn")
-        .addEventListener("click", handleFindNew);
+        .getElementById("newModeBtn")
+        .addEventListener("click", startNewMode);
+
+    document
+        .getElementById("findModeBtn")
+        .addEventListener("click", startFindMode);
 
     document
         .getElementById("UserID")
@@ -38,6 +42,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+function setActiveMode(mode) {
+
+    document.getElementById("newModeBtn").classList.remove("active");
+    document.getElementById("findModeBtn").classList.remove("active");
+
+    if (mode === "new") {
+        document.getElementById("newModeBtn").classList.add("active");
+    }
+    else if (mode === "find") {
+        document.getElementById("findModeBtn").classList.add("active");
+    }
+
+}
+
 async function loadNewUserId() {
 
     try {
@@ -52,14 +70,12 @@ async function loadNewUserId() {
         }
 
         document.getElementById("UserID").value = result.user_id;
-
         document.getElementById("UserID").readOnly = true;
-
-        document.getElementById("findBtn").textContent = "New";
 
         isExistingUser = false;
 
         setSaveButtonText("Save");
+        setActiveMode("new");
 
     }
     catch (err) {
@@ -163,39 +179,41 @@ function populateForm(user) {
 
 }
 
-function handleFindNew() {
+function startNewMode() {
 
-    const button = document.getElementById("findBtn");
+    clearForm();
+
+    isExistingUser = false;
+
     const userIdInput = document.getElementById("UserID");
 
-    if (button.textContent === "New") {
+    userIdInput.readOnly = true;
 
-        clearForm();
+    setSaveButtonText("Save");
 
-        userIdInput.value = "";
-        userIdInput.readOnly = false;
-        userIdInput.focus();
+    setActiveMode("new");
 
-        button.textContent = "Find";
+    loadNewUserId();
 
-        isExistingUser = false;
+}
 
-        setSaveButtonText("Save");
+function startFindMode() {
 
-        showMessage("Enter User ID and press Enter.", "info");
+    clearForm();
 
-    }
-    else {
+    isExistingUser = false;
 
-        clearForm();
+    const userIdInput = document.getElementById("UserID");
 
-        userIdInput.readOnly = true;
+    userIdInput.value = "";
+    userIdInput.readOnly = false;
+    userIdInput.focus();
 
-        button.textContent = "New";
+    setSaveButtonText("Save");
 
-        loadNewUserId();
+    setActiveMode("find");
 
-    }
+    showMessage("Enter User ID and press Enter.", "info");
 
 }
 
@@ -232,6 +250,7 @@ async function findUser() {
         }
 
         populateForm(result);
+        setActiveMode("find");
 
         showMessage("User loaded successfully.", "success");
 
@@ -289,8 +308,7 @@ async function loadAndPopulateUser(userId) {
         }
 
         populateForm(result);
-
-        document.getElementById("findBtn").textContent = "Find";
+        setActiveMode("find");
 
         document.getElementById("UserID").readOnly = true;
 
@@ -382,8 +400,6 @@ async function nextRecord() {
 
         setSaveButtonText("Save");
 
-        document.getElementById("findBtn").textContent = "New";
-
         document.getElementById("UserID").readOnly = true;
 
         loadNewUserId();
@@ -457,9 +473,24 @@ async function loadGenderOptions() {
             "/api/lookup-values/active?type=gender"
         );
 
-        if (!result.success) {
+        console.log("Gender lookup response:", result);
+
+        if (!result || !result.success) {
 
             showMessage("Unable to load gender options.", "error");
+            return;
+
+        }
+
+        if (!Array.isArray(result.data) || result.data.length === 0) {
+
+            console.warn(
+                "Gender lookup returned no rows. Check that " +
+                "/api/lookup-values/active?type=gender has active " +
+                "records with lookup_type = 'gender' in the database."
+            );
+
+            showMessage("No gender options configured.", "info");
             return;
 
         }
@@ -590,6 +621,8 @@ async function saveUser() {
         showMessage(result.message || "User saved successfully.", "success");
 
         clearForm();
+
+        document.getElementById("UserID").readOnly = true;
 
         await loadNewUserId();
         await loadUserList();
