@@ -294,6 +294,8 @@ async function loadAndPopulateUser(userId) {
 
         document.getElementById("UserID").readOnly = true;
 
+        showMessage("Existing record loaded.", "success");
+
     }
     catch (err) {
 
@@ -344,6 +346,14 @@ async function previousRecord() {
 }
 
 async function nextRecord() {
+
+    if (!isExistingUser) {
+
+        showMessage("Already at new data entry.", "info");
+
+        return;
+
+    }
 
     if (userList.length === 0) {
 
