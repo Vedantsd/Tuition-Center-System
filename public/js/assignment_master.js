@@ -5,7 +5,6 @@ let assignmentList = [];
 let currentIndex = -1;
 document.addEventListener("DOMContentLoaded", () => {
 
-    generateNextAssignmentID();
     loadAssignmentList();
     const dueDateInput = document.getElementById("DueDate");
 
@@ -17,10 +16,13 @@ document.addEventListener("DOMContentLoaded", () => {
         .split("T")[0];
 
     dueDateInput.min = localToday;
-
     document
-        .getElementById("findAssignmentBtn")
-        .addEventListener("click", handleFindNew);
+    .getElementById("newModeBtn")
+    .addEventListener("click", startNewMode);
+
+document
+    .getElementById("findModeBtn")
+    .addEventListener("click", startFindMode);
 
     document
         .getElementById("AssignmentID")
@@ -32,9 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         });
 
-    document
-        .getElementById("BatchID")
-        .addEventListener("click", openBatchPopup);
+        loadBatchDropdown();
 
     document
         .querySelector(".save-btn")
@@ -131,39 +131,56 @@ function populateForm(row) {
     document.getElementById("DueDate").value = row[3];
 
 }
-function handleFindNew() {
+function startNewMode() {
 
-    const button = document.getElementById("findAssignmentBtn");
-    const assignmentInput = document.getElementById("AssignmentID");
+    clearForm();
 
-    if (button.textContent === "Find") {
+    editMode = false;
+    currentAssignmentId = null;
 
-        clearForm();
+    document.getElementById("AssignmentID").readOnly = true;
 
-        assignmentInput.value = "";
-        assignmentInput.readOnly = false;
-        assignmentInput.focus();
+    document.querySelector(".save-btn").textContent = "Save";
 
-        button.textContent = "New";
+    hideModeToggle();
 
-        editMode = false;
+    generateNextAssignmentID();
 
-        document.querySelector(".save-btn").textContent = "Save";
+}
+function startFindMode() {
 
-        showMessage("Enter Assignment ID and press Enter.", "info");
+    clearForm();
 
-    }
-    else {
+    editMode = false;
+    currentAssignmentId = null;
 
-        clearForm();
+    const assignmentInput =
+        document.getElementById("AssignmentID");
 
-        assignmentInput.readOnly = true;
+    assignmentInput.value = "";
 
-        button.textContent = "Find";
+    assignmentInput.readOnly = false;
 
-        generateNextAssignmentID();
+    document.querySelector(".save-btn").textContent = "Save";
 
-    }
+    hideModeToggle();
+
+    assignmentInput.focus();
+
+    showMessage(
+        "Enter Assignment ID and press Enter.",
+        "info"
+    );
+
+}
+function hideModeToggle() {
+
+    document.getElementById("modeToggle").style.display = "none";
+
+}
+function showModeToggle() {
+
+    document.getElementById("modeToggle").style.display = "flex";
 
 }
 async function findAssignment() {
@@ -289,7 +306,7 @@ function previousRecord() {
     currentAssignmentId = assignmentList[currentIndex][0];
 
     document.querySelector(".save-btn").textContent = "Update";
-    document.getElementById("findAssignmentBtn").textContent = "New";
+    showModeToggle();
 
     document.getElementById("AssignmentID").readOnly = true;
 
@@ -343,7 +360,6 @@ function nextRecord() {
 
     document.querySelector(".save-btn").textContent = "Save";
 
-    document.getElementById("findAssignmentBtn").textContent = "Find";
 
     document.getElementById("AssignmentID").readOnly = true;
 
@@ -367,52 +383,31 @@ function nextRecord() {
     currentAssignmentId = assignmentList[currentIndex][0];
 
     document.querySelector(".save-btn").textContent = "Update";
-    document.getElementById("findAssignmentBtn").textContent = "New";
+    showModeToggle();
 
     document.getElementById("AssignmentID").readOnly = true;
 
 }
+async function loadBatchDropdown() {
 
-async function openBatchPopup() {
+    const batchDropdown = document.getElementById("BatchID");
 
     try {
 
-        const popup = document.getElementById("batchPopup");
-
-        const input = document.getElementById("BatchID");
-
-        const parent = input.parentElement;
-
-        popup.style.display = "block";
-
-        popup.style.width = input.offsetWidth + "px";
-
-        popup.style.left = input.offsetLeft + "px";
-
-        popup.style.top = (input.offsetTop + input.offsetHeight + 2) + "px";
-
-        const tbody = document.querySelector("#batchTable tbody");
-
-        tbody.innerHTML = "";
-
         const batches = await DatabaseAPI.get("/api/batches");
+
+        batchDropdown.innerHTML =
+            `<option value="">Select Batch</option>`;
 
         batches.forEach(row => {
 
-            const tr = document.createElement("tr");
+            const option = document.createElement("option");
 
-            tr.innerHTML = `
-                <td>${row[0]}</td>
-                <td>${row[1]}</td>
-            `;
+            option.value = row[0];
 
-            tr.onclick = function () {
+            option.textContent = `${row[0]} - ${row[1]}`;
 
-                selectBatch(row);
-
-            };
-
-            tbody.appendChild(tr);
+            batchDropdown.appendChild(option);
 
         });
 
@@ -421,23 +416,9 @@ async function openBatchPopup() {
 
         console.error(err);
 
-        showMessage("Unable to load batches", "error");
+        showMessage("Unable to load batches.", "error");
 
     }
-
-}
-
-function closeBatchPopup() {
-
-    document.getElementById("batchPopup").style.display = "none";
-
-}
-
-function selectBatch(row) {
-
-    document.getElementById("BatchID").value = row[0];
-
-    closeBatchPopup();
 
 }
 
@@ -498,7 +479,17 @@ async function saveAssignment() {
 
         clearForm();
 
-        await generateNextAssignmentID();
+        document.getElementById("AssignmentID").value = "";
+
+        document.getElementById("AssignmentID").readOnly = true;
+
+        editMode = false;
+
+        currentAssignmentId = null;
+
+        document.querySelector(".save-btn").textContent = "Save";
+
+        showModeToggle();
 
         await loadAssignmentList();
 

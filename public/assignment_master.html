@@ -15,6 +15,37 @@
     background: #5535d6;
 }
 </style>
+<style>
+
+.mode-toggle {
+    display: flex;
+    height: 52px;
+    border: 2px solid #0d6efd;
+    border-radius: 12px;
+    overflow: hidden;
+    flex: none;
+}
+
+.mode-btn {
+    border: none;
+    background: white;
+    color: #0d6efd;
+    padding: 0 18px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.mode-btn + .mode-btn {
+    border-left: 1px solid #0d6efd;
+}
+
+.mode-btn:hover {
+    background: #0d6efd;
+    color: white;
+}
+
+</style>
 </head>
 
 <body>
@@ -46,7 +77,19 @@
                 </label>
                 <div class="id-find-group">
                     <input class="short-input" type="number" id="AssignmentID" readonly required>
-                    <button type="button" class="btn find-btn" id="findAssignmentBtn">Find</button>
+                    <div class="mode-toggle" id="modeToggle">
+                    <button type="button"
+                            class="mode-btn"
+                            id="newModeBtn">
+                        New
+                    </button>
+                    <button type="button"
+                            class="mode-btn"
+                            id="findModeBtn">
+                        Find
+                    </button>
+
+                </div>
                 </div>
 
                 <div></div>
@@ -70,7 +113,9 @@
                         <span class="tooltip">Enter the batch ID for this assignment.</span>
                     </span>
                 </label>
-                <input class="short-input" type="number" id="BatchID" readonly>
+                <select class="short-input" id="BatchID">
+                    <option value="">Select Batch</option>
+                </select>
 
                 <div></div>
 
@@ -94,34 +139,6 @@
         </div>
 
     </div>
-<!-- Batch Popup -->
-<div id="batchPopup" class="popup">
-
-    <div class="popup-content">
-
-        <div class="popup-header">
-            <span>Select Batch</span>
-            <button type="button" onclick="closeBatchPopup()">✖</button>
-        </div>
-
-        <table id="batchTable" class="popup-table">
-
-            <thead>
-                <tr>
-                    <th>Batch ID</th>
-                    <th>Batch Name</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
 </div>
 </div>
 <script src="js/db-api.js"></script>
