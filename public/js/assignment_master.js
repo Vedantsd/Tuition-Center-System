@@ -314,9 +314,25 @@ function nextRecord() {
 
     if (currentIndex === -1) {
 
-        currentIndex = 0;
+    const currentId = Number(
+        document.getElementById("AssignmentID").value
+    );
+
+    const lastId = Number(
+        assignmentList[assignmentList.length - 1][0]
+    );
+
+    if (currentId > lastId) {
+
+        showMessage("Already at new record.", "info");
+
+        return;
 
     }
+
+    currentIndex = 0;
+
+}
     else if (currentIndex >= assignmentList.length - 1) {
 
     clearForm();
