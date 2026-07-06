@@ -459,3 +459,27 @@ body{
     gap: 5px;
     white-space: nowrap;
 }
+
+input[readonly] {
+    background-color: #e9ecef;
+    color: #858c93;
+    cursor: not-allowed;
+}
+
+.mode-btn {
+    padding: 8px 16px;
+    background-color: #ffffff;
+    color: #007bff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mode-btn:hover {
+    background-color: #e9f3ff;
+}
+
+.mode-btn.active {
+    background-color: #6C4CF1;
+    color: #ffffff;
+    font-weight: bold;
+}
