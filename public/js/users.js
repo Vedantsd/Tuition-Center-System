@@ -55,7 +55,7 @@ async function loadNewUserId() {
 
         document.getElementById("UserID").readOnly = true;
 
-        document.getElementById("findBtn").textContent = "Find";
+        document.getElementById("findBtn").textContent = "New";
 
         isExistingUser = false;
 
@@ -168,7 +168,7 @@ function handleFindNew() {
     const button = document.getElementById("findBtn");
     const userIdInput = document.getElementById("UserID");
 
-    if (button.textContent === "Find") {
+    if (button.textContent === "New") {
 
         clearForm();
 
@@ -176,7 +176,7 @@ function handleFindNew() {
         userIdInput.readOnly = false;
         userIdInput.focus();
 
-        button.textContent = "New";
+        button.textContent = "Find";
 
         isExistingUser = false;
 
@@ -191,7 +191,7 @@ function handleFindNew() {
 
         userIdInput.readOnly = true;
 
-        button.textContent = "Find";
+        button.textContent = "New";
 
         loadNewUserId();
 
@@ -290,7 +290,7 @@ async function loadAndPopulateUser(userId) {
 
         populateForm(result);
 
-        document.getElementById("findBtn").textContent = "New";
+        document.getElementById("findBtn").textContent = "Find";
 
         document.getElementById("UserID").readOnly = true;
 
@@ -382,7 +382,7 @@ async function nextRecord() {
 
         setSaveButtonText("Save");
 
-        document.getElementById("findBtn").textContent = "Find";
+        document.getElementById("findBtn").textContent = "New";
 
         document.getElementById("UserID").readOnly = true;
 
