@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/reuseable-design.css">
+    <title>Tuition Centre System</title>
+</head>
+
+<body>
+
+    <div class="body">
+        <div class="content">
+
+            <div class="main">
+
+                <div class="form">
+
+                    <div class="main-title">
+                        Tuition Centre System
+                    </div>
+
+                    <div class="sub-title">
+                        Room Master Entry
+                    </div>
+
+                    <div id="statusMessage" class="status-message"></div>
+
+                    <!-- Row 1 -->
+                    <div class="stackinputs">
+
+                        <label for="RoomID">
+                            Room ID <span class="required">*</span>
+                            <span class="info-icon">ⓘ
+                                <span class="tooltip">Enter a unique room ID.</span>
+                            </span>
+                        </label>
+
+                        <div class="id-find-group">
+                            <input type="number" id="RoomID" required class="short-input">
+
+                            <div class="mode-toggle" id="modeToggle">
+                                <button type="button" class="mode-btn" id="newModeBtn">New</button>
+                                <button type="button" class="mode-btn" id="findModeBtn">Find</button>
+                            </div>
+                        </div>
+
+                        <div></div>
+
+                        <label for="BuildingID">
+                            Building ID <span class="required">*</span>
+                            <span class="info-icon">ⓘ
+                                <span class="tooltip">Enter the building ID.</span>
+                            </span>
+                        </label>
+
+                        <input type="number" id="BuildingID" class="short-input" required>
+
+                    </div>
+
+                    <!-- Row 2 -->
+                    <div class="stackinputs">
+
+                        <label for="RoomCode">
+                            Room Code <span class="required">*</span>
+                            <span class="info-icon">ⓘ
+                                <span class="tooltip">Enter the unique room code.</span>
+                            </span>
+                        </label>
+
+                        <input type="text" id="RoomCode" required>
+
+                        <div></div>
+
+                        <label for="RoomName">
+                            Room Name <span class="required">*</span>
+                            <span class="info-icon">ⓘ
+                                <span class="tooltip">Enter the room name.</span>
+                            </span>
+                        </label>
+
+                        <input type="text" id="RoomName" required>
+
+                    </div>
+
+                    <!-- Row 3 -->
+                    <div class="stackinputs">
+
+                        <label for="RoomType">
+                            Room Type <span class="required">*</span>
+                            <span class="info-icon">ⓘ
+                                <span class="tooltip">Classroom, Lab, Office, etc.</span>
+                            </span>
+                        </label>
+
+                        <input type="text" id="RoomType" required>
+
+                        <div></div>
+
+                        <label for="FloorNo">
+                            Floor No. <span class="required">*</span>
+                            <span class="info-icon">ⓘ
+                                <span class="tooltip">Enter the floor number.</span>
+                            </span>
+                        </label>
+
+                        <input type="number" id="FloorNo" class="short-input" required>
+
+                    </div>
+
+                    <!-- Row 4 -->
+                    <div class="stackinputs">
+
+                        <label for="Capacity">
+                            Capacity <span class="required">*</span>
+                            <span class="info-icon">ⓘ
+                                <span class="tooltip">Maximum occupancy.</span>
+                            </span>
+                        </label>
+
+                        <input type="number" id="Capacity" class="short-input" required>
+
+                        <div></div>
+
+                        <label for="AreaSqft">
+                            Area (Sq. Ft.)
+                            <span class="info-icon">ⓘ
+                                <span class="tooltip">Enter room area in square feet.</span>
+                            </span>
+                        </label>
+
+                        <input type="number" id="AreaSqft" class="short-input" step="0.01">
+
+                    </div>
+
+                    <!-- Row 5 -->
+                    <div class="stackinputs">
+
+                        <label for="Status">
+                            Status <span class="required">*</span>
+                            <span class="info-icon">ⓘ
+                                <span class="tooltip">Select room status.</span>
+                            </span>
+                        </label>
+
+                        <select id="Status" class="short-input" required>
+                            <option value="">--Select--</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Maintenance">Maintenance</option>
+                        </select>
+
+                        <div></div>
+
+                        <label for="Description">
+                            Description
+                            <span class="info-icon">ⓘ
+                                <span class="tooltip">Enter remarks for the room.</span>
+                            </span>
+                        </label>
+
+                        <input type="text" id="Description">
+
+                    </div>
+
+                    <!-- Row 6 -->
+                    <div class="stackinputs">
+
+                        <label for="CreatedBy">
+                            Created By
+                            <span class="info-icon">ⓘ
+                                <span class="tooltip">Enter creator user ID.</span>
+                            </span>
+                        </label>
+
+                        <input type="number" id="CreatedBy" class="short-input">
+
+                        <div></div>
+
+                        <label for="CreatedAt">
+                            Created At
+                            <span class="info-icon">ⓘ
+                                <span class="tooltip">Select creation date.</span>
+                            </span>
+                        </label>
+
+                        <input type="date" id="CreatedAt" class="short-input">
+
+                    </div>
+
+                    <!-- Row 7 -->
+                    <div class="stackinputs">
+
+                        <label for="UpdatedBy">
+                            Updated By
+                            <span class="info-icon">ⓘ
+                                <span class="tooltip">Enter updater user ID.</span>
+                            </span>
+                        </label>
+
+                        <input type="number" id="UpdatedBy" class="short-input">
+
+                        <div></div>
+
+                        <label for="UpdatedAt">
+                            Updated At
+                            <span class="info-icon">ⓘ
+                                <span class="tooltip">Select last updated date.</span>
+                            </span>
+                        </label>
+
+                        <input type="date" id="UpdatedAt" class="short-input">
+
+                    </div>
+
+                    <div class="button-container">
+                        <button type="button" class="btn save-btn">Save</button>
+                        <button type="button" class="btn nav-btn prevButton">◀</button>
+                        <button type="button" class="btn nav-btn nextButton">▶</button>
+                        <button type="button" class="btn exit-btn">Exit</button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="js/db-api.js"></script>
+    <script src="js/room.js"></script>
+
+</body>
+
+</html>
