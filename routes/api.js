@@ -4,6 +4,13 @@ const router = express.Router();
 const getConnection = require("../config/oracle");
 const oracledb = require("oracledb");
 
+
+function safeNumber(value) {
+    if (value === "" || value === null || value === undefined) return null;
+    const n = Number(value);
+    return isNaN(n) ? null : n;
+}
+
 router.post("/users", async (req, res) => {
 
     let connection;
@@ -1003,6 +1010,271 @@ router.put("/courses/:id", async (req, res) => {
 
     }
     finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.post("/fee-master", async (req, res) => {
+
+    let connection;
+
+    try {
+        connection = await getConnection();
+
+        const sql = `
+            INSERT INTO FEE_MASTER
+            (
+                FEE_ID,
+                COURSE_ID,
+                REGISTRATION_FEE,
+                TUITION_FEE,
+                EXAM_FEE,
+                MATERIAL_FEE,
+                TOTAL_FEE
+            )
+            VALUES
+            (
+                (SELECT NVL(MAX(FEE_ID),0)+1 FROM FEE_MASTER),
+                :course_id,
+                :registration_fee,
+                :tuition_fee,
+                :exam_fee,
+                :material_fee,
+                :total_fee
+            )
+            RETURNING FEE_ID INTO :new_id
+        `;
+
+        const binds = {
+            course_id: safeNumber(req.body.course_id),
+            registration_fee: safeNumber(req.body.registration_fee),
+            tuition_fee: safeNumber(req.body.tuition_fee),
+            exam_fee: safeNumber(req.body.exam_fee),
+            material_fee: safeNumber(req.body.material_fee),
+            total_fee: safeNumber(req.body.total_fee),
+            new_id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT }
+        };
+
+        const result = await connection.execute(sql, binds, { autoCommit: true });
+
+        res.json({
+            success: true,
+            message: "Fee record saved successfully.",
+            fee_id: result.outBinds.new_id[0]
+        });
+
+    } catch (err) {
+        console.error("POST ERROR:", err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+
+
+
+router.get("/fee-master/newid", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+            SELECT NVL(MAX(FEE_ID),0)+1
+            FROM FEE_MASTER
+        `);
+
+        res.json({
+            success: true,
+            fee_id: result.rows[0][0]
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+
+router.get("/fee-master/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(
+            `
+            SELECT
+                FEE_ID,
+                COURSE_ID,
+                REGISTRATION_FEE,
+                TUITION_FEE,
+                EXAM_FEE,
+                MATERIAL_FEE,
+                TOTAL_FEE
+            FROM FEE_MASTER
+            WHERE FEE_ID = :id
+            `,
+            {
+                id: req.params.id
+            }
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.json({
+                success: false,
+                message: "Fee record not found."
+            });
+
+        }
+
+        const row = result.rows[0];
+
+        res.json({
+            success: true,
+            data: {
+                fee_id: row[0],
+                course_id: row[1],
+                registration_fee: row[2],
+                tuition_fee: row[3],
+                exam_fee: row[4],
+                material_fee: row[5],
+                total_fee: row[6]
+            }
+        });
+
+    } catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    } finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.put("/fee-master/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const sql = `
+            UPDATE FEE_MASTER
+            SET
+                COURSE_ID = :course_id,
+                REGISTRATION_FEE = :registration_fee,
+                TUITION_FEE = :tuition_fee,
+                EXAM_FEE = :exam_fee,
+                MATERIAL_FEE = :material_fee,
+                TOTAL_FEE = :total_fee
+            WHERE FEE_ID = :fee_id
+        `;
+
+        const binds = {
+            fee_id: safeNumber(req.params.id),
+            course_id: safeNumber(req.body.course_id),
+            registration_fee: safeNumber(req.body.registration_fee),
+            tuition_fee: safeNumber(req.body.tuition_fee),
+            exam_fee: safeNumber(req.body.exam_fee),
+            material_fee: safeNumber(req.body.material_fee),
+            total_fee: safeNumber(req.body.total_fee)
+        };
+
+        console.log("FINAL BINDS:", binds); // debug
+
+        await connection.execute(sql, binds, { autoCommit: true });
+
+        res.json({
+            success: true,
+            message: "Fee record updated successfully."
+        });
+
+    } catch (err) {
+        console.error("PUT ERROR:", err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+router.delete("/fee-master/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        await connection.execute(
+            `DELETE FROM FEE_MASTER WHERE FEE_ID = :id`,
+            {
+                id: req.params.id
+            },
+            {
+                autoCommit: true
+            }
+        );
+
+        res.json({
+            success: true,
+            message: "Fee record deleted successfully."
+        });
+
+    } catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    } finally {
 
         if (connection)
             await connection.close();

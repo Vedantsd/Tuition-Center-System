@@ -1,13 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fee Master</title>
+
 <link rel="stylesheet" href="styles/reuseable-design.css">
-<title>Tuition Centre System</title>
+
+<style>
+/* ===== GLOBAL FONT UPGRADE ===== */
+body {
+    font-size: 18px;
+    font-family: Arial, sans-serif;
+}
+
+label {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+input, select {
+    font-size: 16px;
+    padding: 8px;
+}
+
+.main-title {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.sub-title {
+    font-size: 22px;
+    font-weight: 600;
+}
+</style>
+
 </head>
 
 <body>
+    <div class="body">
+
+
 
 <div class="content">
 
@@ -30,21 +64,42 @@
 
                 <label for="FeeID">
                     Fee ID <span class="required">*</span>
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter a unique fee ID.</span>
+                    <span class="info-icon">
+                        ⓘ
+                        <span class="tooltip">Auto-generated. Type an existing ID and click Find to search.</span>
                     </span>
                 </label>
-                <input type="number" id="FeeID" min="0" required>
+
+                <div style="display:flex; gap:10px;">
+                    <input type="number" id="FeeID" min="0">
+
+                    <div class="segmented-toggle">
+                        <button type="button" id="newBtn" class="segment-btn active">
+                            New
+                        </button>
+                        <button type="button" id="findBtn" class="segment-btn">
+                            Find
+                        </button>
+                    </div>
+                </div>
 
                 <div></div>
 
                 <label for="CourseID">
-                    Course ID
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter the associated course ID.</span>
+                    Course ID <span class="required">*</span>
+                    <span class="info-icon">
+                        ⓘ
+                        <span class="tooltip">Select the course by name — Course ID fills automatically</span>
                     </span>
                 </label>
-                <input type="number" id="CourseID" min="0">
+
+                <div class="custom-select-wrapper" id="courseSelectWrapper">
+                    <div class="custom-select-display" id="courseSelectDisplay" tabindex="0">
+                        <span class="placeholder-text" id="courseSelectText">-- Select Course --</span>
+                    </div>
+                    <div class="custom-select-list" id="courseSelectList"></div>
+                    <input type="hidden" id="CourseID" value="">
+                </div>
 
             </div>
 
@@ -53,21 +108,25 @@
 
                 <label for="RegistrationFee">
                     Registration Fee <span class="required">*</span>
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter the registration fee amount.</span>
+                    <span class="info-icon">
+                        ⓘ
+                        <span class="tooltip">One-time registration fee</span>
                     </span>
                 </label>
-                <input type="number" id="RegistrationFee" min="0" required>
+
+                <input type="number" id="RegistrationFee" min="0" step="0.01" required>
 
                 <div></div>
 
                 <label for="TuitionFee">
                     Tuition Fee <span class="required">*</span>
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter the tuition fee amount.</span>
+                    <span class="info-icon">
+                        ⓘ
+                        <span class="tooltip">Monthly/total tuition fee</span>
                     </span>
                 </label>
-                <input type="number" id="TuitionFee" min="0" required>
+
+                <input type="number" id="TuitionFee" min="0" step="0.01" required>
 
             </div>
 
@@ -76,21 +135,25 @@
 
                 <label for="ExamFee">
                     Exam Fee
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter the examination fee, if applicable.</span>
+                    <span class="info-icon">
+                        ⓘ
+                        <span class="tooltip">Optional exam fee</span>
                     </span>
                 </label>
-                <input type="number" id="ExamFee" min="0">
+
+                <input type="number" id="ExamFee" min="0" step="0.01">
 
                 <div></div>
 
                 <label for="MaterialFee">
                     Material Fee
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter the study material fee, if applicable.</span>
+                    <span class="info-icon">
+                        ⓘ
+                        <span class="tooltip">Books / study material cost</span>
                     </span>
                 </label>
-                <input type="number" id="MaterialFee" min="0">
+
+                <input type="number" id="MaterialFee" min="0" step="0.01">
 
             </div>
 
@@ -99,25 +162,42 @@
 
                 <label for="TotalFee">
                     Total Fee <span class="required">*</span>
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter the total fee amount.</span>
+                    <span class="info-icon">
+                        ⓘ
+                        <span class="tooltip">Total = all fees combined (auto-calculated)</span>
                     </span>
                 </label>
-                <input type="number" id="TotalFee" min="0" required>
+
+                <input type="number" id="TotalFee" min="0" step="0.01" readonly>
 
                 <div></div>
 
-                <!-- Empty right side for layout consistency -->
                 <label></label>
                 <input type="text" disabled style="visibility:hidden;">
 
             </div>
 
-            <div class="button-container">
-                <button class="btn save-btn">Save</button>
-                <button class="btn nav-btn">◀</button>
-                <button class="btn nav-btn">▶</button>
-                <button class="btn exit-btn">Exit</button>
+            <!-- Buttons -->
+<div class="button-container">
+
+    <button type="button" class="btn save-btn">
+        Save
+    </button>
+
+    <button type="button" id="prevBtn" class="btn nav-btn">
+        ◀
+    </button>
+
+    <button type="button" id="nextBtn" class="btn nav-btn">
+        ▶
+    </button>
+
+    <button type="button" class="btn exit-btn">
+        Exit
+    </button>
+
+</div>
+
             </div>
 
         </div>
@@ -125,6 +205,10 @@
     </div>
 
 </div>
+</div>
+<!-- JS -->
+<script src="js/db-api.js"></script>
+<script src="js/fee-master.js"></script>
 
 </body>
 </html>
