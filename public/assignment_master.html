@@ -20,7 +20,7 @@
 .mode-toggle {
     display: flex;
     height: 52px;
-    border: 2px solid #0d6efd;
+    border: 2px solid #6C4CF1;
     border-radius: 12px;
     overflow: hidden;
     flex: none;
@@ -29,7 +29,7 @@
 .mode-btn {
     border: none;
     background: white;
-    color: #0d6efd;
+    color: #6C4CF1;
     padding: 0 18px;
     font-size: 15px;
     font-weight: 600;
@@ -37,12 +37,43 @@
 }
 
 .mode-btn + .mode-btn {
-    border-left: 1px solid #0d6efd;
+    border-left: 1px solid #6C4CF1;
 }
 
 .mode-btn:hover {
-    background: #0d6efd;
+    background: #6C4CF1;
     color: white;
+}
+
+</style>
+<style>
+
+.assignment-mode-toggle {
+    display: flex;
+    height: 52px;
+    border: 2px solid #1677ff;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.assignment-mode-btn {
+    border: none;
+    background: #ffffff;
+    color: #1677ff;
+    padding: 0 16px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.assignment-mode-btn + .assignment-mode-btn {
+    border-left: 1px solid #1677ff;
+}
+
+.assignment-mode-btn.active {
+    background: #1677ff;
+    color: #ffffff;
 }
 
 </style>
@@ -72,25 +103,34 @@
                 <label for="AssignmentID" class="assignment-id-label">
                     Assignment ID <span class="required">*</span>
                     <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter a unique assignment ID.</span>
+                        <span class="tooltip">Enter a existing assignment ID.</span>
                     </span>
                 </label>
                 <div class="id-find-group">
-                    <input class="short-input" type="number" id="AssignmentID" readonly required>
-                    <div class="mode-toggle" id="modeToggle">
-                    <button type="button"
-                            class="mode-btn"
-                            id="newModeBtn">
-                        New
-                    </button>
-                    <button type="button"
-                            class="mode-btn"
-                            id="findModeBtn">
-                        Find
-                    </button>
 
-                </div>
-                </div>
+    <input class="short-input"
+           type="number"
+           id="AssignmentID"
+           readonly
+           required>
+
+    <div class="assignment-mode-toggle">
+
+        <button type="button"
+                class="assignment-mode-btn active"
+                id="newModeBtn">
+            New
+        </button>
+
+        <button type="button"
+                class="assignment-mode-btn"
+                id="findModeBtn">
+            Find
+        </button>
+
+    </div>
+
+</div>
 
                 <div></div>
 
@@ -110,7 +150,7 @@
                 <label for="BatchID">
                     Batch ID <span class="required">*</span>
                     <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter the batch ID for this assignment.</span>
+                        <span class="tooltip">Select the batch ID for this assignment.</span>
                     </span>
                 </label>
                 <select class="short-input" id="BatchID">

@@ -3,8 +3,9 @@ let currentAssignmentId = null;
 let messageTimer = null;
 let assignmentList = [];
 let currentIndex = -1;
+let currentMode = "new";
 document.addEventListener("DOMContentLoaded", () => {
-
+    startNewMode();
     loadAssignmentList();
     const dueDateInput = document.getElementById("DueDate");
 
@@ -16,23 +17,27 @@ document.addEventListener("DOMContentLoaded", () => {
         .split("T")[0];
 
     dueDateInput.min = localToday;
-    document
+        document
     .getElementById("newModeBtn")
     .addEventListener("click", startNewMode);
 
 document
     .getElementById("findModeBtn")
     .addEventListener("click", startFindMode);
-
     document
-        .getElementById("AssignmentID")
-        .addEventListener("keydown", function (event) {
+    .getElementById("AssignmentID")
+    .addEventListener("keydown", function (event) {
 
-            if (event.key === "Enter" && !this.readOnly) {
-                findAssignment();
-            }
+        if (
+            event.key === "Enter" &&
+            currentMode === "find"
+        ) {
 
-        });
+            findAssignment();
+
+        }
+
+    });
 
         loadBatchDropdown();
 
@@ -49,6 +54,66 @@ document
         .addEventListener("click", nextRecord);
 
 });
+
+function setMode(mode) {
+
+    currentMode = mode;
+
+    document
+        .getElementById("newModeBtn")
+        .classList.toggle("active", mode === "new");
+
+    document
+        .getElementById("findModeBtn")
+        .classList.toggle("active", mode === "find");
+
+}
+async function startNewMode() {
+
+    setMode("new");
+
+    clearForm();
+
+    editMode = false;
+    currentAssignmentId = null;
+    currentIndex = -1;
+
+    const assignmentInput =
+        document.getElementById("AssignmentID");
+
+    assignmentInput.readOnly = true;
+
+    document.querySelector(".save-btn").textContent = "Save";
+
+    await generateNextAssignmentID();
+
+}
+function startFindMode() {
+
+    setMode("find");
+
+    clearForm();
+
+    editMode = false;
+    currentAssignmentId = null;
+    currentIndex = -1;
+
+    const assignmentInput =
+        document.getElementById("AssignmentID");
+
+    assignmentInput.value = "";
+    assignmentInput.readOnly = false;
+
+    document.querySelector(".save-btn").textContent = "Save";
+
+    assignmentInput.focus();
+
+    showMessage(
+        "Enter Assignment ID and press Enter.",
+        "info"
+    );
+
+}
 
 async function generateNextAssignmentID() {
 
@@ -129,58 +194,6 @@ function populateForm(row) {
     document.getElementById("BatchID").value = row[2];
 
     document.getElementById("DueDate").value = row[3];
-
-}
-function startNewMode() {
-
-    clearForm();
-
-    editMode = false;
-    currentAssignmentId = null;
-
-    document.getElementById("AssignmentID").readOnly = true;
-
-    document.querySelector(".save-btn").textContent = "Save";
-
-    hideModeToggle();
-
-    generateNextAssignmentID();
-
-}
-function startFindMode() {
-
-    clearForm();
-
-    editMode = false;
-    currentAssignmentId = null;
-
-    const assignmentInput =
-        document.getElementById("AssignmentID");
-
-    assignmentInput.value = "";
-
-    assignmentInput.readOnly = false;
-
-    document.querySelector(".save-btn").textContent = "Save";
-
-    hideModeToggle();
-
-    assignmentInput.focus();
-
-    showMessage(
-        "Enter Assignment ID and press Enter.",
-        "info"
-    );
-
-}
-function hideModeToggle() {
-
-    document.getElementById("modeToggle").style.display = "none";
-
-}
-function showModeToggle() {
-
-    document.getElementById("modeToggle").style.display = "flex";
 
 }
 async function findAssignment() {
@@ -300,13 +313,15 @@ function previousRecord() {
     }
 
     populateForm(assignmentList[currentIndex]);
+    setMode("find");
+
+document.getElementById("AssignmentID").readOnly = true;
 
     editMode = true;
 
     currentAssignmentId = assignmentList[currentIndex][0];
 
     document.querySelector(".save-btn").textContent = "Update";
-    showModeToggle();
 
     document.getElementById("AssignmentID").readOnly = true;
 
@@ -377,13 +392,15 @@ function nextRecord() {
     }
 
     populateForm(assignmentList[currentIndex]);
+    setMode("find");
+
+document.getElementById("AssignmentID").readOnly = true;
 
     editMode = true;
 
     currentAssignmentId = assignmentList[currentIndex][0];
 
     document.querySelector(".save-btn").textContent = "Update";
-    showModeToggle();
 
     document.getElementById("AssignmentID").readOnly = true;
 
@@ -489,7 +506,6 @@ async function saveAssignment() {
 
         document.querySelector(".save-btn").textContent = "Save";
 
-        showModeToggle();
 
         await loadAssignmentList();
 
@@ -558,15 +574,3 @@ function validateForm() {
     return true;
 
 }
-document.addEventListener("click", function(e) {
-
-    if (
-        !e.target.closest("#batchPopup") &&
-        !e.target.closest("#BatchID")
-    ) {
-
-        closeBatchPopup();
-
-    }
-
-});
