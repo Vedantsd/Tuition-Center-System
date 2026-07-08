@@ -4,6 +4,36 @@ const router = express.Router();
 const getConnection = require("../config/oracle");
 const oracledb = require("oracledb");
 
+const GENDER_TO_CODE = {
+    male: "M",
+    female: "F",
+    other: "O"
+};
+
+const CODE_TO_GENDER = {
+    M: "Male",
+    F: "Female",
+    O: "Other"
+};
+
+function genderToCode(value) {
+
+    if (!value)
+        return null;
+
+    return GENDER_TO_CODE[value.toLowerCase()] || null;
+
+}
+
+function codeToGender(code) {
+
+    if (!code)
+        return null;
+
+    return CODE_TO_GENDER[code.toUpperCase()] || code;
+
+}
+
 router.post("/users", async (req, res) => {
 
     let connection;
@@ -56,7 +86,7 @@ router.post("/users", async (req, res) => {
             mobile_no: req.body.mobile_no,
             email: req.body.email,
             password_hash: passwordHash,
-            gender: req.body.gender.charAt(0),
+            gender: genderToCode(req.body.gender),
             dob: req.body.dob,
             address: req.body.address,
             qualification: req.body.qualification,
@@ -225,7 +255,7 @@ router.get("/users/:id", async (req, res) => {
             last_name: row[3],
             mobile_no: row[4],
             email: row[5],
-            gender: row[6],
+            gender: codeToGender(row[6]),
             dob: row[7],
             address: row[8],
             qualification: row[9],
@@ -297,7 +327,7 @@ router.put("/users/:id", async (req, res) => {
                 mobile_no: req.body.mobile_no,
                 email: req.body.email,
                 password_hash: passwordHash,
-                gender: req.body.gender.charAt(0),
+                gender: genderToCode(req.body.gender),
                 dob: req.body.dob,
                 address: req.body.address,
                 qualification: req.body.qualification,
@@ -333,7 +363,7 @@ router.put("/users/:id", async (req, res) => {
                 last_name: req.body.last_name,
                 mobile_no: req.body.mobile_no,
                 email: req.body.email,
-                gender: req.body.gender.charAt(0),
+                gender: genderToCode(req.body.gender),
                 dob: req.body.dob,
                 address: req.body.address,
                 qualification: req.body.qualification,
@@ -998,12 +1028,6 @@ router.get("/batches", async (req, res) => {
 });
 
 
-
-//=============================BATCHES MASTER FORM======================================//
-
-// COURSES DROPDOWN
-
-
 router.get("/courses", async (req, res) => {
 
     let connection;
@@ -1052,10 +1076,6 @@ router.get("/courses", async (req, res) => {
     }
 
 });
-
-
-
-// FACULTY DROPDOWN
 
 
 router.get("/faculty", async (req, res) => {
@@ -1116,10 +1136,6 @@ router.get("/faculty", async (req, res) => {
     }
 
 });
-
-
-
-// GET ALL BATCHES
 
 
 router.get("/batches", async (req, res) => {
@@ -1533,9 +1549,6 @@ router.put("/batches/:id", async (req, res) => {
 
 });
 
-///////////////////////////////////////////////////////////////////////////////
-
-
 router.get("/courses/newid", async (req, res) => {
 
     let connection;
@@ -1815,6 +1828,274 @@ router.put("/courses/:id", async (req, res) => {
         res.json({
             success: true,
             message: "Course updated successfully."
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/notifications/newid", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+            SELECT NVL(MAX(NOTIFICATION_ID),0)+1
+            FROM NOTIFICATIONS
+        `);
+
+        res.json({
+            success: true,
+            notification_id: result.rows[0][0]
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/notifications", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(
+            `SELECT
+                NOTIFICATION_ID,
+                TITLE,
+                TARGET_ROLE
+             FROM NOTIFICATIONS
+             ORDER BY NOTIFICATION_ID`
+        );
+
+        const notifications = result.rows.map(row => ({
+            notification_id: row[0],
+            title: row[1],
+            target_role: row[2]
+        }));
+
+        res.json(notifications);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/notifications/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(
+            `SELECT
+                NOTIFICATION_ID,
+                TITLE,
+                MESSAGE,
+                TARGET_ROLE
+             FROM NOTIFICATIONS
+             WHERE NOTIFICATION_ID = :id`,
+            {
+                id: req.params.id
+            },
+            {
+                fetchInfo: {
+                    "MESSAGE": { type: oracledb.STRING }
+                }
+            }
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.json({
+                success: false,
+                message: "Notification not found."
+            });
+
+        }
+
+        const row = result.rows[0];
+
+        res.json({
+
+            success: true,
+
+            notification_id: row[0],
+            title: row[1],
+            message: row[2],
+            target_role: row[3]
+
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.post("/notifications", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const sql = `
+        INSERT INTO NOTIFICATIONS
+        (
+            NOTIFICATION_ID,
+            TITLE,
+            MESSAGE,
+            TARGET_ROLE
+        )
+        VALUES
+        (
+            :notification_id,
+            :title,
+            :message,
+            :target_role
+        )
+        `;
+
+        await connection.execute(sql, {
+
+            notification_id: req.body.notification_id,
+            title: req.body.title,
+            message: req.body.message,
+            target_role: req.body.target_role
+
+        }, {
+            autoCommit: true
+        });
+
+        res.json({
+            success: true,
+            message: "Notification saved successfully."
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.put("/notifications/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const sql = `
+            UPDATE NOTIFICATIONS SET
+
+                TITLE = :title,
+                MESSAGE = :message,
+                TARGET_ROLE = :target_role
+
+            WHERE NOTIFICATION_ID = :notification_id
+        `;
+
+        const binds = {
+
+            notification_id: req.params.id,
+            title: req.body.title,
+            message: req.body.message,
+            target_role: req.body.target_role
+
+        };
+
+        await connection.execute(sql, binds, {
+            autoCommit: true
+        });
+
+        res.json({
+            success: true,
+            message: "Notification updated successfully."
         });
 
     }
