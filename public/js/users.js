@@ -40,6 +40,83 @@ document.addEventListener("DOMContentLoaded", () => {
         .querySelector(".nextButton")
         .addEventListener("click", nextRecord);
 
+    const requiredFields = [
+    document.getElementById("UserType"),
+    document.getElementById("FirstName"),
+    document.getElementById("LastName"),
+    document.getElementById("Email"),
+    document.getElementById("Password"),
+    document.getElementById("DOB")
+];
+
+requiredFields.forEach(field => {
+
+    field.addEventListener("blur", function () {
+
+        if (
+    this.id === "Password" &&
+    isExistingUser
+) {
+    removeRequiredError(this);
+    return;
+}
+
+        if (this.value.trim() === "") {
+            showRequiredError(this);
+        }
+        else {
+            removeRequiredError(this);
+        }
+
+    });
+
+    field.addEventListener("input", function () {
+
+        if (this.value.trim() !== "") {
+            removeRequiredError(this);
+        }
+
+    });
+
+    field.addEventListener("change", function () {
+
+        if (this.value.trim() !== "") {
+            removeRequiredError(this);
+        }
+
+    });
+
+});
+const userIdField = document.getElementById("UserID");
+
+userIdField.addEventListener("blur", function () {
+
+    if (
+        !this.readOnly &&
+        this.value.trim() === ""
+    ) {
+
+        showUserIdRequiredError(this);
+
+    }
+    else {
+
+        removeUserIdRequiredError(this);
+
+    }
+
+});
+
+userIdField.addEventListener("input", function () {
+
+    if (this.value.trim() !== "") {
+
+        removeUserIdRequiredError(this);
+
+    }
+
+});
+
 });
 
 function setActiveMode(mode) {
@@ -129,6 +206,22 @@ function clearForm() {
 
     isExistingUser = false;
     setSaveButtonText("Save");
+    document
+    .querySelectorAll(".user-field-wrapper")
+    .forEach(wrapper => {
+
+        const field = wrapper.querySelector("input, select");
+
+        field.classList.remove("field-error");
+
+        const errorMessage =
+            wrapper.querySelector(".field-error-message");
+
+        if (errorMessage) {
+            errorMessage.remove();
+        }
+
+    });
 
 }
 
@@ -186,6 +279,7 @@ function startNewMode() {
     isExistingUser = false;
 
     const userIdInput = document.getElementById("UserID");
+    removeUserIdRequiredError(userIdInput);
 
     userIdInput.readOnly = true;
 
@@ -536,6 +630,83 @@ function getFormData() {
         gender: document.getElementById("Gender").value
 
     };
+
+}
+function showRequiredError(field) {
+
+    field.classList.add("field-error");
+
+    const wrapper = field.closest(".user-field-wrapper");
+
+    let errorMessage =
+        wrapper.querySelector(".field-error-message");
+
+    if (!errorMessage) {
+
+        errorMessage = document.createElement("span");
+
+        errorMessage.className = "field-error-message";
+
+        errorMessage.textContent = "This field is required";
+
+        wrapper.appendChild(errorMessage);
+
+    }
+
+}
+
+function removeRequiredError(field) {
+
+    field.classList.remove("field-error");
+
+    const wrapper = field.closest(".user-field-wrapper");
+
+    const errorMessage =
+        wrapper.querySelector(".field-error-message");
+
+    if (errorMessage) {
+        errorMessage.remove();
+    }
+
+}
+
+function showUserIdRequiredError(field) {
+
+    field.classList.add("field-error");
+
+    const group = field.closest(".id-find-group");
+
+    let errorMessage =
+        group.querySelector(".user-id-error-message");
+
+    if (!errorMessage) {
+
+        errorMessage = document.createElement("span");
+
+        errorMessage.className = "user-id-error-message";
+
+        errorMessage.textContent = "This field is required";
+
+        group.appendChild(errorMessage);
+
+    }
+
+}
+
+function removeUserIdRequiredError(field) {
+
+    field.classList.remove("field-error");
+
+    const group = field.closest(".id-find-group");
+
+    const errorMessage =
+        group.querySelector(".user-id-error-message");
+
+    if (errorMessage) {
+
+        errorMessage.remove();
+
+    }
 
 }
 

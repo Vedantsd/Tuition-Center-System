@@ -5,78 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="styles/reuseable-design.css">
 <title>Tuition Centre System</title>
-<style>
-.assignment-nav-btn {
-    background: #6C4CF1;
-    color: white;
-}
 
-.assignment-nav-btn:hover {
-    background: #5535d6;
-}
-</style>
-<style>
-
-.mode-toggle {
-    display: flex;
-    height: 52px;
-    border: 2px solid #6C4CF1;
-    border-radius: 12px;
-    overflow: hidden;
-    flex: none;
-}
-
-.mode-btn {
-    border: none;
-    background: white;
-    color: #6C4CF1;
-    padding: 0 18px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.mode-btn + .mode-btn {
-    border-left: 1px solid #6C4CF1;
-}
-
-.mode-btn:hover {
-    background: #6C4CF1;
-    color: white;
-}
-
-</style>
-<style>
-
-.assignment-mode-toggle {
-    display: flex;
-    height: 52px;
-    border: 2px solid #1677ff;
-    border-radius: 10px;
-    overflow: hidden;
-    flex-shrink: 0;
-}
-
-.assignment-mode-btn {
-    border: none;
-    background: #ffffff;
-    color: #1677ff;
-    padding: 0 16px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.assignment-mode-btn + .assignment-mode-btn {
-    border-left: 1px solid #1677ff;
-}
-
-.assignment-mode-btn.active {
-    background: #1677ff;
-    color: #ffffff;
-}
-
-</style>
 </head>
 
 <body>
@@ -140,7 +69,9 @@
                         <span class="tooltip">Enter the assignment title.</span>
                     </span>
                 </label>
-                <input type="text" id="Title" required>
+                <div class="assignment-field-wrapper">
+    <input type="text" id="Title" required>
+</div>
 
             </div>
 
@@ -153,9 +84,11 @@
                         <span class="tooltip">Select the batch ID for this assignment.</span>
                     </span>
                 </label>
-                <select class="short-input" id="BatchID">
-                    <option value="">Select Batch</option>
-                </select>
+                <div class="assignment-field-wrapper">
+    <select class="short-input" id="BatchID">
+        <option value="">Select Batch</option>
+    </select>
+</div>
 
                 <div></div>
 
@@ -165,8 +98,12 @@
                         <span class="tooltip">Select the assignment due date.</span>
                     </span>
                 </label>
-                <input class="short-input" type="date" id="DueDate" required>
-
+                <div class="assignment-field-wrapper">
+    <input class="short-input"
+           type="date"
+           id="DueDate"
+           required>
+</div>
             </div>
 
             <div class="button-container">

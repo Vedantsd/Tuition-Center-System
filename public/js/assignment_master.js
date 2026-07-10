@@ -7,6 +7,79 @@ let currentMode = "new";
 document.addEventListener("DOMContentLoaded", () => {
     startNewMode();
     loadAssignmentList();
+
+    const requiredFields = [
+    document.getElementById("Title"),
+    document.getElementById("BatchID"),
+    document.getElementById("DueDate")
+];
+
+requiredFields.forEach(field => {
+
+    field.addEventListener("blur", function () {
+
+        if (this.value.trim() === "") {
+
+            showRequiredError(this);
+
+        }
+        else {
+
+            removeRequiredError(this);
+
+        }
+
+    });
+
+    field.addEventListener("input", function () {
+
+        if (this.value.trim() !== "") {
+
+            removeRequiredError(this);
+
+        }
+
+    });
+
+    field.addEventListener("change", function () {
+
+        if (this.value.trim() !== "") {
+
+            removeRequiredError(this);
+
+        }
+
+    });
+    const assignmentIdField =
+    document.getElementById("AssignmentID");
+
+
+
+assignmentIdField.addEventListener("blur", function () {
+
+    if (
+        currentMode === "find" &&
+        !this.readOnly &&
+        this.value.trim() === ""
+    ) {
+        showAssignmentIdRequiredError(this);
+    }
+    else {
+        removeAssignmentIdRequiredError(this);
+    }
+
+});
+assignmentIdField.addEventListener("input", function () {
+
+    if (this.value.trim() !== "") {
+
+        removeAssignmentIdRequiredError(this);
+
+    }
+
+});
+
+});
     const dueDateInput = document.getElementById("DueDate");
 
     const today = new Date();
@@ -72,14 +145,16 @@ async function startNewMode() {
 
     setMode("new");
 
+    const assignmentInput =
+        document.getElementById("AssignmentID");
+
+    removeAssignmentIdRequiredError(assignmentInput);
+
     clearForm();
 
     editMode = false;
     currentAssignmentId = null;
     currentIndex = -1;
-
-    const assignmentInput =
-        document.getElementById("AssignmentID");
 
     assignmentInput.readOnly = true;
 
@@ -87,6 +162,7 @@ async function startNewMode() {
 
     await generateNextAssignmentID();
 
+    removeAssignmentIdRequiredError(assignmentInput);
 }
 function startFindMode() {
 
@@ -100,6 +176,7 @@ function startFindMode() {
 
     const assignmentInput =
         document.getElementById("AssignmentID");
+        removeAssignmentIdRequiredError(assignmentInput);
 
     assignmentInput.value = "";
     assignmentInput.readOnly = false;
@@ -521,6 +598,48 @@ async function saveAssignment() {
 
 }
 
+function showAssignmentIdRequiredError(field) {
+
+    field.classList.add("field-error");
+
+    const group = field.closest(".id-find-group");
+
+    let errorMessage =
+        group.querySelector(".assignment-id-error-message");
+
+    if (!errorMessage) {
+
+        errorMessage = document.createElement("span");
+
+        errorMessage.className =
+            "assignment-id-error-message";
+
+        errorMessage.textContent =
+            "This field is required";
+
+        group.appendChild(errorMessage);
+
+    }
+
+}
+
+function removeAssignmentIdRequiredError(field) {
+
+    field.classList.remove("field-error");
+
+    const group = field.closest(".id-find-group");
+
+    const errorMessage =
+        group.querySelector(".assignment-id-error-message");
+
+    if (errorMessage) {
+
+        errorMessage.remove();
+
+    }
+
+}
+
 function validateForm() {
 
     if (document.getElementById("Title").value.trim() == "") {
@@ -572,5 +691,41 @@ function validateForm() {
     }
 
     return true;
+
+}
+function showRequiredError(field) {
+
+    field.classList.add("field-error");
+
+    const wrapper = field.closest(".assignment-field-wrapper");
+
+    let errorMessage =
+        wrapper.querySelector(".field-error-message");
+
+    if (!errorMessage) {
+
+        errorMessage = document.createElement("span");
+
+        errorMessage.className = "field-error-message";
+
+        errorMessage.textContent = "This field is required";
+
+        wrapper.appendChild(errorMessage);
+
+    }
+
+}
+function removeRequiredError(field) {
+
+    field.classList.remove("field-error");
+
+    const wrapper = field.closest(".assignment-field-wrapper");
+
+    const errorMessage =
+        wrapper.querySelector(".field-error-message");
+
+    if (errorMessage) {
+        errorMessage.remove();
+    }
 
 }
