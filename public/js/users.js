@@ -269,6 +269,22 @@ function populateForm(user) {
 
     isExistingUser = true;
     setSaveButtonText("Update");
+    const requiredFields = [
+    document.getElementById("UserType"),
+    document.getElementById("FirstName"),
+    document.getElementById("LastName"),
+    document.getElementById("Email"),
+    document.getElementById("Password"),
+    document.getElementById("DOB")
+];
+
+requiredFields.forEach(field => {
+    removeRequiredError(field);
+});
+
+removeUserIdRequiredError(
+    document.getElementById("UserID")
+);
 
 }
 

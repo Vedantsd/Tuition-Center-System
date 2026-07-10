@@ -264,13 +264,32 @@ function clearForm() {
 
 function populateForm(row) {
 
-    document.getElementById("AssignmentID").value = row[0];
+    const assignmentId =
+        document.getElementById("AssignmentID");
 
-    document.getElementById("Title").value = row[1];
+    const title =
+        document.getElementById("Title");
 
-    document.getElementById("BatchID").value = row[2];
+    const batchId =
+        document.getElementById("BatchID");
 
-    document.getElementById("DueDate").value = row[3];
+    const dueDate =
+        document.getElementById("DueDate");
+
+
+    assignmentId.value = row[0];
+    title.value = row[1];
+    batchId.value = row[2];
+
+    const date = new Date(row[3]);
+
+    dueDate.value =
+        date.toISOString().split("T")[0];
+    removeAssignmentIdRequiredError(assignmentId);
+
+    removeRequiredError(title);
+    removeRequiredError(batchId);
+    removeRequiredError(dueDate);
 
 }
 async function findAssignment() {
@@ -322,6 +341,9 @@ async function findAssignment() {
         document.querySelector(".save-btn").textContent = "Update";
 
         showMessage("Assignment loaded successfully.", "success");
+        removeAssignmentIdRequiredError(
+    document.getElementById("AssignmentID")
+);
 
     }
     catch (err) {
