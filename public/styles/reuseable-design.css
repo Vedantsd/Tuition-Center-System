@@ -105,6 +105,51 @@ body{
 .required{
     color:red;
 }
+.user-field-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.user-field-wrapper input,
+.user-field-wrapper select {
+    width: 100%;
+}
+
+.user-field-wrapper .short-input {
+    width: 55%;
+}
+
+.field-error {
+    border: 1.5px solid #d93025 !important;
+}
+
+.user-field-wrapper .field-error-message {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 3px);
+
+    color: #d93025;
+    font-size: 12px;
+    white-space: nowrap;
+
+    margin: 0;
+    display: block;
+}
+.id-find-group {
+    position: relative;
+}
+
+.user-id-error-message {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 3px);
+
+    color: #d93025;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/*================ BUTTONS =================*/
 
 .button-container{
     margin-top:40px;
@@ -195,7 +240,48 @@ body{
     font-weight: 600;
     cursor: pointer;
 }
+.assignment-field-wrapper {
+    position: relative;
+    width: 100%;
+}
 
+.assignment-field-wrapper input,
+.assignment-field-wrapper select {
+    width: 100%;
+}
+
+.assignment-field-wrapper .short-input {
+    width: 55%;
+}
+
+.field-error {
+    border: 1.5px solid #d93025 !important;
+}
+
+.id-find-group {
+    position: relative;
+}
+
+.assignment-id-error-message {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 5px);
+    color: #d93025;
+    font-size: 13px;
+    white-space: nowrap;
+}
+.assignment-field-wrapper .field-error-message {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 3px);
+
+    color: #d93025;
+    font-size: 12px;
+    white-space: nowrap;
+
+    margin: 0;
+    display: block;
+}
 .assignment-mode-btn + .assignment-mode-btn {
     border-left: 1px solid #1677ff;
 }
@@ -216,6 +302,7 @@ body{
     background:#ffd8d8;
 }
 
+/*================ STATUS =================*/
 
 .status-message{
     min-height:25px;
@@ -236,6 +323,7 @@ body{
     color:#0d6efd;
 }
 
+/*================ MOBILE =================*/
 
 @media(max-width:900px){
 
@@ -262,6 +350,7 @@ body{
     }
 }
 
+/*================== INFO ICON ================*/
 
 .info-icon{
     position:relative;
@@ -459,8 +548,6 @@ body{
     gap: 5px;
     white-space: nowrap;
 }
-
-
 
 .mode-btn {
     padding: 8px 16px;
