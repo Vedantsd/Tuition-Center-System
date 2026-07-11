@@ -4,11 +4,22 @@ document.addEventListener("DOMContentLoaded", () => {
     prepareNewRecord();
 
     document.getElementById("findBtn")
-        .addEventListener("click", () => loadFee());
+        .addEventListener("click", () => {
+            const feeIdInput = document.getElementById("FeeID");
+            if (feeIdInput.readOnly) {
+                // first click: unlock the field so the user can type an id,
+                // and switch the toggle to Find right away
+                unlockFeeId();
+                setActiveSegment("findBtn");
+            } else {
+                // already unlocked: this click means "search now"
+                loadFee();
+            }
+        });
 
     document.getElementById("FeeID")
         .addEventListener("keydown", function (event) {
-            if (event.key === "Enter") {
+            if (event.key === "Enter" && !this.readOnly) {
                 event.preventDefault();
                 loadFee();
             }
@@ -47,6 +58,23 @@ let messageTimer;
 let isExistingFee = false;
 
 /* ==========================
+   LOCK / UNLOCK FEE ID
+   Locked (readonly + grey) by default — shows the auto id preview
+   or a loaded record. Unlocked only while the user is actively
+   typing an id to search for via Find.
+========================== */
+function lockFeeId() {
+    document.getElementById("FeeID").readOnly = true;
+}
+
+function unlockFeeId() {
+    const el = document.getElementById("FeeID");
+    el.readOnly = false;
+    el.focus();
+    el.select();
+}
+
+/* ==========================
    MESSAGE
 ========================== */
 function showMessage(message, type = "info") {
@@ -80,6 +108,9 @@ async function loadCourses() {
             showMessage("Error loading course list.", "error");
             return;
         }
+
+        // sort by course_id ascending so the list always shows 1,2,3...
+        courses.sort((a, b) => Number(a.course_id) - Number(b.course_id));
 
         coursesCache = courses;
 
@@ -215,6 +246,7 @@ async function prepareNewRecord() {
     isExistingFee = false;
     setSaveButtonText("Save");
     setActiveSegment("newBtn");
+    lockFeeId();
 
     showMessage("Ready for new Fee record.", "info");
 }
@@ -253,6 +285,7 @@ function populateForm(fee) {
     isExistingFee = true;
     setSaveButtonText("Update");
     setActiveSegment("findBtn");
+    lockFeeId();
 }
 
 /* ==========================

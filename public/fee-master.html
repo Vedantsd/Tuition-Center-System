@@ -34,6 +34,15 @@ input, select {
     font-size: 22px;
     font-weight: 600;
 }
+
+/* ===== FEE MASTER PAGE-ONLY OVERRIDE =====
+   Scoped to .fee-master-page so it cannot affect any other form
+   that shares reuseable-design.css. Widens the label column just
+   enough that "Registration Fee *" plus the info icon fit on one
+   line, instead of the icon wrapping onto its own line below. */
+.fee-master-page .stackinputs {
+    grid-template-columns: 210px minmax(0,1fr) 60px 210px minmax(0,1fr);
+}
 </style>
 
 </head>
@@ -47,7 +56,7 @@ input, select {
 
     <div class="main">
 
-        <div class="form">
+        <div class="form fee-master-page">
 
             <div class="main-title">
                 Tuition Centre System
@@ -71,7 +80,7 @@ input, select {
                 </label>
 
                 <div style="display:flex; gap:10px;">
-                    <input type="number" id="FeeID" min="0">
+                    <input type="number" id="FeeID" min="0" required class="short-input" readonly>
 
                     <div class="segmented-toggle">
                         <button type="button" id="newBtn" class="segment-btn active">
@@ -168,7 +177,7 @@ input, select {
                     </span>
                 </label>
 
-                <input type="number" id="TotalFee" min="0" step="0.01" readonly>
+                <input type="number" id="TotalFee" min="0" step="0.01" readonly class="normal-readonly">
 
                 <div></div>
 
