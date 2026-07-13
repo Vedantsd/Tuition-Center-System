@@ -52,10 +52,81 @@ document.addEventListener("DOMContentLoaded", () => {
         el.addEventListener("change", calculateTotalFee);
     });
 
+    // Required-field red-line validation (Registration Fee, Tuition Fee)
+    ["RegistrationFee", "TuitionFee"].forEach(id => {
+        const el = document.getElementById(id);
+
+        el.addEventListener("blur", function () {
+            if (this.value.trim() === "") {
+                showFeeFieldError(this);
+            } else {
+                removeFeeFieldError(this);
+            }
+        });
+
+        el.addEventListener("input", function () {
+            if (this.value.trim() !== "") {
+                removeFeeFieldError(this);
+            }
+        });
+    });
+
 });
 
 let messageTimer;
 let isExistingFee = false;
+
+/* ==========================
+   REQUIRED FIELD VALIDATION (red line under empty required fields)
+========================== */
+function showFeeFieldError(field) {
+    field.classList.add("fee-input-error");
+
+    const wrapper = field.closest(".fee-field-wrapper");
+    if (!wrapper) return;
+
+    let msg = wrapper.querySelector(".fee-field-error-message");
+    if (!msg) {
+        msg = document.createElement("span");
+        msg.className = "fee-field-error-message";
+        msg.textContent = "This field is required";
+        wrapper.appendChild(msg);
+    }
+}
+
+function removeFeeFieldError(field) {
+    field.classList.remove("fee-input-error");
+
+    const wrapper = field.closest(".fee-field-wrapper");
+    if (!wrapper) return;
+
+    const msg = wrapper.querySelector(".fee-field-error-message");
+    if (msg) msg.remove();
+}
+
+// Course dropdown isn't a normal input, so it gets its own check:
+// flags the visible display box (not the hidden value input) and
+// checks the hidden #CourseID value to decide if it's empty.
+function checkCourseRequired() {
+    const courseIdInput = document.getElementById("CourseID");
+    const display = document.getElementById("courseSelectDisplay");
+    const wrapper = document.getElementById("courseSelectWrapper");
+
+    let msg = wrapper.querySelector(".fee-field-error-message");
+
+    if (!courseIdInput.value) {
+        display.classList.add("fee-input-error");
+        if (!msg) {
+            msg = document.createElement("span");
+            msg.className = "fee-field-error-message";
+            msg.textContent = "This field is required";
+            wrapper.appendChild(msg);
+        }
+    } else {
+        display.classList.remove("fee-input-error");
+        if (msg) msg.remove();
+    }
+}
 
 /* ==========================
    LOCK / UNLOCK FEE ID
@@ -155,8 +226,18 @@ function setupCourseDropdown() {
 }
 
 function closeCourseDropdown() {
-    document.getElementById("courseSelectList").classList.remove("open");
+    const list = document.getElementById("courseSelectList");
+    const wasOpen = list.classList.contains("open");
+
+    list.classList.remove("open");
     document.getElementById("courseSelectDisplay").classList.remove("open");
+
+    // only validate if the dropdown was genuinely opened and is now
+    // closing (via selection or clicking away) — not on every
+    // unrelated click elsewhere on the page
+    if (wasOpen) {
+        checkCourseRequired();
+    }
 }
 
 function selectCourse(id, name) {
@@ -265,6 +346,15 @@ function clearForm() {
     document.getElementById("MaterialFee").value = "";
 
     calculateTotalFee(); // resets Total to blank
+
+    // reset any leftover required-field error indicators
+    removeFeeFieldError(document.getElementById("RegistrationFee"));
+    removeFeeFieldError(document.getElementById("TuitionFee"));
+    document.getElementById("courseSelectDisplay").classList.remove("fee-input-error");
+    const courseWrapperMsg = document
+        .getElementById("courseSelectWrapper")
+        .querySelector(".fee-field-error-message");
+    if (courseWrapperMsg) courseWrapperMsg.remove();
 }
 
 /* ==========================
@@ -281,6 +371,11 @@ function populateForm(fee) {
     document.getElementById("MaterialFee").value = fee.material_fee ?? "";
 
     calculateTotalFee(); // recalc from the four fields
+
+    // a loaded record has real values — clear any stale error indicators
+    removeFeeFieldError(document.getElementById("RegistrationFee"));
+    removeFeeFieldError(document.getElementById("TuitionFee"));
+    checkCourseRequired();
 
     isExistingFee = true;
     setSaveButtonText("Update");
@@ -369,10 +464,34 @@ function getFormData() {
 ========================== */
 function validateForm(data) {
 
-    if (!data.course_id) return showError("Please select a Course.");
-    if (!data.registration_fee >0) return showError("Please fill Registration Fee.");
-    if (!data.tuition_fee > 0) return showError("Please fill Tuition Fee.");
-    if (!data.total_fee >0) return showError("Please fill Total Fee.");
+    let isValid = true;
+
+    const courseIdInput = document.getElementById("CourseID");
+    const registrationFeeInput = document.getElementById("RegistrationFee");
+    const tuitionFeeInput = document.getElementById("TuitionFee");
+
+    if (!courseIdInput.value) {
+        checkCourseRequired(); // flags the dropdown box in red
+        isValid = false;
+    }
+
+    if (registrationFeeInput.value.trim() === "") {
+        showFeeFieldError(registrationFeeInput);
+        isValid = false;
+    }
+
+    if (tuitionFeeInput.value.trim() === "") {
+        showFeeFieldError(tuitionFeeInput);
+        isValid = false;
+    }
+
+    if (!isValid) {
+        return showError("Please fill in all required fields.");
+    }
+
+    if (data.registration_fee < 0) return showError("Invalid Registration Fee.");
+    if (data.tuition_fee < 0) return showError("Invalid Tuition Fee.");
+    if (data.total_fee < 0) return showError("Invalid Total Fee.");
 
     return true;
 }
