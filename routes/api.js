@@ -48,6 +48,7 @@ router.post("/users", async (req, res) => {
 
         connection = await getConnection();
 
+        // Hash password
         const passwordHash = await bcrypt.hash(req.body.password, 10);
 
         const sql = `
@@ -92,7 +93,7 @@ router.post("/users", async (req, res) => {
             mobile_no: req.body.mobile_no,
             email: req.body.email,
             password_hash: passwordHash,
-            gender: genderToCode(req.body.gender),
+            gender: req.body.gender.charAt(0), // F, M or O
             dob: req.body.dob,
             address: req.body.address,
             qualification: req.body.qualification,
@@ -168,50 +169,6 @@ router.get("/user-types", async (req, res) => {
 
 });
 
-router.get("/users/newid", async (req, res) => {
-
-    let connection;
-
-    try {
-
-        connection = await getConnection();
-
-        const result = await connection.execute(`
-            SELECT NVL(MAX(USER_ID),0)+1
-            FROM USERS
-        `);
-
-        res.json({
-            success: true,
-            user_id: result.rows[0][0]
-        });
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-
-            success: false,
-            message: err.message
-
-        });
-
-    }
-    finally {
-
-        if (connection)
-            await connection.close();
-
-    }
-
-});
-
-// IMPORTANT: this must stay ABOVE "/users/:id" — otherwise
-// "/users/newid" would incorrectly match the :id pattern.
-// (It already does in this file — keep it that way.)
-
 router.get("/users/:id", async (req, res) => {
 
     let connection;
@@ -261,7 +218,7 @@ router.get("/users/:id", async (req, res) => {
             last_name: row[3],
             mobile_no: row[4],
             email: row[5],
-            gender: codeToGender(row[6]),
+            gender: row[6],
             dob: row[7],
             address: row[8],
             qualification: row[9],
@@ -333,7 +290,7 @@ router.put("/users/:id", async (req, res) => {
                 mobile_no: req.body.mobile_no,
                 email: req.body.email,
                 password_hash: passwordHash,
-                gender: genderToCode(req.body.gender),
+                gender: req.body.gender.charAt(0),
                 dob: req.body.dob,
                 address: req.body.address,
                 qualification: req.body.qualification,
@@ -369,7 +326,7 @@ router.put("/users/:id", async (req, res) => {
                 last_name: req.body.last_name,
                 mobile_no: req.body.mobile_no,
                 email: req.body.email,
-                gender: genderToCode(req.body.gender),
+                gender: req.body.gender.charAt(0),
                 dob: req.body.dob,
                 address: req.body.address,
                 qualification: req.body.qualification,
@@ -414,8 +371,6 @@ router.put("/users/:id", async (req, res) => {
 
 });
 
-// Moved above module.exports — was previously defined AFTER the export,
-// which is unsafe/fragile route placement.
 router.get("/users", async (req, res) => {
 
     let connection;
@@ -704,445 +659,11 @@ router.put("/assignments/:id", async(req,res)=>{
 
 });
 
-router.get("/batches", async (req, res) => {
-
-    let connection;
-
-    try {
-
-        connection = await getConnection();
-
-        const result = await connection.execute(
-
-            `SELECT
-                BATCH_ID,
-                BATCH_NAME
-             FROM BATCHES
-             ORDER BY BATCH_ID`
-
-        );
-
-        res.json(result.rows);
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-
-            success: false,
-            message: err.message
-
-        });
-
-    }
-    finally {
-
-        if (connection)
-            await connection.close();
-
-    }
-
-});
- 
-router.get("/assignments/newid", async (req, res) => {
-
-    let connection;
-
-    try {
-
-        connection = await getConnection();
-
-        const result = await connection.execute(`
-            SELECT NVL(MAX(ASSIGNMENT_ID),0)+1
-            FROM ASSIGNMENT_MASTER
-        `);
-
-        res.json({
-            success: true,
-            assignment_id: result.rows[0][0]
-        });
-
-    } catch(err){
-
-        res.json({
-            success:false,
-            message:err.message
-        });
-
-    } finally{
-
-        if(connection)
-            await connection.close();
-
-    }
-
-});
-
-router.get("/assignments", async (req,res)=>{
-
-    let connection;
-
-    try{
-
-        connection = await getConnection();
-
-        const result = await connection.execute(`
-            SELECT
-                ASSIGNMENT_ID,
-                TITLE,
-                BATCH_ID,
-                TO_CHAR(DUE_DATE,'YYYY-MM-DD')
-            FROM ASSIGNMENT_MASTER
-            ORDER BY ASSIGNMENT_ID
-        `);
-
-        res.json(result.rows);
-
-    }catch(err){
-
-        res.status(500).json({
-            success:false,
-            message:err.message
-        });
-
-    }finally{
-
-        if(connection)
-            await connection.close();
-
-    }
-
-});
-
-router.get("/assignments/:id", async(req,res)=>{
-
-    let connection;
-
-    try{
-
-        connection = await getConnection();
-
-        const result = await connection.execute(
-
-            `SELECT
-                ASSIGNMENT_ID,
-                TITLE,
-                BATCH_ID,
-                TO_CHAR(DUE_DATE,'YYYY-MM-DD')
-            FROM ASSIGNMENT_MASTER
-            WHERE ASSIGNMENT_ID=:id`,
-
-            {
-                id:req.params.id
-            }
-
-        );
-
-        if(result.rows.length==0){
-
-            return res.json({
-                success:false
-            });
-
-        }
-
-        const row=result.rows[0];
-
-        res.json({
-
-            success:true,
-
-            assignment_id:row[0],
-            title:row[1],
-            batch_id:row[2],
-            due_date:row[3]
-
-        });
-
-    }catch(err){
-
-        res.status(500).json({
-            success:false,
-            message:err.message
-        });
-
-    }finally{
-
-        if(connection)
-            await connection.close();
-
-    }
-
-});
-
-router.post("/assignments", async(req,res)=>{
-
-    let connection;
-
-    try{
-
-        connection=await getConnection();
-
-        await connection.execute(
-
-            `INSERT INTO ASSIGNMENT_MASTER
-            (
-                ASSIGNMENT_ID,
-                TITLE,
-                BATCH_ID,
-                DUE_DATE
-            )
-            VALUES
-            (
-                :assignment_id,
-                :title,
-                :batch_id,
-                TO_DATE(:due_date,'YYYY-MM-DD')
-            )`,
-
-            req.body,
-
-            {
-                autoCommit:true
-            }
-
-        );
-
-        res.json({
-
-            success:true,
-            message:"Assignment Saved Successfully"
-
-        });
-
-    }catch(err){
-
-        res.status(500).json({
-
-            success:false,
-            message:err.message
-
-        });
-
-    }finally{
-
-        if(connection)
-            await connection.close();
-
-    }
-
-});
-
-router.put("/assignments/:id", async(req,res)=>{
-
-    let connection;
-
-    try{
-
-        connection=await getConnection();
-
-        await connection.execute(
-
-            `UPDATE ASSIGNMENT_MASTER
-             SET
-
-                TITLE=:title,
-                BATCH_ID=:batch_id,
-                DUE_DATE=TO_DATE(:due_date,'YYYY-MM-DD')
-
-             WHERE ASSIGNMENT_ID=:assignment_id`,
-
-             req.body,
-
-             {
-                autoCommit:true
-             }
-
-        );
-
-        res.json({
-
-            success:true,
-            message:"Assignment Updated Successfully"
-
-        });
-
-    }catch(err){
-
-        res.status(500).json({
-
-            success:false,
-            message:err.message
-
-        });
-
-    }finally{
-
-        if(connection)
-            await connection.close();
-
-    }
-
-});
-
 // =======================
-// Get All Batches
+// Get All Batches (full detail — kept as the single source of truth;
+// two earlier duplicate lightweight versions of this same route were
+// removed since Express would never have reached them anyway)
 // =======================
-
-router.get("/batches", async (req, res) => {
-
-    let connection;
-
-    try {
-
-        connection = await getConnection();
-
-        const result = await connection.execute(
-
-            `SELECT
-                BATCH_ID,
-                BATCH_NAME
-             FROM BATCHES
-             ORDER BY BATCH_ID`
-
-        );
-
-        res.json(result.rows);
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-
-            success: false,
-            message: err.message
-
-        });
-
-    }
-    finally {
-
-        if (connection)
-            await connection.close();
-
-    }
-
-});
-
-
-router.get("/courses", async (req, res) => {
-
-    let connection;
-
-    try {
-
-        connection = await getConnection();
-
-        const result = await connection.execute(`
-            SELECT
-                COURSE_ID,
-                COURSE_NAME
-            FROM COURSES
-            ORDER BY COURSE_NAME
-        `);
-
-        const courses = result.rows.map(row => ({
-
-            course_id: row[0],
-            course_name: row[1]
-
-        }));
-
-        res.json(courses);
-
-    }
-
-    catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-
-            success: false,
-            message: err.message
-
-        });
-
-    }
-
-    finally {
-
-        if (connection)
-            await connection.close();
-
-    }
-
-});
-
-
-router.get("/faculty", async (req, res) => {
-
-    let connection;
-
-    try {
-
-        connection = await getConnection();
-
-        const result = await connection.execute(`
-
-            SELECT
-
-                USER_ID,
-
-                FIRST_NAME || ' ' || LAST_NAME
-
-            FROM USERS
-
-            WHERE UPPER(USER_TYPE)='FACULTY'
-
-            ORDER BY FIRST_NAME
-
-        `);
-
-        const faculty = result.rows.map(row => ({
-
-            user_id: row[0],
-
-            faculty_name: row[1]
-
-        }));
-
-        res.json(faculty);
-
-    }
-
-    catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-
-            success:false,
-
-            message:err.message
-
-        });
-
-    }
-
-    finally{
-
-        if(connection)
-            await connection.close();
-
-    }
-
-});
-
 
 router.get("/batches", async (req, res) => {
 
@@ -1214,6 +735,65 @@ router.get("/batches", async (req, res) => {
 
 });
 
+router.get("/faculty", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+
+            SELECT
+
+                USER_ID,
+
+                FIRST_NAME || ' ' || LAST_NAME
+
+            FROM USERS
+
+            WHERE UPPER(USER_TYPE)='FACULTY'
+
+            ORDER BY FIRST_NAME
+
+        `);
+
+        const faculty = result.rows.map(row => ({
+
+            user_id: row[0],
+
+            faculty_name: row[1]
+
+        }));
+
+        res.json(faculty);
+
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+
+            success:false,
+
+            message:err.message
+
+        });
+
+    }
+
+    finally{
+
+        if(connection)
+            await connection.close();
+
+    }
+
+});
+
 router.post("/fee-master", async (req, res) => {
 
     let connection;
@@ -1276,9 +856,6 @@ router.post("/fee-master", async (req, res) => {
     }
 });
 
-
-
-
 router.get("/fee-master/newid", async (req, res) => {
 
     let connection;
@@ -1316,7 +893,6 @@ router.get("/fee-master/newid", async (req, res) => {
     }
 
 });
-
 
 router.get("/fee-master/:id", async (req, res) => {
 
@@ -1416,8 +992,6 @@ router.put("/fee-master/:id", async (req, res) => {
             total_fee: safeNumber(req.body.total_fee)
         };
 
-        console.log("FINAL BINDS:", binds); // debug
-
         await connection.execute(sql, binds, { autoCommit: true });
 
         res.json({
@@ -1479,7 +1053,6 @@ router.delete("/fee-master/:id", async (req, res) => {
 
 });
 
-
 router.get("/batches/new-id", async (req, res) => {
 
     let connection;
@@ -1517,8 +1090,6 @@ router.get("/batches/new-id", async (req, res) => {
     }
 
 });
-
-
 
 router.get("/batches/:id", async (req, res) => {
 
@@ -1605,10 +1176,6 @@ router.get("/batches/:id", async (req, res) => {
     }
 
 });
-
-
-
-
 
 router.post("/batches", async (req, res) => {
 
@@ -1719,8 +1286,6 @@ router.post("/batches", async (req, res) => {
 
 });
 
-
-
 router.put("/batches/:id", async (req, res) => {
 
     let connection;
@@ -1820,165 +1385,6 @@ router.put("/batches/:id", async (req, res) => {
 
 });
 
-router.get("/courses/newid", async (req, res) => {
-
-    let connection;
-
-    try {
-
-        connection = await getConnection();
-
-        const result = await connection.execute(`
-            SELECT NVL(MAX(COURSE_ID),0)+1
-            FROM COURSES
-        `);
-
-        res.json({
-            success: true,
-            course_id: result.rows[0][0]
-        });
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-            success: false,
-            message: err.message
-        });
-
-    }
-    finally {
-
-        if (connection)
-            await connection.close();
-
-    }
-
-});
-
-router.get("/courses/:id", async (req, res) => {
-
-    let connection;
-
-    try {
-
-        connection = await getConnection();
-
-        const result = await connection.execute(
-            `SELECT
-                COURSE_ID,
-                COURSE_NAME,
-                CLASS_NAME,
-                DIVISION_NAME,
-                SUBJECTS,
-                DURATION_MONTHS,
-                TO_CHAR(START_DATE,'YYYY-MM-DD'),
-                TO_CHAR(END_DATE,'YYYY-MM-DD'),
-                FEE_AMOUNT
-             FROM COURSES
-             WHERE COURSE_ID = :id`,
-            {
-                id: req.params.id
-            },
-            {
-                fetchInfo: {
-                    "SUBJECTS": { type: oracledb.STRING }
-                }
-            }
-        );
-
-        if (result.rows.length === 0) {
-
-            return res.json({
-                success: false,
-                message: "Course not found."
-            });
-
-        }
-
-        const row = result.rows[0];
-
-        res.json({
-
-            success: true,
-
-            course_id: row[0],
-            course_name: row[1],
-            class_name: row[2],
-            division_name: row[3],
-            subjects: row[4],
-            duration_months: row[5],
-            start_date: row[6],
-            end_date: row[7],
-            fee_amount: row[8]
-
-        });
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-            success: false,
-            message: err.message
-        });
-
-    }
-    finally {
-
-        if (connection)
-            await connection.close();
-
-    }
-
-});
-
-router.get("/courses", async (req, res) => {
-
-    let connection;
-
-    try {
-
-        connection = await getConnection();
-
-        const result = await connection.execute(
-            `SELECT
-                COURSE_ID,
-                COURSE_NAME
-             FROM COURSES
-             ORDER BY COURSE_ID`
-        );
-
-        const courses = result.rows.map(row => ({
-            course_id: row[0],
-            course_name: row[1]
-        }));
-
-        res.json(courses);
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-            success: false,
-            message: err.message
-        });
-
-    }
-    finally {
-
-        if (connection)
-            await connection.close();
-
-    }
-
-});
-
 router.post("/courses", async (req, res) => {
 
     let connection;
@@ -2027,139 +1433,41 @@ router.post("/courses", async (req, res) => {
             fee_amount: req.body.fee_amount
 
         }, {
+
             autoCommit: true
+
         });
 
         res.json({
+
             success: true,
             message: "Course saved successfully."
+
         });
 
     }
-    catch (err) {
+    catch(err){
 
         console.error(err);
 
         res.status(500).json({
-            success: false,
-            message: err.message
+
+            success:false,
+            message:err.message
+
         });
 
     }
-    finally {
+    finally{
 
-        if (connection)
+        if(connection)
             await connection.close();
 
     }
 
 });
 
-router.put("/courses/:id", async (req, res) => {
-
-    let connection;
-
-    try {
-
-        connection = await getConnection();
-
-        const sql = `
-            UPDATE COURSES SET
-
-                COURSE_NAME = :course_name,
-                CLASS_NAME = :class_name,
-                DIVISION_NAME = :division_name,
-                SUBJECTS = :subjects,
-                DURATION_MONTHS = :duration_months,
-                START_DATE = TO_DATE(:start_date,'YYYY-MM-DD'),
-                END_DATE = TO_DATE(:end_date,'YYYY-MM-DD'),
-                FEE_AMOUNT = :fee_amount
-
-            WHERE COURSE_ID = :course_id
-        `;
-
-        const binds = {
-
-            course_id: req.params.id,
-            course_name: req.body.course_name,
-            class_name: req.body.class_name,
-            division_name: req.body.division_name,
-            subjects: req.body.subjects,
-            duration_months: req.body.duration_months,
-            start_date: req.body.start_date,
-            end_date: req.body.end_date,
-            fee_amount: req.body.fee_amount
-
-        };
-
-        await connection.execute(sql, binds, {
-            autoCommit: true
-        });
-
-        res.json({
-            success: true,
-            message: "Course updated successfully."
-        });
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-            success: false,
-            message: err.message
-        });
-
-    }
-    finally {
-
-        if (connection)
-            await connection.close();
-
-    }
-
-});
-
-router.get("/notifications/newid", async (req, res) => {
-
-    let connection;
-
-    try {
-
-        connection = await getConnection();
-
-        const result = await connection.execute(`
-            SELECT NVL(MAX(NOTIFICATION_ID),0)+1
-            FROM NOTIFICATIONS
-        `);
-
-        res.json({
-            success: true,
-            notification_id: result.rows[0][0]
-        });
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-            success: false,
-            message: err.message
-        });
-
-    }
-    finally {
-
-        if (connection)
-            await connection.close();
-
-    }
-
-});
-
-router.get("/notifications", async (req, res) => {
+router.get("/courses/newid", async (req, res) => {
 
     let connection;
 
@@ -2168,21 +1476,51 @@ router.get("/notifications", async (req, res) => {
         connection = await getConnection();
 
         const result = await connection.execute(
-            `SELECT
-                NOTIFICATION_ID,
-                TITLE,
-                TARGET_ROLE
-             FROM NOTIFICATIONS
-             ORDER BY NOTIFICATION_ID`
+            `SELECT NVL(MAX(COURSE_ID), 0) + 1 AS NEXT_ID FROM COURSES`
         );
 
-        const notifications = result.rows.map(row => ({
-            notification_id: row[0],
-            title: row[1],
-            target_role: row[2]
+        res.json({
+            success: true,
+            course_id: result.rows[0][0]
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/courses", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(
+            `SELECT COURSE_ID FROM COURSES ORDER BY COURSE_ID`
+        );
+
+        const courses = result.rows.map(row => ({
+            course_id: row[0]
         }));
 
-        res.json(notifications);
+        res.json(courses);
 
     }
     catch (err) {
@@ -2204,51 +1542,65 @@ router.get("/notifications", async (req, res) => {
 
 });
 
-router.get("/notifications/:id", async (req, res) => {
+router.get("/courses/:id", async (req,res)=>{
 
     let connection;
 
-    try {
+    try{
 
         connection = await getConnection();
 
         const result = await connection.execute(
+
             `SELECT
-                NOTIFICATION_ID,
-                TITLE,
-                MESSAGE,
-                TARGET_ROLE
-             FROM NOTIFICATIONS
-             WHERE NOTIFICATION_ID = :id`,
-            {
-                id: req.params.id
-            },
+                COURSE_ID,
+                COURSE_NAME,
+                CLASS_NAME,
+                DIVISION_NAME,
+                SUBJECTS,
+                DURATION_MONTHS,
+                TO_CHAR(START_DATE,'YYYY-MM-DD'),
+                TO_CHAR(END_DATE,'YYYY-MM-DD'),
+                FEE_AMOUNT
+             FROM COURSES
+             WHERE COURSE_ID=:id`,
+
+            {id:req.params.id},
+
             {
                 fetchInfo: {
-                    "MESSAGE": { type: oracledb.STRING }
+                    "SUBJECTS": { type: oracledb.STRING }
                 }
             }
+
         );
 
-        if (result.rows.length === 0) {
+        if(result.rows.length===0){
 
             return res.json({
-                success: false,
-                message: "Notification not found."
+
+                success:false,
+                message:"Course not found."
+
             });
 
         }
 
-        const row = result.rows[0];
+        const row=result.rows[0];
 
         res.json({
 
-            success: true,
+            success:true,
 
-            notification_id: row[0],
-            title: row[1],
-            message: row[2],
-            target_role: row[3]
+            course_id:row[0],
+            course_name:row[1],
+            class_name:row[2],
+            division_name:row[3],
+            subjects:row[4],
+            duration_months:row[5],
+            start_date:row[6],
+            end_date:row[7],
+            fee_amount:row[8]
 
         });
 
@@ -2258,131 +1610,88 @@ router.get("/notifications/:id", async (req, res) => {
         console.error(err);
 
         res.status(500).json({
-            success: false,
-            message: err.message
+            success:false,
+            message:err.message
         });
 
     }
-    finally {
+    finally{
 
-        if (connection)
+        if(connection)
             await connection.close();
 
     }
 
 });
 
-router.post("/notifications", async (req, res) => {
+router.put("/courses/:id", async (req,res)=>{
 
     let connection;
 
-    try {
+    try{
 
         connection = await getConnection();
 
-        const sql = `
-        INSERT INTO NOTIFICATIONS
-        (
-            NOTIFICATION_ID,
-            TITLE,
-            MESSAGE,
-            TARGET_ROLE
-        )
-        VALUES
-        (
-            :notification_id,
-            :title,
-            :message,
-            :target_role
-        )
+        const sql=`
+
+        UPDATE COURSES SET
+
+            COURSE_NAME=:course_name,
+            CLASS_NAME=:class_name,
+            DIVISION_NAME=:division_name,
+            SUBJECTS=:subjects,
+            DURATION_MONTHS=:duration_months,
+            START_DATE=TO_DATE(:start_date,'YYYY-MM-DD'),
+            END_DATE=TO_DATE(:end_date,'YYYY-MM-DD'),
+            FEE_AMOUNT=:fee_amount
+
+        WHERE COURSE_ID=:course_id
+
         `;
 
-        await connection.execute(sql, {
+        await connection.execute(sql,{
 
-            notification_id: req.body.notification_id,
-            title: req.body.title,
-            message: req.body.message,
-            target_role: req.body.target_role
+            course_id:req.params.id,
+            course_name:req.body.course_name,
+            class_name:req.body.class_name,
+            division_name:req.body.division_name,
+            subjects:req.body.subjects,
+            duration_months:req.body.duration_months,
+            start_date:req.body.start_date,
+            end_date:req.body.end_date,
+            fee_amount:req.body.fee_amount
 
-        }, {
-            autoCommit: true
+        },{
+
+            autoCommit:true
+
         });
 
         res.json({
-            success: true,
-            message: "Notification saved successfully."
+
+            success:true,
+            message:"Course updated successfully."
+
         });
 
     }
-    catch (err) {
+
+    catch(err){
 
         console.error(err);
 
         res.status(500).json({
-            success: false,
-            message: err.message
+
+            success:false,
+            message:err.message
+
         });
 
     }
-    finally {
 
-        if (connection)
-            await connection.close();
+    finally{
 
-    }
-
-});
-
-router.put("/notifications/:id", async (req, res) => {
-
-    let connection;
-
-    try {
-
-        connection = await getConnection();
-
-        const sql = `
-            UPDATE NOTIFICATIONS SET
-
-                TITLE = :title,
-                MESSAGE = :message,
-                TARGET_ROLE = :target_role
-
-            WHERE NOTIFICATION_ID = :notification_id
-        `;
-
-        const binds = {
-
-            notification_id: req.params.id,
-            title: req.body.title,
-            message: req.body.message,
-            target_role: req.body.target_role
-
-        };
-
-        await connection.execute(sql, binds, {
-            autoCommit: true
-        });
-
-        res.json({
-            success: true,
-            message: "Notification updated successfully."
-        });
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-            success: false,
-            message: err.message
-        });
-
-    }
-    finally {
-
-        if (connection)
+        if(connection)
             await connection.close();
 
     }

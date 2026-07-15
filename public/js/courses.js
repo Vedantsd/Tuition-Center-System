@@ -8,16 +8,30 @@ document.addEventListener("DOMContentLoaded", () => {
     loadNewCourseId();
     loadCourseList();
 
+    setupRequiredValidation([
+        { id: "CourseName", label: "Course Name" },
+        { id: "ClassName",  label: "Class Name" },
+        { id: "Subject",    label: "Subject" },
+        { id: "Duration",   label: "Duration" },
+        { id: "StartDate",  label: "Start Date" },
+        { id: "EndDate",    label: "End Date" },
+        { id: "FeeAmount",  label: "Fee Amount" }
+    ]);
+
+    document
+        .getElementById("newBtn")
+        .addEventListener("click", enterNewMode);
+
     document
         .getElementById("findBtn")
-        .addEventListener("click", handleFindNew);
+        .addEventListener("click", enterFindMode);
 
     document
         .getElementById("CourseID")
         .addEventListener("keydown", function (event) {
 
             if (event.key === "Enter" && !this.readOnly) {
-                findCourse();
+                performFind();
             }
 
         });
@@ -30,11 +44,107 @@ document.addEventListener("DOMContentLoaded", () => {
         .getElementById("nextBtn")
         .addEventListener("click", nextRecord);
 
+    // document
+    //     .querySelector(".save-btn")
+    //     .addEventListener("click", saveCourse);
+
     document
         .querySelector(".save-btn")
-        .addEventListener("click", saveCourse);
+        .addEventListener("click", handleSaveClick);
 
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const overlay = document.getElementById("infoModalOverlay");
+    const modalText = document.getElementById("infoModalText");
+    const closeBtn = document.getElementById("infoModalClose");
+
+    document.querySelectorAll(".info-icon").forEach(icon => {
+
+        icon.addEventListener("click", () => {
+            modalText.textContent = icon.dataset.info;
+            overlay.classList.add("show");
+        });
+
+    });
+
+    closeBtn.addEventListener("click", () => {
+        overlay.classList.remove("show");
+    });
+
+    // Click outside the box also closes it
+    overlay.addEventListener("click", (event) => {
+        if (event.target === overlay) {
+            overlay.classList.remove("show");
+        }
+    });
+
+});
+
+function setupRequiredValidation(fields) {
+
+    fields.forEach(({ id, label }) => {
+
+        const input = document.getElementById(id);
+
+        if (!input) return;
+
+        // Wrap the input in a positioned container
+        const wrapper = document.createElement("div");
+        wrapper.className = "field-wrapper";
+
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+
+        // Error message goes inside the wrapper, absolutely positioned under the input
+        const errorEl = document.createElement("div");
+        errorEl.className = "field-error-text";
+        errorEl.id = id + "ErrorMsg";
+        wrapper.appendChild(errorEl);
+
+        input.addEventListener("blur", () => {
+
+            if (!input.value || !input.value.toString().trim()) {
+
+                input.classList.add("input-error");
+                errorEl.textContent = label + " is required.";
+                errorEl.classList.add("show");
+
+            }
+
+        });
+
+        input.addEventListener("input", () => {
+
+            input.classList.remove("input-error");
+            errorEl.classList.remove("show");
+            errorEl.textContent = "";
+
+        });
+
+    });
+
+}
+
+function clearAllValidationErrors() {
+
+    document.querySelectorAll(".field-error-text").forEach(errorEl => {
+
+        errorEl.textContent = "";
+        errorEl.classList.remove("show");
+
+    });
+
+    document.querySelectorAll(".input-error").forEach(input => {
+
+        input.classList.remove("input-error");
+
+    });
+
+}
+
+
 
 function showMessage(message, type = "info") {
 
@@ -61,6 +171,14 @@ function setSaveButtonText(text) {
 
 }
 
+
+function setActiveToggle(mode) {
+
+    document.getElementById("newBtn").classList.toggle("active", mode === "new");
+    document.getElementById("findBtn").classList.toggle("active", mode === "find");
+
+}
+
 function clearForm() {
 
     document.getElementById("CourseName").value = "";
@@ -71,6 +189,8 @@ function clearForm() {
     document.getElementById("StartDate").value = "";
     document.getElementById("EndDate").value = "";
     document.getElementById("FeeAmount").value = "";
+
+    clearAllValidationErrors();
 
     isExistingCourse = false;
     setSaveButtonText("Save");
@@ -83,11 +203,15 @@ function populateForm(course) {
     document.getElementById("CourseName").value = course.course_name ?? "";
     document.getElementById("ClassName").value = course.class_name ?? "";
     document.getElementById("DivisionName").value = course.division_name ?? "";
+
     document.getElementById("Subject").value = course.subjects ?? "";
     document.getElementById("Duration").value = course.duration_months ?? "";
+
     document.getElementById("StartDate").value = course.start_date ?? "";
     document.getElementById("EndDate").value = course.end_date ?? "";
     document.getElementById("FeeAmount").value = course.fee_amount ?? "";
+
+    clearAllValidationErrors();
 
     isExistingCourse = true;
     setSaveButtonText("Update");
@@ -108,10 +232,9 @@ async function loadNewCourseId() {
         }
 
         document.getElementById("CourseID").value = result.course_id;
-
         document.getElementById("CourseID").readOnly = true;
 
-        document.getElementById("findBtn").textContent = "Find";
+        setActiveToggle("new");
 
         isExistingCourse = false;
 
@@ -128,43 +251,45 @@ async function loadNewCourseId() {
 
 }
 
-function handleFindNew() {
+// "New" button clicked
+async function enterNewMode() {
 
-    const button = document.getElementById("findBtn");
-    const courseIdInput = document.getElementById("CourseID");
+    clearForm();
 
-    if (button.textContent === "Find") {
+    await loadNewCourseId();
 
-        clearForm();
+    document.getElementById("CourseID").readOnly = true;
 
-        courseIdInput.value = "";
-        courseIdInput.readOnly = false;
-        courseIdInput.focus();
+    setActiveToggle("new");
 
-        button.textContent = "New";
-
-        isExistingCourse = false;
-
-        setSaveButtonText("Save");
-
-        showMessage("Enter Course ID and press Enter.", "info");
-
-    }
-    else {
-
-        clearForm();
-
-        courseIdInput.readOnly = true;
-
-        button.textContent = "Find";
-
-        loadNewCourseId();
-
-    }
+    setSaveButtonText("Save");
 
 }
 
-async function findCourse() {
+// "Find" button clicked — just switches to search mode, does NOT search yet
+function enterFindMode() {
+
+    clearForm();
+
+    const courseIdInput = document.getElementById("CourseID");
+
+    courseIdInput.value = "";
+    courseIdInput.readOnly = false;
+    courseIdInput.focus();
+
+    setActiveToggle("find");
+
+    isExistingCourse = false;
+
+    setSaveButtonText("Save");
+
+    showMessage("Enter Course ID and press Enter.", "info");
+
+}
+
+// Runs the actual search — triggered by pressing Enter while the
+// CourseID field is unlocked (i.e. after clicking "Find").
+async function performFind() {
 
     const courseIdInput = document.getElementById("CourseID");
 
@@ -188,6 +313,8 @@ async function findCourse() {
 
             clearForm();
 
+            document.getElementById("CourseID").value = courseId;
+
             showMessage("Course not found.", "error");
 
             courseIdInput.focus();
@@ -197,6 +324,10 @@ async function findCourse() {
         }
 
         populateForm(result);
+
+        document.getElementById("CourseID").readOnly = true;
+
+        setActiveToggle("find");
 
         showMessage("Course loaded successfully.", "success");
 
@@ -255,9 +386,9 @@ async function loadAndPopulateCourse(courseId) {
 
         populateForm(result);
 
-        document.getElementById("findBtn").textContent = "New";
-
         document.getElementById("CourseID").readOnly = true;
+
+        setActiveToggle("find");
 
     }
     catch (err) {
@@ -326,6 +457,15 @@ async function nextRecord() {
 
     if (currentIndex === -1) {
 
+        const lastId = courseList[courseList.length - 1];
+
+        if (currentId > lastId) {
+
+            showMessage("Already at new record.", "info");
+            return;
+
+        }
+
         currentIndex = 0;
 
     }
@@ -335,15 +475,9 @@ async function nextRecord() {
 
         currentIndex = -1;
 
-        setSaveButtonText("Save");
+        await loadNewCourseId();
 
-        document.getElementById("findBtn").textContent = "Find";
-
-        document.getElementById("CourseID").readOnly = true;
-
-        loadNewCourseId();
-
-        showMessage("New course record.", "info");
+        showMessage("New Course Record.", "success");
 
         return;
 
@@ -366,8 +500,10 @@ function getFormData() {
         course_name: document.getElementById("CourseName").value.trim(),
         class_name: document.getElementById("ClassName").value.trim(),
         division_name: document.getElementById("DivisionName").value.trim(),
+
         subjects: document.getElementById("Subject").value.trim(),
-        duration_months: document.getElementById("Duration").value,
+        duration_months: Number(document.getElementById("Duration").value),
+
         start_date: document.getElementById("StartDate").value,
         end_date: document.getElementById("EndDate").value,
         fee_amount: document.getElementById("FeeAmount").value
@@ -427,12 +563,69 @@ function validateForm(data) {
 
 }
 
-async function saveCourse() {
+function handleSaveClick() {
 
     const data = getFormData();
 
     if (!validateForm(data))
         return;
+
+    // If updating an existing course, ask for confirmation first
+    if (isExistingCourse) {
+
+        showConfirmModal();
+
+    }
+    else {
+
+        saveCourse();
+
+    }
+
+}
+
+function showConfirmModal() {
+
+    document.getElementById("confirmMessage").textContent =
+        "Are you sure you want to update this record?";
+
+    document.getElementById("confirmModal").classList.add("show");
+
+}
+
+function hideConfirmModal() {
+
+    document.getElementById("confirmModal").classList.remove("show");
+
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    document
+        .getElementById("confirmYesBtn")
+        .addEventListener("click", () => {
+
+            hideConfirmModal();
+            saveCourse();
+
+        });
+
+    document
+        .getElementById("confirmNoBtn")
+        .addEventListener("click", () => {
+
+            hideConfirmModal();
+
+        });
+
+});
+
+async function saveCourse() {
+
+    const data = getFormData();
+
+    // if (!validateForm(data))
+    //     return;
 
     try {
 

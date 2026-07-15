@@ -1,3 +1,4 @@
+
 const express = require("express");
 const cors = require("cors");
 
@@ -12,6 +13,6 @@ app.use("/api", require("./routes/api"));
 app.use("/api", require("./routes/lookupValues"));
 
 app.listen(3000, () => {
+
     console.log("Server Started...");
 });
-
