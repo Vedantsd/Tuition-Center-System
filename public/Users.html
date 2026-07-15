@@ -32,9 +32,7 @@
 
                 <label for="UserID">
                     User ID <span class="required">*</span>
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter a unique numerical value.</span>
-                    </span>
+                    <span class="info-icon" data-info="Enter a unique numerical value.">ⓘ</span>
                 </label>
 
                 <div class="id-find-group">
@@ -49,9 +47,7 @@
 
                 <label for="UserType">
                     User Type <span class="required">*</span>
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Select the appropriate user type.</span>
-                    </span>
+                    <span class="info-icon" data-info="Select the appropriate user type.">ⓘ</span>
                 </label>
 
                 <div class="user-field-wrapper">
@@ -67,9 +63,7 @@
 
                 <label for="FirstName">
                     First Name <span class="required">*</span>
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter the user's first name.</span>
-                    </span>
+                    <span class="info-icon" data-info="Enter the user's first name.">ⓘ</span>
                 </label>
                 <div class="user-field-wrapper">
                 <input type="text" id="FirstName" required>
@@ -79,9 +73,7 @@
 
                 <label for="LastName">
                     Last Name <span class="required">*</span>
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter the user's last name.</span>
-                    </span>
+                    <span class="info-icon" data-info="Enter the user's last name.">ⓘ</span>
                 </label>
                 <div class="user-field-wrapper">
                 <input type="text" id="LastName" required>
@@ -94,9 +86,7 @@
 
                 <label for="MobileNo">
                     Mobile No.
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter the mobile number.</span>
-                    </span>
+                    <span class="info-icon" data-info="Enter the mobile number.">ⓘ</span>
                 </label>
 
                 <input type="number" id="MobileNo" class="short-input">
@@ -105,9 +95,7 @@
 
                 <label for="Email">
                     Email <span class="required">*</span>
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter a valid email address.</span>
-                    </span>
+                    <span class="info-icon" data-info="Enter a valid email address.">ⓘ</span>
                 </label>
                 <div class="user-field-wrapper">
                 <input type="email" id="Email" required>
@@ -120,9 +108,7 @@
 
                 <label for="Password">
                     Password <span class="required">*</span>
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Password must contain at least 8 characters.</span>
-                    </span>
+                    <span class="info-icon" data-info="Password must contain at least 8 characters.">ⓘ</span>
                 </label>
                 <div class="user-field-wrapper">
                 <input type="password" id="Password" minlength="8" required>
@@ -132,9 +118,7 @@
 
                 <label for="DOB">
                     DOB <span class="required">*</span>
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Select the user's date of birth.</span>
-                    </span>
+                    <span class="info-icon" data-info="Select the user's date of birth.">ⓘ</span>
                 </label>
                 <div class="user-field-wrapper">
                 <input type="date" id="DOB" class="short-input" required>
@@ -147,9 +131,7 @@
 
                 <label for="Address">
                     Address
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter the residential address.</span>
-                    </span>
+                    <span class="info-icon" data-info="Enter the residential address.">ⓘ</span>
                 </label>
 
                 <input type="text" id="Address">
@@ -158,9 +140,7 @@
 
                 <label for="Qualification">
                     Qualification
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter the qualification.</span>
-                    </span>
+                    <span class="info-icon" data-info="Enter the qualification.">ⓘ</span>
                 </label>
 
                 <input type="text" id="Qualification">
@@ -172,9 +152,7 @@
 
                 <label for="JoiningDate">
                     Joining Date
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Select the joining date.</span>
-                    </span>
+                    <span class="info-icon" data-info="Select the joining date.">ⓘ</span>
                 </label>
 
                 <input type="date" id="JoiningDate" class="short-input">
@@ -183,9 +161,7 @@
 
                 <label for="Gender">
                     Gender
-                    <span class="info-icon">ⓘ
-                        <span class="tooltip">Select the gender.</span>
-                    </span>
+                    <span class="info-icon" data-info="Select the gender.">ⓘ</span>
                 </label>
 
                 <select id="Gender" class="short-input">
@@ -207,8 +183,16 @@
 
 </div>
 </div>
+
 <script src="js/db-api.js"></script>
 <script src="js/users.js"></script>
+
+<div class="modal-overlay" id="infoModalOverlay">
+    <div class="modal-box">
+        <p id="infoModalText"></p>
+        <button type="button" id="infoModalClose" class="btn nav-btn">Close</button>
+    </div>
+</div>
 
 </body>
 </html>

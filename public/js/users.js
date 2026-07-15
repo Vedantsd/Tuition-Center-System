@@ -119,6 +119,41 @@ userIdField.addEventListener("input", function () {
 
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+
+    const infoModalOverlay = document.getElementById("infoModalOverlay");
+    const infoModalText = document.getElementById("infoModalText");
+    const infoModalClose = document.getElementById("infoModalClose");
+
+    document.querySelectorAll(".info-icon[data-info]").forEach(icon => {
+
+        icon.addEventListener("click", () => {
+
+            infoModalText.textContent = icon.getAttribute("data-info");
+            infoModalOverlay.classList.add("show");
+
+        });
+
+    });
+
+    infoModalClose.addEventListener("click", () => {
+
+        infoModalOverlay.classList.remove("show");
+
+    });
+
+    infoModalOverlay.addEventListener("click", (event) => {
+
+        if (event.target === infoModalOverlay) {
+
+            infoModalOverlay.classList.remove("show");
+
+        }
+
+    });
+
+});
+
 function setActiveMode(mode) {
 
     document.getElementById("newModeBtn").classList.remove("active");
