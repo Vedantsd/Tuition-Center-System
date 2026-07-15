@@ -2,6 +2,7 @@ let messageTimer = null;
 let isExistingUser = false;
 let userList = [];
 let currentIndex = -1;
+let originalUserData = null;
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -31,6 +32,24 @@ document.addEventListener("DOMContentLoaded", () => {
     document
         .querySelector(".save-btn")
         .addEventListener("click", saveUser);
+
+    document
+        .getElementById("confirmYesBtn")
+        .addEventListener("click", async () => {
+
+            hideConfirmModal();
+            await performSaveUser();
+
+        });
+
+    document
+        .getElementById("confirmNoBtn")
+        .addEventListener("click", () => {
+
+            hideConfirmModal();
+            restoreOriginalValues();
+
+        });
 
     document
         .querySelector(".prevButton")
@@ -198,6 +217,29 @@ function setSaveButtonDisabled(disabled) {
 
 }
 
+function showConfirmModal() {
+
+    document.getElementById("confirmModal").classList.add("show");
+
+}
+
+function hideConfirmModal() {
+
+    document.getElementById("confirmModal").classList.remove("show");
+
+}
+
+function restoreOriginalValues() {
+
+    if (!originalUserData)
+        return;
+
+    populateForm(originalUserData);
+
+    showMessage("Changes discarded.", "info");
+
+}
+
 async function loadNewUserId() {
 
     try {
@@ -260,6 +302,8 @@ function setSaveButtonText(text) {
 
 function clearForm() {
 
+    originalUserData = null;
+
     document.getElementById("UserType").value = "";
     document.getElementById("FirstName").value = "";
     document.getElementById("LastName").value = "";
@@ -318,6 +362,8 @@ function setSelectValueCaseInsensitive(selectId, storedValue) {
 }
 
 function populateForm(user) {
+
+    originalUserData = JSON.parse(JSON.stringify(user));
 
     document.getElementById("UserID").value = user.user_id ?? "";
     document.getElementById("FirstName").value = user.first_name ?? "";
@@ -861,6 +907,24 @@ function validateForm(data) {
 }
 
 async function saveUser() {
+
+    const data = getFormData();
+
+    if (!validateForm(data))
+        return;
+
+    if (isExistingUser) {
+
+        showConfirmModal();
+        return;
+
+    }
+
+    await performSaveUser();
+
+}
+
+async function performSaveUser() {
 
     const data = getFormData();
 
