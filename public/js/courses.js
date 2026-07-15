@@ -179,6 +179,31 @@ function setActiveToggle(mode) {
 
 }
 
+const otherFieldIds = [
+    "CourseName", "ClassName", "DivisionName",
+    "Subject", "Duration", "StartDate", "EndDate", "FeeAmount"
+];
+
+function lockOtherFields() {
+
+    otherFieldIds.forEach(id => {
+        document.getElementById(id).readOnly = true;
+    });
+
+    document.querySelector(".save-btn").disabled = true;
+
+}
+
+function unlockOtherFields() {
+
+    otherFieldIds.forEach(id => {
+        document.getElementById(id).readOnly = false;
+    });
+
+    document.querySelector(".save-btn").disabled = false;
+
+}
+
 function clearForm() {
 
     document.getElementById("CourseName").value = "";
@@ -213,6 +238,8 @@ function populateForm(course) {
 
     clearAllValidationErrors();
 
+    unlockOtherFields();
+
     isExistingCourse = true;
     setSaveButtonText("Update");
 
@@ -233,6 +260,8 @@ async function loadNewCourseId() {
 
         document.getElementById("CourseID").value = result.course_id;
         document.getElementById("CourseID").readOnly = true;
+
+        unlockOtherFields();
 
         setActiveToggle("new");
 
@@ -277,11 +306,13 @@ function enterFindMode() {
     courseIdInput.readOnly = false;
     courseIdInput.focus();
 
+    lockOtherFields();
+
     setActiveToggle("find");
 
     isExistingCourse = false;
 
-    setSaveButtonText("Save");
+    setSaveButtonText("Update");
 
     showMessage("Enter Course ID and press Enter.", "info");
 
@@ -314,6 +345,10 @@ async function performFind() {
             clearForm();
 
             document.getElementById("CourseID").value = courseId;
+
+            lockOtherFields();
+
+            setSaveButtonText("Update");
 
             showMessage("Course not found.", "error");
 
