@@ -718,3 +718,7 @@ input[readonly] {
     cursor: default !important;
 }
 
+save-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

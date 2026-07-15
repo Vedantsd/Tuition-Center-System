@@ -8,9 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const feeIdInput = document.getElementById("FeeID");
             if (feeIdInput.readOnly) {
                 // first click: unlock the field so the user can type an id,
-                // and switch the toggle to Find right away
+                // clear out any previously-loaded record's data, and
+                // immediately switch to "looking something up" mode —
+                // Update label, everything else locked until we confirm
+                // whether the id actually exists
                 unlockFeeId();
-                setActiveSegment("findBtn");
+                clearDetailFields();
+                enterFindLookupMode();
             } else {
                 // already unlocked: this click means "search now"
                 loadFee();
@@ -75,6 +79,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
 let messageTimer;
 let isExistingFee = false;
+let courseDropdownLocked = false;
+
+/* ==========================
+   LOCK / UNLOCK DETAIL FIELDS
+   Used while a Find lookup is pending — everything except the
+   Fee ID box itself gets locked until we know whether a record
+   with that id actually exists.
+========================== */
+function lockDetailFields() {
+    document.getElementById("RegistrationFee").readOnly = true;
+    document.getElementById("TuitionFee").readOnly = true;
+    document.getElementById("ExamFee").readOnly = true;
+    document.getElementById("MaterialFee").readOnly = true;
+
+    document.getElementById("courseSelectDisplay").classList.add("course-select-locked");
+    courseDropdownLocked = true;
+
+    document.querySelector(".save-btn").disabled = true;
+}
+
+function unlockDetailFields() {
+    document.getElementById("RegistrationFee").readOnly = false;
+    document.getElementById("TuitionFee").readOnly = false;
+    document.getElementById("ExamFee").readOnly = false;
+    document.getElementById("MaterialFee").readOnly = false;
+
+    document.getElementById("courseSelectDisplay").classList.remove("course-select-locked");
+    courseDropdownLocked = false;
+
+    document.querySelector(".save-btn").disabled = false;
+}
+
+// Call the instant a Find lookup begins (even before typing an id) —
+// flips the button to Update and locks everything else right away.
+function enterFindLookupMode() {
+    setSaveButtonText("Update");
+    setActiveSegment("findBtn");
+    lockDetailFields();
+}
 
 /* ==========================
    REQUIRED FIELD VALIDATION (red line under empty required fields)
@@ -213,6 +256,7 @@ function setupCourseDropdown() {
     const list = document.getElementById("courseSelectList");
 
     display.addEventListener("click", (e) => {
+        if (courseDropdownLocked) return;
         e.stopPropagation();
         const isOpen = list.classList.contains("open");
         closeCourseDropdown();
@@ -328,6 +372,7 @@ async function prepareNewRecord() {
     setSaveButtonText("Save");
     setActiveSegment("newBtn");
     lockFeeId();
+    unlockDetailFields();
 
     showMessage("Ready for new Fee record.", "info");
 }
@@ -336,8 +381,15 @@ async function prepareNewRecord() {
    CLEAR FORM
 ========================== */
 function clearForm() {
-
     document.getElementById("FeeID").value = "";
+    clearDetailFields();
+}
+
+// Clears everything EXCEPT Fee ID itself — used both by clearForm()
+// and whenever a new Find lookup begins, so stale data from a
+// previously-loaded record never lingers while searching for another.
+function clearDetailFields() {
+
     selectCourse("", "");
 
     document.getElementById("RegistrationFee").value = "";
@@ -381,6 +433,7 @@ function populateForm(fee) {
     setSaveButtonText("Update");
     setActiveSegment("findBtn");
     lockFeeId();
+    unlockDetailFields();
 }
 
 /* ==========================
@@ -402,32 +455,26 @@ async function loadFee(id) {
         document.getElementById("FeeID").value = id;
     }
 
+    // entering "looking something up" mode — Update label, everything
+    // else locked until we know whether this id actually exists
+    enterFindLookupMode();
+
     try {
 
         const result = await DatabaseAPI.get("/api/fee-master/" + feeId);
 
         if (!result.success) {
 
-            // no record at this id — clear the detail fields but
-            // keep the Fee ID visible so Prev/Next can keep moving
-            selectCourse("", "");
-            document.getElementById("RegistrationFee").value = "";
-            document.getElementById("TuitionFee").value = "";
-            document.getElementById("ExamFee").value = "";
-            document.getElementById("MaterialFee").value = "";
-            calculateTotalFee();
-
+            // no record at this id — show the message and just stay put:
+            // everything remains locked, button stays on Update, and the
+            // Fee ID box stays editable so the user can try another id
+            // without an automatic reset to New
             isExistingFee = false;
-            setSaveButtonText("Save");
-            setActiveSegment("newBtn");
-
-            showMessage("Fee record not found.", "info");
+            showMessage("Fee ID doesn't exist.", "error");
             return;
         }
 
         populateForm(result.data);
-
-        document.getElementById("findBtn").textContent = "Find";
 
         showMessage("Fee record loaded.", "success");
 

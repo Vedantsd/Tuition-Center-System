@@ -68,6 +68,22 @@ input, select {
     margin: 0;
     display: block;
 }
+
+/* ===== LOCKED STATE WHILE A FIND LOOKUP IS PENDING =====
+   Same grey look as the existing input[readonly] rule, applied to
+   the custom course dropdown (since it isn't a real <input>), plus
+   a dimmed look for the Save/Update button while it's disabled. */
+.course-select-locked {
+    background-color: #e9ecef !important;
+    color: #858c93 !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+.save-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 </style>
 
 </head>
