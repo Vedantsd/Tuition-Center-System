@@ -2,6 +2,7 @@ let messageTimer = null;
 let isExistingUser = false;
 let userList = [];
 let currentIndex = -1;
+let originalUserData = null;
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -31,6 +32,24 @@ document.addEventListener("DOMContentLoaded", () => {
     document
         .querySelector(".save-btn")
         .addEventListener("click", saveUser);
+
+    document
+        .getElementById("confirmYesBtn")
+        .addEventListener("click", async () => {
+
+            hideConfirmModal();
+            await performSaveUser();
+
+        });
+
+    document
+        .getElementById("confirmNoBtn")
+        .addEventListener("click", () => {
+
+            hideConfirmModal();
+            restoreOriginalValues();
+
+        });
 
     document
         .querySelector(".prevButton")
@@ -119,6 +138,41 @@ userIdField.addEventListener("input", function () {
 
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+
+    const infoModalOverlay = document.getElementById("infoModalOverlay");
+    const infoModalText = document.getElementById("infoModalText");
+    const infoModalClose = document.getElementById("infoModalClose");
+
+    document.querySelectorAll(".info-icon[data-info]").forEach(icon => {
+
+        icon.addEventListener("click", () => {
+
+            infoModalText.textContent = icon.getAttribute("data-info");
+            infoModalOverlay.classList.add("show");
+
+        });
+
+    });
+
+    infoModalClose.addEventListener("click", () => {
+
+        infoModalOverlay.classList.remove("show");
+
+    });
+
+    infoModalOverlay.addEventListener("click", (event) => {
+
+        if (event.target === infoModalOverlay) {
+
+            infoModalOverlay.classList.remove("show");
+
+        }
+
+    });
+
+});
+
 function setActiveMode(mode) {
 
     document.getElementById("newModeBtn").classList.remove("active");
@@ -130,6 +184,59 @@ function setActiveMode(mode) {
     else if (mode === "find") {
         document.getElementById("findModeBtn").classList.add("active");
     }
+
+}
+
+const FORM_FIELD_IDS = [
+    "UserType",
+    "FirstName",
+    "LastName",
+    "MobileNo",
+    "Email",
+    "Password",
+    "DOB",
+    "Address",
+    "Qualification",
+    "JoiningDate",
+    "Gender"
+];
+
+function setFormFieldsDisabled(disabled) {
+
+    FORM_FIELD_IDS.forEach(id => {
+
+        document.getElementById(id).disabled = disabled;
+
+    });
+
+}
+
+function setSaveButtonDisabled(disabled) {
+
+    document.querySelector(".save-btn").disabled = disabled;
+
+}
+
+function showConfirmModal() {
+
+    document.getElementById("confirmModal").classList.add("show");
+
+}
+
+function hideConfirmModal() {
+
+    document.getElementById("confirmModal").classList.remove("show");
+
+}
+
+function restoreOriginalValues() {
+
+    if (!originalUserData)
+        return;
+
+    populateForm(originalUserData);
+
+    showMessage("Changes discarded.", "info");
 
 }
 
@@ -153,6 +260,9 @@ async function loadNewUserId() {
 
         setSaveButtonText("Save");
         setActiveMode("new");
+
+        setFormFieldsDisabled(false);
+        setSaveButtonDisabled(false);
 
     }
     catch (err) {
@@ -191,6 +301,8 @@ function setSaveButtonText(text) {
 }
 
 function clearForm() {
+
+    originalUserData = null;
 
     document.getElementById("UserType").value = "";
     document.getElementById("FirstName").value = "";
@@ -251,6 +363,8 @@ function setSelectValueCaseInsensitive(selectId, storedValue) {
 
 function populateForm(user) {
 
+    originalUserData = JSON.parse(JSON.stringify(user));
+
     document.getElementById("UserID").value = user.user_id ?? "";
     document.getElementById("FirstName").value = user.first_name ?? "";
     document.getElementById("LastName").value = user.last_name ?? "";
@@ -286,6 +400,9 @@ removeUserIdRequiredError(
     document.getElementById("UserID")
 );
 
+setFormFieldsDisabled(false);
+setSaveButtonDisabled(false);
+
 }
 
 function startNewMode() {
@@ -319,9 +436,12 @@ function startFindMode() {
     userIdInput.readOnly = false;
     userIdInput.focus();
 
-    setSaveButtonText("Save");
+    setSaveButtonText("Update");
 
     setActiveMode("find");
+
+    setFormFieldsDisabled(true);
+    setSaveButtonDisabled(true);
 
     showMessage("Enter User ID and press Enter.", "info");
 
@@ -350,6 +470,10 @@ async function findUser() {
         if (!result.success) {
 
             clearForm();
+
+            setSaveButtonText("Update");
+            setFormFieldsDisabled(true);
+            setSaveButtonDisabled(true);
 
             showMessage("User not found.", "error");
 
@@ -411,6 +535,12 @@ async function loadAndPopulateUser(userId) {
         const result = await DatabaseAPI.get("/api/users/" + userId);
 
         if (!result.success) {
+
+            clearForm();
+
+            setSaveButtonText("Update");
+            setFormFieldsDisabled(true);
+            setSaveButtonDisabled(true);
 
             showMessage("User not found.", "error");
             return;
@@ -777,6 +907,24 @@ function validateForm(data) {
 }
 
 async function saveUser() {
+
+    const data = getFormData();
+
+    if (!validateForm(data))
+        return;
+
+    if (isExistingUser) {
+
+        showConfirmModal();
+        return;
+
+    }
+
+    await performSaveUser();
+
+}
+
+async function performSaveUser() {
 
     const data = getFormData();
 

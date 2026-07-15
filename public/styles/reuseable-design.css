@@ -177,6 +177,15 @@ body{
     background:#159E75;
 }
 
+/*
+
+*/
+
+.save-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .nav-btn{
     background:#6C4CF1;
     color:white;
@@ -567,6 +576,8 @@ body{
     font-weight: bold;
 }
 
+/* <<<<<<< Updated upstream */
+
 .segmented-toggle {
     display: inline-flex;
     border: 2px solid #6C4CF1;
@@ -718,7 +729,80 @@ input[readonly] {
     cursor: default !important;
 }
 
-save-btn:disabled {
-    opacity: 0.5;
+.stackinputs input:disabled,
+.stackinputs select:disabled {
+    background-color: #e9ecef;
+    color: #858c93;
     cursor: not-allowed;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/*================ INFO MODAL =================*/
+
+.info-icon{
+    cursor: pointer;
+}
+
+.modal-overlay{
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-overlay.show{
+    display: flex;
+}
+
+.modal-box{
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px 35px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,.25);
+}
+
+.modal-box p{
+    font-size: 17px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* --- Confirmation Modal Buttons --- */
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.confirm-yes-btn {
+    background: #1a73e8;
+    color: white;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.confirm-no-btn {
+    background: #e0e0e0;
+    color: #333;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
 }
