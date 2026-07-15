@@ -7,16 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
         .addEventListener("click", () => {
             const feeIdInput = document.getElementById("FeeID");
             if (feeIdInput.readOnly) {
-                // first click: unlock the field so the user can type an id,
-                // clear out any previously-loaded record's data, and
-                // immediately switch to "looking something up" mode —
-                // Update label, everything else locked until we confirm
-                // whether the id actually exists
                 unlockFeeId();
                 clearDetailFields();
                 enterFindLookupMode();
             } else {
-                // already unlocked: this click means "search now"
                 loadFee();
             }
         });
@@ -33,6 +27,8 @@ document.addEventListener("DOMContentLoaded", () => {
         .addEventListener("click", prepareNewRecord);
 
     setupCourseDropdown();
+    setupInfoIconPopups();
+    setupConfirmModalButtons();
 
     document.querySelector(".save-btn")
         .addEventListener("click", saveFee);
@@ -45,18 +41,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelector(".exit-btn")
         .addEventListener("click", () => {
-            // change this to wherever your dashboard / home page lives
             window.location.href = "index.html";
         });
 
-    // Auto total calculation - fires on typing AND on spinner/blur changes
     ["RegistrationFee", "TuitionFee", "ExamFee", "MaterialFee"].forEach(id => {
         const el = document.getElementById(id);
         el.addEventListener("input", calculateTotalFee);
         el.addEventListener("change", calculateTotalFee);
     });
 
-    // Required-field red-line validation (Registration Fee, Tuition Fee)
     ["RegistrationFee", "TuitionFee"].forEach(id => {
         const el = document.getElementById(id);
 
@@ -81,12 +74,53 @@ let messageTimer;
 let isExistingFee = false;
 let courseDropdownLocked = false;
 
-/* ==========================
-   LOCK / UNLOCK DETAIL FIELDS
-   Used while a Find lookup is pending — everything except the
-   Fee ID box itself gets locked until we know whether a record
-   with that id actually exists.
-========================== */
+
+
+function setupInfoIconPopups() {
+    document.querySelectorAll(".fee-master-page .info-icon").forEach(icon => {
+        const tooltip = icon.querySelector(".tooltip");
+        const text = tooltip ? tooltip.textContent.trim() : "";
+
+        icon.addEventListener("click", (e) => {
+            e.stopPropagation();
+            showInfoModal(text);
+        });
+    });
+
+    document.getElementById("infoModalClose")
+        .addEventListener("click", hideInfoModal);
+}
+
+function showInfoModal(text) {
+    document.getElementById("infoModalText").textContent = text;
+    document.getElementById("infoModalOverlay").classList.remove("hidden");
+}
+
+function hideInfoModal() {
+    document.getElementById("infoModalOverlay").classList.add("hidden");
+}
+
+let confirmModalResolve = null;
+
+function setupConfirmModalButtons() {
+    document.getElementById("confirmYesBtn").addEventListener("click", () => {
+        document.getElementById("confirmModalOverlay").classList.add("hidden");
+        if (confirmModalResolve) confirmModalResolve(true);
+    });
+
+    document.getElementById("confirmNoBtn").addEventListener("click", () => {
+        document.getElementById("confirmModalOverlay").classList.add("hidden");
+        if (confirmModalResolve) confirmModalResolve(false);
+    });
+}
+
+function showConfirmModal() {
+    return new Promise(resolve => {
+        confirmModalResolve = resolve;
+        document.getElementById("confirmModalOverlay").classList.remove("hidden");
+    });
+}
+
 function lockDetailFields() {
     document.getElementById("RegistrationFee").readOnly = true;
     document.getElementById("TuitionFee").readOnly = true;
@@ -111,17 +145,12 @@ function unlockDetailFields() {
     document.querySelector(".save-btn").disabled = false;
 }
 
-// Call the instant a Find lookup begins (even before typing an id) —
-// flips the button to Update and locks everything else right away.
 function enterFindLookupMode() {
     setSaveButtonText("Update");
     setActiveSegment("findBtn");
     lockDetailFields();
 }
 
-/* ==========================
-   REQUIRED FIELD VALIDATION (red line under empty required fields)
-========================== */
 function showFeeFieldError(field) {
     field.classList.add("fee-input-error");
 
@@ -147,9 +176,6 @@ function removeFeeFieldError(field) {
     if (msg) msg.remove();
 }
 
-// Course dropdown isn't a normal input, so it gets its own check:
-// flags the visible display box (not the hidden value input) and
-// checks the hidden #CourseID value to decide if it's empty.
 function checkCourseRequired() {
     const courseIdInput = document.getElementById("CourseID");
     const display = document.getElementById("courseSelectDisplay");
@@ -171,12 +197,6 @@ function checkCourseRequired() {
     }
 }
 
-/* ==========================
-   LOCK / UNLOCK FEE ID
-   Locked (readonly + grey) by default — shows the auto id preview
-   or a loaded record. Unlocked only while the user is actively
-   typing an id to search for via Find.
-========================== */
 function lockFeeId() {
     document.getElementById("FeeID").readOnly = true;
 }
@@ -188,9 +208,6 @@ function unlockFeeId() {
     el.select();
 }
 
-/* ==========================
-   MESSAGE
-========================== */
 function showMessage(message, type = "info") {
 
     const status = document.getElementById("statusMessage");
@@ -207,11 +224,6 @@ function showMessage(message, type = "info") {
     }, 5000);
 }
 
-/* ==========================
-   LOAD COURSES (custom dropdown)
-   NOTE: GET /api/courses returns a plain array (see api.js),
-   NOT a { success, data } object — so we must not check result.success here.
-========================== */
 let coursesCache = [];
 
 async function loadCourses() {
@@ -223,7 +235,6 @@ async function loadCourses() {
             return;
         }
 
-        // sort by course_id ascending so the list always shows 1,2,3...
         courses.sort((a, b) => Number(a.course_id) - Number(b.course_id));
 
         coursesCache = courses;
@@ -247,9 +258,6 @@ async function loadCourses() {
     }
 }
 
-/* ==========================
-   CUSTOM COURSE DROPDOWN — open/close + selection
-========================== */
 function setupCourseDropdown() {
 
     const display = document.getElementById("courseSelectDisplay");
@@ -276,9 +284,6 @@ function closeCourseDropdown() {
     list.classList.remove("open");
     document.getElementById("courseSelectDisplay").classList.remove("open");
 
-    // only validate if the dropdown was genuinely opened and is now
-    // closing (via selection or clicking away) — not on every
-    // unrelated click elsewhere on the page
     if (wasOpen) {
         checkCourseRequired();
     }
@@ -312,8 +317,6 @@ function selectCourse(id, name) {
     closeCourseDropdown();
 }
 
-// Sets the dropdown's displayed selection from a course_id alone
-// (used when loading an existing record where we only have the id)
 function setCourseSelectionById(courseId) {
 
     if (!courseId) {
@@ -326,8 +329,6 @@ function setCourseSelectionById(courseId) {
     if (match) {
         selectCourse(match.course_id, match.course_name);
     } else {
-        // course exists in the fee record but wasn't found in the cached
-        // list (e.g. deleted course) — still show the id so nothing's lost
         document.getElementById("CourseID").value = courseId;
         const textEl = document.getElementById("courseSelectText");
         textEl.className = "";
@@ -335,24 +336,13 @@ function setCourseSelectionById(courseId) {
     }
 }
 
-/* ==========================
-   SEGMENTED TOGGLE (New / Find)
-========================== */
 function setActiveSegment(activeId) {
     document.getElementById("newBtn").classList.remove("active");
     document.getElementById("findBtn").classList.remove("active");
     document.getElementById(activeId).classList.add("active");
 }
 
-/* ==========================
-   PREPARE A NEW RECORD
-   Clears the form and previews the next auto-generated Fee ID.
-   (The previewed ID is informational only — the INSERT itself
-   relies on the database's RETURNING FEE_ID INTO clause, so it
-   always gets the real next value even if two people click New
-   around the same time.)
-========================== */
-async function prepareNewRecord() {
+async function prepareNewRecord({ showReadyMessage = true } = {}) {
 
     clearForm();
 
@@ -374,20 +364,16 @@ async function prepareNewRecord() {
     lockFeeId();
     unlockDetailFields();
 
-    showMessage("Ready for new Fee record.", "info");
+    if (showReadyMessage) {
+        showMessage("Ready for new Fee record.", "info");
+    }
 }
 
-/* ==========================
-   CLEAR FORM
-========================== */
 function clearForm() {
     document.getElementById("FeeID").value = "";
     clearDetailFields();
 }
 
-// Clears everything EXCEPT Fee ID itself — used both by clearForm()
-// and whenever a new Find lookup begins, so stale data from a
-// previously-loaded record never lingers while searching for another.
 function clearDetailFields() {
 
     selectCourse("", "");
@@ -397,9 +383,8 @@ function clearDetailFields() {
     document.getElementById("ExamFee").value = "";
     document.getElementById("MaterialFee").value = "";
 
-    calculateTotalFee(); // resets Total to blank
+    calculateTotalFee();
 
-    // reset any leftover required-field error indicators
     removeFeeFieldError(document.getElementById("RegistrationFee"));
     removeFeeFieldError(document.getElementById("TuitionFee"));
     document.getElementById("courseSelectDisplay").classList.remove("fee-input-error");
@@ -409,9 +394,6 @@ function clearDetailFields() {
     if (courseWrapperMsg) courseWrapperMsg.remove();
 }
 
-/* ==========================
-   POPULATE FORM
-========================== */
 function populateForm(fee) {
 
     document.getElementById("FeeID").value = fee.fee_id;
@@ -422,9 +404,8 @@ function populateForm(fee) {
     document.getElementById("ExamFee").value = fee.exam_fee ?? "";
     document.getElementById("MaterialFee").value = fee.material_fee ?? "";
 
-    calculateTotalFee(); // recalc from the four fields
+    calculateTotalFee();
 
-    // a loaded record has real values — clear any stale error indicators
     removeFeeFieldError(document.getElementById("RegistrationFee"));
     removeFeeFieldError(document.getElementById("TuitionFee"));
     checkCourseRequired();
@@ -436,12 +417,7 @@ function populateForm(fee) {
     unlockDetailFields();
 }
 
-/* ==========================
-   LOAD FEE
-   Pass an explicit id (used by Prev/Next); otherwise reads the
-   FeeID input (used by the Find button / Enter key).
-========================== */
-async function loadFee(id) {
+async function loadFee(id, { suppressMessage = false } = {}) {
 
     const feeId = id || document.getElementById("FeeID").value;
 
@@ -450,43 +426,70 @@ async function loadFee(id) {
         return;
     }
 
-    // keep the field in sync when Prev/Next drive the lookup
     if (id) {
         document.getElementById("FeeID").value = id;
     }
 
-    // entering "looking something up" mode — Update label, everything
-    // else locked until we know whether this id actually exists
-    enterFindLookupMode();
+    const isManualFind = !id;
+
+    if (isManualFind) {
+        enterFindLookupMode();
+    } else {
+        setSaveButtonText("Update");
+        setActiveSegment("findBtn");
+    }
 
     try {
 
         const result = await DatabaseAPI.get("/api/fee-master/" + feeId);
 
-        if (!result.success) {
+  if (!result.success) {
 
-            // no record at this id — show the message and just stay put:
-            // everything remains locked, button stays on Update, and the
-            // Fee ID box stays editable so the user can try another id
-            // without an automatic reset to New
-            isExistingFee = false;
-            showMessage("Fee ID doesn't exist.", "error");
-            return;
-        }
+    if (!isManualFind) {
+
+        // Next/Previous navigation case
+        clearDetailFields();
+
+        document.getElementById("FeeID").value = feeId;
+
+        isExistingFee = false;
+
+        setSaveButtonText("Save");
+        setActiveSegment("newBtn");
+
+        lockFeeId();
+        unlockDetailFields();
+
+        showMessage("Ready for new Fee record.", "info");
+
+    } else {
+
+        // Manual Find case
+        clearDetailFields();
+
+        isExistingFee = false;
+
+        lockDetailFields();
+
+        showMessage("Fee ID doesn't exist.", "error");
+    }
+
+    return;
+}
 
         populateForm(result.data);
 
-        showMessage("Fee record loaded.", "success");
+        if (!suppressMessage) {
+            showMessage("Fee record loaded.", "success");
+        }
 
     } catch (err) {
         console.error(err);
+        if (!isManualFind) lockDetailFields();
         showMessage("Error loading fee record.", "error");
     }
 }
 
-/* ==========================
-   GET DATA (SAFE NUMBERS)
-========================== */
 function getFormData() {
 
     const num = (id) => {
@@ -506,9 +509,6 @@ function getFormData() {
     };
 }
 
-/* ==========================
-   VALIDATION
-========================== */
 function validateForm(data) {
 
     let isValid = true;
@@ -518,7 +518,7 @@ function validateForm(data) {
     const tuitionFeeInput = document.getElementById("TuitionFee");
 
     if (!courseIdInput.value) {
-        checkCourseRequired(); // flags the dropdown box in red
+        checkCourseRequired();
         isValid = false;
     }
 
@@ -548,23 +548,31 @@ function showError(msg) {
     return false;
 }
 
-/* ==========================
-   SAVE / UPDATE
-========================== */
 async function saveFee() {
 
     const data = getFormData();
 
     if (!validateForm(data)) return;
 
-    const wasExistingRecord = isExistingFee; // remember the mode BEFORE this save
+    const wasExistingRecord = isExistingFee;
+    const feeId = document.getElementById("FeeID").value;
+
+    if (wasExistingRecord) {
+        const confirmed = await showConfirmModal();
+
+        if (!confirmed) {
+            await loadFee(feeId, { suppressMessage: true });
+            showMessage("Changes discarded.", "info");
+            return;
+        }
+    }
 
     try {
 
         let result;
 
         if (wasExistingRecord) {
-            result = await DatabaseAPI.put("/api/fee-master/" + document.getElementById("FeeID").value, data);
+            result = await DatabaseAPI.put("/api/fee-master/" + feeId, data);
         } else {
             result = await DatabaseAPI.post("/api/fee-master", data);
         }
@@ -574,15 +582,14 @@ async function saveFee() {
             return;
         }
 
+        await prepareNewRecord({ showReadyMessage: false });
+
         showMessage(
-            result.message || (wasExistingRecord ? "Updated successfully." : "Saved successfully."),
+            wasExistingRecord
+                ? "Record updated successfully."
+                : (result.message || "Saved successfully."),
             "success"
         );
-
-        // whether this was a fresh insert or an update to an existing
-        // record, always jump straight into a fresh New record afterward,
-        // ready for the next entry with the next auto-incremented id
-        await prepareNewRecord();
 
     } catch (err) {
         console.error(err);
@@ -590,9 +597,6 @@ async function saveFee() {
     }
 }
 
-/* ==========================
-   PREVIOUS
-========================== */
 async function loadPreviousFee() {
 
     const currentId = parseInt(document.getElementById("FeeID").value, 10);
@@ -605,9 +609,6 @@ async function loadPreviousFee() {
     await loadFee(currentId - 1);
 }
 
-/* ==========================
-   NEXT
-========================== */
 async function loadNextFee() {
 
     const currentId = parseInt(document.getElementById("FeeID").value, 10);
@@ -620,18 +621,10 @@ async function loadNextFee() {
     await loadFee(currentId + 1);
 }
 
-/* ==========================
-   SAVE BUTTON TEXT
-========================== */
 function setSaveButtonText(text) {
     document.querySelector(".save-btn").textContent = text;
 }
 
-/* ==========================
-   AUTO TOTAL FEE
-   Shows a BLANK field until at least one fee is entered,
-   instead of showing "0".
-========================== */
 function calculateTotalFee() {
 
     const regVal = document.getElementById("RegistrationFee").value;
@@ -651,3 +644,4 @@ function calculateTotalFee() {
 
     document.getElementById("TotalFee").value = reg + tuition + exam + material;
 }
+

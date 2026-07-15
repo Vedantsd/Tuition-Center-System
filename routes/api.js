@@ -1554,11 +1554,12 @@ router.get("/courses", async (req, res) => {
         connection = await getConnection();
 
         const result = await connection.execute(
-            `SELECT COURSE_ID FROM COURSES ORDER BY COURSE_ID`
+            `SELECT COURSE_ID, COURSE_NAME FROM COURSES ORDER BY COURSE_ID`
         );
 
         const courses = result.rows.map(row => ({
-            course_id: row[0]
+            course_id: row[0],
+            course_name: row[1]
         }));
 
         res.json(courses);

@@ -84,6 +84,90 @@ input, select {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+/* ===== INFO ICON -> CLICK POPUP (Fee Master only) =====
+   The hover tooltip that ships in reuseable-design.css is turned
+   off on this page only, and replaced with a click-to-open modal
+   (setup in fee-master.js) so the full explanation is always
+   readable instead of a hover bubble that can get cut off/wrap. */
+.fee-master-page .info-icon {
+    cursor: pointer;
+}
+
+.fee-master-page .info-icon .tooltip {
+    display: none !important;
+}
+
+/* ===== MODAL OVERLAYS (info popup + confirm popup) ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal-box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 30px 40px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-box p {
+    font-size: 16px;
+    margin: 0 0 22px 0;
+    color: #222;
+    line-height: 1.4;
+}
+
+.modal-btn-row {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.modal-close-btn {
+    background: #6c4fe9;
+    color: #fff;
+    border: none;
+    padding: 10px 32px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.modal-yes-btn {
+    background: #2f6feb;
+    color: #fff;
+    border: none;
+    padding: 9px 28px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.modal-no-btn {
+    background: #e8e8e8;
+    color: #222;
+    border: none;
+    padding: 9px 28px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
 </style>
 
 </head>
@@ -260,6 +344,26 @@ input, select {
 
 </div>
 </div>
+
+<!-- INFO ICON POPUP (click on any ⓘ opens this with that field's tooltip text) -->
+<div id="infoModalOverlay" class="modal-overlay hidden">
+    <div class="modal-box">
+        <p id="infoModalText"></p>
+        <button type="button" id="infoModalClose" class="modal-close-btn">Close</button>
+    </div>
+</div>
+
+<!-- CONFIRM UPDATE POPUP (shown only when saving over an existing record) -->
+<div id="confirmModalOverlay" class="modal-overlay hidden">
+    <div class="modal-box">
+        <p>Are you sure you want to update this record?</p>
+        <div class="modal-btn-row">
+            <button type="button" id="confirmYesBtn" class="modal-yes-btn">Yes</button>
+            <button type="button" id="confirmNoBtn" class="modal-no-btn">No</button>
+        </div>
+    </div>
+</div>
+
 <!-- JS -->
 <script src="js/db-api.js"></script>
 <script src="js/fee-master.js"></script>
