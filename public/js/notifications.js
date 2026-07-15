@@ -39,6 +39,73 @@ document.addEventListener("DOMContentLoaded", () => {
         .querySelector(".nextButton")
         .addEventListener("click", nextRecord);
 
+    const requiredFields = [
+        document.getElementById("TargetRole"),
+        document.getElementById("Title"),
+        document.getElementById("Message")
+    ];
+
+    requiredFields.forEach(field => {
+
+        field.addEventListener("blur", function () {
+
+            if (this.value.trim() === "") {
+                showRequiredError(this);
+            }
+            else {
+                removeRequiredError(this);
+            }
+
+        });
+
+        field.addEventListener("input", function () {
+
+            if (this.value.trim() !== "") {
+                removeRequiredError(this);
+            }
+
+        });
+
+        field.addEventListener("change", function () {
+
+            if (this.value.trim() !== "") {
+                removeRequiredError(this);
+            }
+
+        });
+
+    });
+
+    const notificationIdField = document.getElementById("NotificationID");
+
+    notificationIdField.addEventListener("blur", function () {
+
+        if (
+            !this.readOnly &&
+            this.value.trim() === ""
+        ) {
+
+            showNotificationIdRequiredError(this);
+
+        }
+        else {
+
+            removeNotificationIdRequiredError(this);
+
+        }
+
+    });
+
+    notificationIdField.addEventListener("input", function () {
+
+        if (this.value.trim() !== "") {
+
+            removeNotificationIdRequiredError(this);
+
+        }
+
+    });
+
 });
 
 function setActiveMode(mode) {
@@ -121,6 +188,27 @@ function clearForm() {
     isExistingNotification = false;
     setSaveButtonText("Save");
 
+    document
+        .querySelectorAll(".user-field-wrapper")
+        .forEach(wrapper => {
+
+            const field = wrapper.querySelector("input, select, textarea");
+
+            field.classList.remove("field-error");
+
+            const errorMessage =
+                wrapper.querySelector(".field-error-message");
+
+            if (errorMessage) {
+                errorMessage.remove();
+            }
+
+        });
+
+    removeNotificationIdRequiredError(
+        document.getElementById("NotificationID")
+    );
+
 }
 
 function setSelectValueCaseInsensitive(selectId, storedValue) {
@@ -160,6 +248,20 @@ async function populateForm(notification) {
     isExistingNotification = true;
     setSaveButtonText("Update");
 
+    const requiredFields = [
+        document.getElementById("TargetRole"),
+        document.getElementById("Title"),
+        document.getElementById("Message")
+    ];
+
+    requiredFields.forEach(field => {
+        removeRequiredError(field);
+    });
+
+    removeNotificationIdRequiredError(
+        document.getElementById("NotificationID")
+    );
+
 }
 
 function startNewMode() {
@@ -169,6 +271,7 @@ function startNewMode() {
     isExistingNotification = false;
 
     const notificationIdInput = document.getElementById("NotificationID");
+    removeNotificationIdRequiredError(notificationIdInput);
 
     notificationIdInput.readOnly = true;
 
@@ -475,6 +578,84 @@ function getFormData() {
         message: document.getElementById("Message").value.trim()
 
     };
+
+}
+
+function showRequiredError(field) {
+
+    field.classList.add("field-error");
+
+    const wrapper = field.closest(".user-field-wrapper");
+
+    let errorMessage =
+        wrapper.querySelector(".field-error-message");
+
+    if (!errorMessage) {
+
+        errorMessage = document.createElement("span");
+
+        errorMessage.className = "field-error-message";
+
+        errorMessage.textContent = "This field is required";
+
+        wrapper.appendChild(errorMessage);
+
+    }
+
+}
+
+function removeRequiredError(field) {
+
+    field.classList.remove("field-error");
+
+    const wrapper = field.closest(".user-field-wrapper");
+
+    const errorMessage =
+        wrapper.querySelector(".field-error-message");
+
+    if (errorMessage) {
+        errorMessage.remove();
+    }
+
+}
+
+function showNotificationIdRequiredError(field) {
+
+    field.classList.add("field-error");
+
+    const group = field.closest(".id-find-group");
+
+    let errorMessage =
+        group.querySelector(".user-id-error-message");
+
+    if (!errorMessage) {
+
+        errorMessage = document.createElement("span");
+
+        errorMessage.className = "user-id-error-message";
+
+        errorMessage.textContent = "This field is required";
+
+        group.appendChild(errorMessage);
+
+    }
+
+}
+
+function removeNotificationIdRequiredError(field) {
+
+    field.classList.remove("field-error");
+
+    const group = field.closest(".id-find-group");
+
+    const errorMessage =
+        group.querySelector(".user-id-error-message");
+
+    if (errorMessage) {
+
+        errorMessage.remove();
+
+    }
 
 }
 
