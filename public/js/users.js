@@ -133,6 +133,36 @@ function setActiveMode(mode) {
 
 }
 
+const FORM_FIELD_IDS = [
+    "UserType",
+    "FirstName",
+    "LastName",
+    "MobileNo",
+    "Email",
+    "Password",
+    "DOB",
+    "Address",
+    "Qualification",
+    "JoiningDate",
+    "Gender"
+];
+
+function setFormFieldsDisabled(disabled) {
+
+    FORM_FIELD_IDS.forEach(id => {
+
+        document.getElementById(id).disabled = disabled;
+
+    });
+
+}
+
+function setSaveButtonDisabled(disabled) {
+
+    document.querySelector(".save-btn").disabled = disabled;
+
+}
+
 async function loadNewUserId() {
 
     try {
@@ -153,6 +183,9 @@ async function loadNewUserId() {
 
         setSaveButtonText("Save");
         setActiveMode("new");
+
+        setFormFieldsDisabled(false);
+        setSaveButtonDisabled(false);
 
     }
     catch (err) {
@@ -286,6 +319,9 @@ removeUserIdRequiredError(
     document.getElementById("UserID")
 );
 
+setFormFieldsDisabled(false);
+setSaveButtonDisabled(false);
+
 }
 
 function startNewMode() {
@@ -319,9 +355,12 @@ function startFindMode() {
     userIdInput.readOnly = false;
     userIdInput.focus();
 
-    setSaveButtonText("Save");
+    setSaveButtonText("Update");
 
     setActiveMode("find");
+
+    setFormFieldsDisabled(true);
+    setSaveButtonDisabled(true);
 
     showMessage("Enter User ID and press Enter.", "info");
 
@@ -350,6 +389,10 @@ async function findUser() {
         if (!result.success) {
 
             clearForm();
+
+            setSaveButtonText("Update");
+            setFormFieldsDisabled(true);
+            setSaveButtonDisabled(true);
 
             showMessage("User not found.", "error");
 
@@ -411,6 +454,12 @@ async function loadAndPopulateUser(userId) {
         const result = await DatabaseAPI.get("/api/users/" + userId);
 
         if (!result.success) {
+
+            clearForm();
+
+            setSaveButtonText("Update");
+            setFormFieldsDisabled(true);
+            setSaveButtonDisabled(true);
 
             showMessage("User not found.", "error");
             return;

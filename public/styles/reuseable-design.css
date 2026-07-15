@@ -729,3 +729,14 @@ input[readonly] {
     cursor: default !important;
 }
 
+.stackinputs input:disabled,
+.stackinputs select:disabled {
+    background-color: #e9ecef;
+    color: #858c93;
+    cursor: not-allowed;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
