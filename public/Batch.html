@@ -5,31 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles/reuseable-design.css">
     <title>Tuition Centre System</title>
-
-    <style>
-        .id-container{
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-        }
-
-        #BatchID{
-            flex: 1;
-        }
-
-        #PrevBtn,
-        #NextBtn{
-            background: #5535d6;
-            color: white;
-            border: none;
-        }
-
-        #PrevBtn:hover,
-        #NextBtn:hover{
-            background: #3d325d;
-        }
-    </style>
 </head>
 
 <body>
@@ -43,80 +18,93 @@
                 </div>
 
                 <div class="sub-title">
-                    Batch Entry
+                    Batch Master
                 </div>
 
                 <div id="statusMessage" class="status-message"></div>
 
                 <!-- Row 1 -->
                 <div class="stackinputs">
-                    <label for="BatchID">
-                        Batch ID
+
+                    <label for="BatchID" class="assignment-id-label">
+                        Batch ID <span class="required">*</span>
                         <span class="info-icon">ⓘ
-                            <span class="tooltip">System-generated unique identifier for this batch.</span>
+                            <span class="tooltip">Enter an existing batch ID.</span>
                         </span>
-                        <span class="required">*</span>
                     </label>
 
-                    <div class="id-container">
+                    <div class="id-find-group">
 
-    <input type="number" id="BatchID" readonly>
+                        <input class="short-input"
+                               type="number"
+                               id="BatchID"
+                               readonly
+                               required>
 
-    <button
-        type="button"
-        id="FindBtn"
-        class="btn mode-btn">
-        Find
-    </button>
+                        <div class="assignment-mode-toggle">
 
-    <button
-        type="button"
-        id="NewBtn"
-        class="btn mode-btn active">
-        New
-    </button>
+                            <button type="button"
+                                    class="assignment-mode-btn active"
+                                    id="newModeBtn">
+                                New
+                            </button>
 
-</div>
+                            <button type="button"
+                                    class="assignment-mode-btn"
+                                    id="findModeBtn">
+                                Find
+                            </button>
+
+                        </div>
+
+                    </div>
 
                     <div></div>
 
                     <label for="BatchName">
-                        Batch Name
+                        Batch Name <span class="required">*</span>
                         <span class="info-icon">ⓘ
                             <span class="tooltip">Enter a unique name to identify this batch.</span>
                         </span>
-                        <span class="required">*</span>
                     </label>
-                    <input type="text" id="BatchName" required>
+                    <div class="assignment-field-wrapper">
+                        <input type="text" id="BatchName" required>
+                    </div>
+
                 </div>
 
                 <!-- Row 2 -->
                 <div class="stackinputs">
+
                     <label for="CourseID">
-                        Course
+                        Course <span class="required">*</span>
                         <span class="info-icon">ⓘ
                             <span class="tooltip">Select the course this batch belongs to.</span>
                         </span>
-                        <span class="required">*</span>
                     </label>
-                    <select id="CourseID">
-                        <option value="">--Select Course--</option>
-                    </select>
+                    <div class="assignment-field-wrapper">
+                        <select class="short-input" id="CourseID">
+                            <option value="">Select Course</option>
+                        </select>
+                    </div>
 
                     <div></div>
 
                     <label for="Classroom">
-                        Classroom
+                        Classroom <span class="required">*</span>
                         <span class="info-icon">ⓘ
                             <span class="tooltip">Enter the classroom or room number where this batch will be held.</span>
                         </span>
-                        <span class="required">*</span>
                     </label>
-                    <input type="text" id="Classroom" required>
+                    <div class="assignment-field-wrapper">
+                        <input type="text" id="Classroom" required>
+                    </div>
+
                 </div>
 
                 <!-- Row 3 -->
                 <div class="stackinputs">
+
                     <label for="StartTime">
                         Start Time
                     </label>
@@ -128,18 +116,21 @@
                         End Time
                     </label>
                     <input type="time" id="EndTime">
+
                 </div>
 
                 <!-- Row 4 -->
                 <div class="stackinputs">
+
                     <label for="DaysOfWeek">
-                        Days Of Week
+                        Days Of Week <span class="required">*</span>
                         <span class="info-icon">ⓘ
                             <span class="tooltip">Enter the days this batch meets, e.g. Monday, Wednesday, Friday.</span>
                         </span>
-                        <span class="required">*</span>
                     </label>
-                    <input type="text" id="DaysOfWeek" >
+                    <div class="assignment-field-wrapper">
+                        <input type="text" id="DaysOfWeek" required>
+                    </div>
 
                     <div></div>
 
@@ -147,12 +138,14 @@
                         Faculty
                     </label>
                     <select id="FacultyID">
-                        <option value="">--Select Faculty--</option>
+                        <option value="">Select Faculty</option>
                     </select>
+
                 </div>
 
                 <!-- Row 5 -->
                 <div class="stackinputs">
+
                     <label for="StartDate">
                         Start Date
                     </label>
@@ -164,13 +157,14 @@
                         End Date
                     </label>
                     <input type="date" id="EndDate">
+
                 </div>
 
                 <div class="button-container">
-                    <button type="button" id="SaveBtn" class="btn save-btn">Save</button>
-                    <button type="button" class="btn prev-btn" id="PrevBtn">◀</button>
-                    <button type="button" class="btn next-btn" id="NextBtn">▶</button>
-                    <button type="button" class="btn exit-btn">Exit</button>
+                    <button class="btn save-btn">Save</button>
+                    <button class="btn nav-btn assignment-nav-btn previous-btn">◀</button>
+                    <button class="btn nav-btn assignment-nav-btn next-btn">▶</button>
+                    <button class="btn exit-btn">Exit</button>
                 </div>
 
             </div>

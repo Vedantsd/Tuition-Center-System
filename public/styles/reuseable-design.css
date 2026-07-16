@@ -234,7 +234,7 @@ body{
 .assignment-mode-toggle {
     display: flex;
     height: 52px;
-    border: 2px solid #1677ff;
+    border: 2px solid #6C4CF1;
     border-radius: 10px;
     overflow: hidden;
     flex-shrink: 0;
@@ -243,7 +243,7 @@ body{
 .assignment-mode-btn {
     border: none;
     background: #ffffff;
-    color: #1677ff;
+    color: #6C4CF1;
     padding: 0 16px;
     font-size: 15px;
     font-weight: 600;
@@ -292,11 +292,11 @@ body{
     display: block;
 }
 .assignment-mode-btn + .assignment-mode-btn {
-    border-left: 1px solid #1677ff;
+    border-left: 1px solid #6C4CF1;
 }
 
 .assignment-mode-btn.active {
-    background: #1677ff;
+    background: #6C4CF1;
     color: #ffffff;
 }
 
@@ -384,9 +384,6 @@ body{
     display:none;
 }
 
-.info-icon:hover .tooltip{
-    display:block;
-}
 
 .find-btn-container{
     display:flex;
@@ -437,7 +434,7 @@ body{
 }
 
 .find-btn{
-    background:#0d6efd;
+    background:#6C4CF1;
     color:#fff;
     padding:0 22px;
     height:52px;

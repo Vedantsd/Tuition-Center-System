@@ -9,77 +9,67 @@ document.addEventListener("DOMContentLoaded", () => {
     loadAssignmentList();
 
     const requiredFields = [
-    document.getElementById("Title"),
-    document.getElementById("BatchID"),
-    document.getElementById("DueDate")
-];
+        document.getElementById("Title"),
+        document.getElementById("BatchID"),
+        document.getElementById("DueDate")
+    ];
 
-requiredFields.forEach(field => {
+    requiredFields.forEach(field => {
 
-    field.addEventListener("blur", function () {
+        field.addEventListener("blur", function () {
 
-        if (this.value.trim() === "") {
+            if (this.value.trim() === "") {
+                showRequiredError(this);
+            }
+            else {
+                removeRequiredError(this);
+            }
 
-            showRequiredError(this);
+        });
 
+        field.addEventListener("input", function () {
+
+            if (this.value.trim() !== "") {
+                removeRequiredError(this);
+            }
+
+        });
+
+        field.addEventListener("change", function () {
+
+            if (this.value.trim() !== "") {
+                removeRequiredError(this);
+            }
+
+        });
+
+    });
+
+    const assignmentIdField = document.getElementById("AssignmentID");
+
+    assignmentIdField.addEventListener("blur", function () {
+
+        if (
+            currentMode === "find" &&
+            !this.readOnly &&
+            this.value.trim() === ""
+        ) {
+            showAssignmentIdRequiredError(this);
         }
         else {
-
-            removeRequiredError(this);
-
+            removeAssignmentIdRequiredError(this);
         }
 
     });
 
-    field.addEventListener("input", function () {
+    assignmentIdField.addEventListener("input", function () {
 
         if (this.value.trim() !== "") {
-
-            removeRequiredError(this);
-
+            removeAssignmentIdRequiredError(this);
         }
 
     });
 
-    field.addEventListener("change", function () {
-
-        if (this.value.trim() !== "") {
-
-            removeRequiredError(this);
-
-        }
-
-    });
-    const assignmentIdField =
-    document.getElementById("AssignmentID");
-
-
-
-assignmentIdField.addEventListener("blur", function () {
-
-    if (
-        currentMode === "find" &&
-        !this.readOnly &&
-        this.value.trim() === ""
-    ) {
-        showAssignmentIdRequiredError(this);
-    }
-    else {
-        removeAssignmentIdRequiredError(this);
-    }
-
-});
-assignmentIdField.addEventListener("input", function () {
-
-    if (this.value.trim() !== "") {
-
-        removeAssignmentIdRequiredError(this);
-
-    }
-
-});
-
-});
     const dueDateInput = document.getElementById("DueDate");
 
     const today = new Date();
@@ -90,29 +80,36 @@ assignmentIdField.addEventListener("input", function () {
         .split("T")[0];
 
     dueDateInput.min = localToday;
-        document
-    .getElementById("newModeBtn")
-    .addEventListener("click", startNewMode);
 
-document
-    .getElementById("findModeBtn")
-    .addEventListener("click", startFindMode);
     document
-    .getElementById("AssignmentID")
-    .addEventListener("keydown", function (event) {
+        .getElementById("newModeBtn")
+        .addEventListener("click", startNewMode);
 
-        if (
-            event.key === "Enter" &&
-            currentMode === "find"
-        ) {
+    document
+        .getElementById("findModeBtn")
+        .addEventListener("click", startFindMode);
 
-            findAssignment();
+    document
+        .getElementById("AssignmentID")
+        .addEventListener("keydown", function (event) {
 
-        }
+            if (event.key === "Enter") {
 
-    });
+                // Stop the native form submit / page reload so the
+                // fetch below actually gets a chance to run.
+                event.preventDefault();
 
-        loadBatchDropdown();
+                if (currentMode === "find") {
+
+                    findAssignment();
+
+                }
+
+            }
+
+        });
+
+    loadBatchDropdown();
 
     document
         .querySelector(".save-btn")
@@ -140,8 +137,139 @@ function setMode(mode) {
         .getElementById("findModeBtn")
         .classList.toggle("active", mode === "find");
 
+  
+    document.querySelector(".save-btn").textContent =
+        mode === "find" ? "Update" : "Save";
+
 }
+
+
+function setFieldsDisabled(disabled) {
+
+    const fields = [
+        document.getElementById("Title"),
+        document.getElementById("BatchID"),
+        document.getElementById("DueDate")
+    ];
+
+    fields.forEach(field => {
+
+        if (field) {
+
+            field.disabled = disabled;
+
+            field.style.backgroundColor = disabled ? "#e9e9e9" : "";
+            field.style.color = disabled ? "#888" : "";
+            field.style.cursor = disabled ? "not-allowed" : "";
+
+        }
+
+    });
+
+    const saveBtn = document.querySelector(".save-btn");
+    const prevBtn = document.querySelector(".previous-btn");
+    const nextBtn = document.querySelector(".next-btn");
+
+    [saveBtn, prevBtn, nextBtn].forEach(btn => {
+
+        if (btn) {
+
+            btn.disabled = disabled;
+
+            btn.style.opacity = disabled ? "0.5" : "";
+            btn.style.cursor = disabled ? "not-allowed" : "";
+
+        }
+
+    });
+
+}
+
+function showConfirmModal(message) {
+
+    return new Promise(resolve => {
+
+        const overlay = document.createElement("div");
+        overlay.style.position = "fixed";
+        overlay.style.top = "0";
+        overlay.style.left = "0";
+        overlay.style.width = "100%";
+        overlay.style.height = "100%";
+        overlay.style.background = "rgba(0, 0, 0, 0.5)";
+        overlay.style.display = "flex";
+        overlay.style.alignItems = "center";
+        overlay.style.justifyContent = "center";
+        overlay.style.zIndex = "9999";
+
+        const box = document.createElement("div");
+        box.style.background = "#fff";
+        box.style.padding = "24px 32px";
+        box.style.borderRadius = "10px";
+        box.style.textAlign = "center";
+        box.style.maxWidth = "340px";
+        box.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.25)";
+        box.style.fontFamily = "inherit";
+
+        const text = document.createElement("p");
+        text.textContent = message;
+        text.style.marginBottom = "20px";
+        text.style.fontSize = "16px";
+        text.style.color = "#222";
+
+        const btnContainer = document.createElement("div");
+        btnContainer.style.display = "flex";
+        btnContainer.style.justifyContent = "center";
+        btnContainer.style.gap = "12px";
+
+        const yesBtn = document.createElement("button");
+        yesBtn.type = "button";
+        yesBtn.textContent = "Yes";
+        yesBtn.style.padding = "8px 22px";
+        yesBtn.style.border = "none";
+        yesBtn.style.borderRadius = "6px";
+        yesBtn.style.background = "#16a34a";
+        yesBtn.style.color = "#fff";
+        yesBtn.style.fontSize = "14px";
+        yesBtn.style.cursor = "pointer";
+
+        const noBtn = document.createElement("button");
+        noBtn.type = "button";
+        noBtn.textContent = "No";
+        noBtn.style.padding = "8px 22px";
+        noBtn.style.border = "none";
+        noBtn.style.borderRadius = "6px";
+        noBtn.style.background = "#dc2626";
+        noBtn.style.color = "#fff";
+        noBtn.style.fontSize = "14px";
+        noBtn.style.cursor = "pointer";
+
+        yesBtn.addEventListener("click", () => {
+            document.body.removeChild(overlay);
+            resolve(true);
+        });
+
+        noBtn.addEventListener("click", () => {
+            document.body.removeChild(overlay);
+            resolve(false);
+        });
+
+        btnContainer.appendChild(yesBtn);
+        btnContainer.appendChild(noBtn);
+
+        box.appendChild(text);
+        box.appendChild(btnContainer);
+        overlay.appendChild(box);
+
+        document.body.appendChild(overlay);
+
+    });
+
+}
+
 async function startNewMode() {
+
+    
+    setFieldsDisabled(false);
 
     setMode("new");
 
@@ -158,12 +286,11 @@ async function startNewMode() {
 
     assignmentInput.readOnly = true;
 
-    document.querySelector(".save-btn").textContent = "Save";
-
     await generateNextAssignmentID();
 
     removeAssignmentIdRequiredError(assignmentInput);
 }
+
 function startFindMode() {
 
     setMode("find");
@@ -176,14 +303,15 @@ function startFindMode() {
 
     const assignmentInput =
         document.getElementById("AssignmentID");
-        removeAssignmentIdRequiredError(assignmentInput);
+    removeAssignmentIdRequiredError(assignmentInput);
 
     assignmentInput.value = "";
     assignmentInput.readOnly = false;
 
-    document.querySelector(".save-btn").textContent = "Save";
-
     assignmentInput.focus();
+
+   
+    setFieldsDisabled(true);
 
     showMessage(
         "Enter Assignment ID and press Enter.",
@@ -211,8 +339,6 @@ async function generateNextAssignmentID() {
         currentAssignmentId = result.assignment_id;
 
         editMode = false;
-
-        document.querySelector(".save-btn").textContent = "Save";
 
     }
     catch (err) {
@@ -258,8 +384,6 @@ function clearForm() {
 
     editMode = false;
 
-    document.querySelector(".save-btn").textContent = "Save";
-
 }
 
 function populateForm(row) {
@@ -292,6 +416,7 @@ function populateForm(row) {
     removeRequiredError(dueDate);
 
 }
+
 async function findAssignment() {
 
     const assignmentInput = document.getElementById("AssignmentID");
@@ -318,13 +443,21 @@ async function findAssignment() {
 
             clearForm();
 
-            showMessage("Assignment not found.", "error");
+            assignmentInput.value = assignmentId;
+
+            showMessage("Not a valid Assignment ID.", "error");
 
             assignmentInput.focus();
+
+            // Keep fields/buttons disabled and greyed — user must retry.
+            setFieldsDisabled(true);
 
             return;
 
         }
+
+        // Valid record found — re-enable and un-grey everything.
+        setFieldsDisabled(false);
 
         assignmentInput.value = result.assignment_id;
 
@@ -338,12 +471,15 @@ async function findAssignment() {
 
         currentAssignmentId = result.assignment_id;
 
-        document.querySelector(".save-btn").textContent = "Update";
+        currentIndex = assignmentList.findIndex(
+            row => Number(row[0]) === Number(result.assignment_id)
+        );
 
         showMessage("Assignment loaded successfully.", "success");
+
         removeAssignmentIdRequiredError(
-    document.getElementById("AssignmentID")
-);
+            document.getElementById("AssignmentID")
+        );
 
     }
     catch (err) {
@@ -352,9 +488,12 @@ async function findAssignment() {
 
         showMessage("Unable to find assignment.", "error");
 
+        setFieldsDisabled(true);
+
     }
 
 }
+
 async function loadAssignmentList() {
 
     try {
@@ -375,6 +514,7 @@ async function loadAssignmentList() {
     }
 
 }
+
 function previousRecord() {
 
     if (assignmentList.length === 0) {
@@ -414,17 +554,16 @@ function previousRecord() {
     populateForm(assignmentList[currentIndex]);
     setMode("find");
 
-document.getElementById("AssignmentID").readOnly = true;
+    setFieldsDisabled(false);
+
+    document.getElementById("AssignmentID").readOnly = true;
 
     editMode = true;
 
     currentAssignmentId = assignmentList[currentIndex][0];
 
-    document.querySelector(".save-btn").textContent = "Update";
-
-    document.getElementById("AssignmentID").readOnly = true;
-
 }
+
 function nextRecord() {
 
     if (assignmentList.length === 0) {
@@ -445,45 +584,42 @@ function nextRecord() {
 
     if (currentIndex === -1) {
 
-    const currentId = Number(
-        document.getElementById("AssignmentID").value
-    );
+        const lastId = Number(
+            assignmentList[assignmentList.length - 1][0]
+        );
 
-    const lastId = Number(
-        assignmentList[assignmentList.length - 1][0]
-    );
+        if (currentId > lastId) {
 
-    if (currentId > lastId) {
+            showMessage("Already at new record.", "info");
 
-        showMessage("Already at new record.", "info");
+            return;
+
+        }
+
+        currentIndex = 0;
+
+    }
+    else if (currentIndex >= assignmentList.length - 1) {
+
+        clearForm();
+
+        editMode = false;
+        currentAssignmentId = null;
+        currentIndex = -1;
+
+        setMode("new");
+
+        setFieldsDisabled(false);
+
+        document.getElementById("AssignmentID").readOnly = true;
+
+        generateNextAssignmentID();
+
+        showMessage("New assignment record.", "info");
 
         return;
 
     }
-
-    currentIndex = 0;
-
-}
-    else if (currentIndex >= assignmentList.length - 1) {
-
-    clearForm();
-
-    editMode = false;
-    currentAssignmentId = null;
-    currentIndex = -1;
-
-    document.querySelector(".save-btn").textContent = "Save";
-
-
-    document.getElementById("AssignmentID").readOnly = true;
-
-    generateNextAssignmentID();
-
-    showMessage("New assignment record.", "info");
-
-    return;
-
-}
     else {
 
         currentIndex++;
@@ -493,17 +629,16 @@ function nextRecord() {
     populateForm(assignmentList[currentIndex]);
     setMode("find");
 
-document.getElementById("AssignmentID").readOnly = true;
+    setFieldsDisabled(false);
+
+    document.getElementById("AssignmentID").readOnly = true;
 
     editMode = true;
 
     currentAssignmentId = assignmentList[currentIndex][0];
 
-    document.querySelector(".save-btn").textContent = "Update";
-
-    document.getElementById("AssignmentID").readOnly = true;
-
 }
+
 async function loadBatchDropdown() {
 
     const batchDropdown = document.getElementById("BatchID");
@@ -543,6 +678,25 @@ async function saveAssignment() {
     if (!validateForm())
         return;
 
+    if (editMode) {
+
+        const confirmed = await showConfirmModal(
+            "Do you want to update the changes?"
+        );
+
+        if (!confirmed) {
+
+            // Restore the original, unedited values.
+            if (currentIndex >= 0 && currentIndex < assignmentList.length) {
+                populateForm(assignmentList[currentIndex]);
+            }
+
+            return;
+
+        }
+
+    }
+
     const data = {
 
         assignment_id: Number(document.getElementById("AssignmentID").value),
@@ -562,23 +716,16 @@ async function saveAssignment() {
         if (editMode) {
 
             result = await DatabaseAPI.put(
-
                 "/api/assignments/" + data.assignment_id,
-
                 data
-
             );
 
         }
-
         else {
 
             result = await DatabaseAPI.post(
-
                 "/api/assignments",
-
                 data
-
             );
 
         }
@@ -599,17 +746,15 @@ async function saveAssignment() {
 
         document.getElementById("AssignmentID").readOnly = true;
 
-        editMode = false;
-
         currentAssignmentId = null;
 
-        document.querySelector(".save-btn").textContent = "Save";
+        setMode("new");
 
+        setFieldsDisabled(false);
 
         await loadAssignmentList();
 
     }
-
     catch (err) {
 
         console.error(err);
@@ -715,6 +860,7 @@ function validateForm() {
     return true;
 
 }
+
 function showRequiredError(field) {
 
     field.classList.add("field-error");
@@ -737,6 +883,7 @@ function showRequiredError(field) {
     }
 
 }
+
 function removeRequiredError(field) {
 
     field.classList.remove("field-error");
@@ -751,3 +898,80 @@ function removeRequiredError(field) {
     }
 
 }
+
+function showInfoModal(message) {
+
+    const overlay = document.createElement("div");
+    overlay.style.position = "fixed";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
+    overlay.style.background = "rgba(0, 0, 0, 0.5)";
+    overlay.style.display = "flex";
+    overlay.style.alignItems = "center";
+    overlay.style.justifyContent = "center";
+    overlay.style.zIndex = "9999";
+
+    const box = document.createElement("div");
+    box.style.background = "#fff";
+    box.style.padding = "32px 40px";
+    box.style.borderRadius = "10px";
+    box.style.textAlign = "center";
+    box.style.maxWidth = "420px";
+    box.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.25)";
+    box.style.fontFamily = "inherit";
+
+    const text = document.createElement("p");
+    text.textContent = message;
+    text.style.marginBottom = "20px";
+    text.style.fontSize = "18px";
+    text.style.color = "#222";
+
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.textContent = "Close";
+    closeBtn.style.padding = "10px 32px";
+    closeBtn.style.border = "none";
+    closeBtn.style.borderRadius = "6px";
+    closeBtn.style.background = "#5535d6";
+    closeBtn.style.color = "#fff";
+    closeBtn.style.fontSize = "16px";
+    closeBtn.style.cursor = "pointer";
+
+    closeBtn.addEventListener("click", () => {
+        document.body.removeChild(overlay);
+    });
+
+    overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) {
+            document.body.removeChild(overlay);
+        }
+    });
+
+    box.appendChild(text);
+    box.appendChild(closeBtn);
+    overlay.appendChild(box);
+
+    document.body.appendChild(overlay);
+
+}
+
+
+document.querySelectorAll(".info-icon").forEach(icon => {
+
+    icon.style.cursor = "pointer";
+
+    icon.addEventListener("click", (e) => {
+
+        e.stopPropagation();
+
+        const tooltip = icon.querySelector(".tooltip");
+
+        if (tooltip) {
+            showInfoModal(tooltip.textContent.trim());
+        }
+
+    });
+
+});

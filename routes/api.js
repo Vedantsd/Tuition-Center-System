@@ -700,11 +700,6 @@ router.put("/assignments/:id", async(req,res)=>{
 
 });
 
-// =======================
-// Get All Batches (full detail — kept as the single source of truth;
-// two earlier duplicate lightweight versions of this same route were
-// removed since Express would never have reached them anyway)
-// =======================
 
 router.get("/batches", async (req, res) => {
 
@@ -1734,6 +1729,464 @@ router.put("/courses/:id", async (req,res)=>{
     finally{
 
         if(connection)
+            await connection.close();
+
+    }
+
+});
+
+router.put("/notifications/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const sql = `
+            UPDATE NOTIFICATIONS SET
+
+                TITLE = :title,
+                MESSAGE = :message,
+                TARGET_ROLE = :target_role
+
+            WHERE NOTIFICATION_ID = :notification_id
+        `;
+
+        const binds = {
+
+            notification_id: req.params.id,
+            title: req.body.title,
+            message: req.body.message,
+            target_role: req.body.target_role
+
+        };
+
+        await connection.execute(sql, binds, {
+            autoCommit: true
+        });
+
+        res.json({
+            success: true,
+            message: "Notification updated successfully."
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+
+router.get("/settings", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+
+            SELECT
+                SETTING_ID,
+                SETTING_NAME,
+                SETTING_VALUE
+            FROM SETTINGS
+            ORDER BY SETTING_ID
+
+        `);
+
+        const settings = result.rows.map(row => ({
+
+            setting_id: row[0],
+            setting_name: row[1],
+            setting_value: row[2]
+
+        }));
+
+        res.json(settings);
+
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+
+            success: false,
+            message: err.message
+
+        });
+
+    }
+
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+
+
+router.get("/settings/new-id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+
+            SELECT NVL(MAX(SETTING_ID),0)+1
+            FROM SETTINGS
+
+        `);
+
+        res.json({
+
+            success: true,
+            setting_id: result.rows[0][0]
+
+        });
+
+    }
+
+    catch(err){
+
+        console.error(err);
+
+        res.status(500).json({
+
+            success:false,
+            message:err.message
+
+        });
+
+    }
+
+    finally{
+
+        if(connection)
+            await connection.close();
+
+    }
+
+});
+
+
+
+router.get("/settings/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+
+            SELECT
+
+                SETTING_ID,
+                SETTING_NAME,
+                SETTING_VALUE
+
+            FROM SETTINGS
+
+            WHERE SETTING_ID = :id
+
+        `,
+        {
+            id: Number(req.params.id)
+        });
+
+        if(result.rows.length===0){
+
+            return res.json({
+
+                success:false,
+                message:"Setting not found."
+
+            });
+
+        }
+
+        const row=result.rows[0];
+
+        res.json({
+
+            success:true,
+
+            setting_id:row[0],
+            setting_name:row[1],
+            setting_value:row[2]
+
+        });
+
+    }
+
+    catch(err){
+
+        console.error(err);
+
+        res.status(500).json({
+
+            success:false,
+            message:err.message
+
+        });
+
+    }
+
+    finally{
+
+        if(connection)
+            await connection.close();
+
+    }
+
+});
+
+
+
+
+router.post("/settings", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const sql = `
+
+            INSERT INTO SETTINGS
+            (
+                SETTING_ID,
+                SETTING_NAME,
+                SETTING_VALUE
+            )
+
+            VALUES
+            (
+                :setting_id,
+                :setting_name,
+                :setting_value
+            )
+
+        `;
+
+        await connection.execute(
+
+            sql,
+
+            {
+
+                setting_id: Number(req.body.setting_id),
+
+                setting_name: req.body.setting_name,
+
+                setting_value: req.body.setting_value
+
+            },
+
+            {
+
+                autoCommit: true
+
+            }
+
+        );
+
+        res.json({
+
+            success: true,
+            message: "Setting saved successfully."
+
+        });
+
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+
+            success: false,
+            message: err.message
+
+        });
+
+    }
+
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+
+
+router.put("/settings/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const sql = `
+
+            UPDATE SETTINGS
+
+            SET
+
+                SETTING_NAME = :setting_name,
+                SETTING_VALUE = :setting_value
+
+            WHERE SETTING_ID = :setting_id
+
+        `;
+
+        await connection.execute(
+
+            sql,
+
+            {
+
+                setting_id: Number(req.params.id),
+
+                setting_name: req.body.setting_name,
+
+                setting_value: req.body.setting_value
+
+            },
+
+            {
+
+                autoCommit: true
+
+            }
+
+        );
+
+        res.json({
+
+            success: true,
+            message: "Setting updated successfully."
+
+        });
+
+    }
+
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+
+            success: false,
+            message: err.message
+
+        });
+
+    }
+
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+
+
+router.get("/batches-full", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+
+            SELECT
+
+                BATCH_ID,
+                BATCH_NAME,
+                COURSE_ID,
+                CLASSROOM,
+                START_TIME,
+                END_TIME,
+                DAYS_OF_WEEK,
+                FACULTY_ID,
+                TO_CHAR(START_DATE,'YYYY-MM-DD'),
+                TO_CHAR(END_DATE,'YYYY-MM-DD')
+
+            FROM BATCHES
+
+            ORDER BY BATCH_ID
+
+        `);
+
+        const batches = result.rows.map(row => ({
+
+            batch_id: row[0],
+            batch_name: row[1],
+            course_id: row[2],
+            classroom: row[3],
+            start_time: row[4],
+            end_time: row[5],
+            days_of_week: row[6],
+            faculty_id: row[7],
+            start_date: row[8],
+            end_date: row[9]
+
+        }));
+
+        res.json(batches);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
             await connection.close();
 
     }
