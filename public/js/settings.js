@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await loadSettings();
 
-    await generateSettingID();
+    await newSetting();
 
     document
         .querySelector(".save-btn")
@@ -503,6 +503,18 @@ function nextSetting() {
     if (settings.length === 0) {
 
         showMessage("No records available.", "error");
+
+        return;
+
+    }
+
+    // The New/unsaved record sits one position past the last real
+    // record (see newSetting(), which sets currentIndex =
+    // settings.length). Give that case its own message instead of
+    // falling through to the generic "last record" message below.
+    if (currentIndex >= settings.length) {
+
+        showMessage("Already on new record.", "info");
 
         return;
 
