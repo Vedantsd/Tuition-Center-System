@@ -32,13 +32,11 @@
 
                         <label for="NotificationID">
                             Notification ID <span class="required">*</span>
-                            <span class="info-icon">ⓘ
-                                <span class="tooltip">Enter a unique notification ID.</span>
-                            </span>
+                            <span class="info-icon" data-info="Enter a unique notification ID.">ⓘ</span>
                         </label>
 
                         <div class="id-find-group">
-                            <input type="number" id="NotificationID" class="short-input" required>
+                            <input type="number" id="NotificationID" class="short-input" required readonly>
 
                             <div class="mode-toggle" id="modeToggle">
                                 <button type="button" class="mode-btn" id="newModeBtn">New</button>
@@ -50,9 +48,7 @@
 
                         <label for="TargetRole">
                             Target Role <span class="required">*</span>
-                            <span class="info-icon">ⓘ
-                                <span class="tooltip">Select the target role.</span>
-                            </span>
+                            <span class="info-icon" data-info="Select the target role.">ⓘ</span>
                         </label>
 
                         <div class="user-field-wrapper">
@@ -68,9 +64,7 @@
 
                         <label for="Title">
                             Title <span class="required">*</span>
-                            <span class="info-icon">ⓘ
-                                <span class="tooltip">Enter notification title.</span>
-                            </span>
+                            <span class="info-icon" data-info="Enter notification title.">ⓘ</span>
                         </label>
 
                         <div class="user-field-wrapper">
@@ -84,9 +78,7 @@
 
                         <label for="Message">
                             Message <span class="required">*</span>
-                            <span class="info-icon">ⓘ
-                                <span class="tooltip">Enter the notification message.</span>
-                            </span>
+                            <span class="info-icon" data-info="Enter the notification message.">ⓘ</span>
                         </label>
 
                         <div class="user-field-wrapper">
@@ -111,6 +103,23 @@
 
     <script src="js/db-api.js"></script>
     <script src="js/notifications.js"></script>
+
+    <div class="modal-overlay" id="infoModalOverlay">
+        <div class="modal-box">
+            <p id="infoModalText"></p>
+            <button type="button" id="infoModalClose" class="btn nav-btn">Close</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+            <p id="confirmMessage">Are you sure you want to update this record?</p>
+            <div class="modal-buttons">
+                <button id="confirmYesBtn" class="btn confirm-yes-btn">Yes</button>
+                <button id="confirmNoBtn" class="btn confirm-no-btn">No</button>
+            </div>
+        </div>
+    </div>
 
 </body>
 

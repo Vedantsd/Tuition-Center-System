@@ -2,6 +2,7 @@ let messageTimer = null;
 let isExistingNotification = false;
 let notificationList = [];
 let currentIndex = -1;
+let originalNotificationData = null;
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -30,6 +31,24 @@ document.addEventListener("DOMContentLoaded", () => {
     document
         .querySelector(".save-btn")
         .addEventListener("click", saveNotification);
+
+    document
+        .getElementById("confirmYesBtn")
+        .addEventListener("click", async () => {
+
+            hideConfirmModal();
+            await performSaveNotification();
+
+        });
+
+    document
+        .getElementById("confirmNoBtn")
+        .addEventListener("click", () => {
+
+            hideConfirmModal();
+            restoreOriginalValues();
+
+        });
 
     document
         .querySelector(".prevButton")
@@ -108,6 +127,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+
+    const infoModalOverlay = document.getElementById("infoModalOverlay");
+    const infoModalText = document.getElementById("infoModalText");
+    const infoModalClose = document.getElementById("infoModalClose");
+
+    document.querySelectorAll(".info-icon[data-info]").forEach(icon => {
+
+        icon.addEventListener("click", () => {
+
+            infoModalText.textContent = icon.getAttribute("data-info");
+            infoModalOverlay.classList.add("show");
+
+        });
+
+    });
+
+    infoModalClose.addEventListener("click", () => {
+
+        infoModalOverlay.classList.remove("show");
+
+    });
+
+    infoModalOverlay.addEventListener("click", (event) => {
+
+        if (event.target === infoModalOverlay) {
+
+            infoModalOverlay.classList.remove("show");
+
+        }
+
+    });
+
+});
+
 function setActiveMode(mode) {
 
     document.getElementById("newModeBtn").classList.remove("active");
@@ -119,6 +173,51 @@ function setActiveMode(mode) {
     else if (mode === "find") {
         document.getElementById("findModeBtn").classList.add("active");
     }
+
+}
+
+const FORM_FIELD_IDS = [
+    "TargetRole",
+    "Title",
+    "Message"
+];
+
+function setFormFieldsDisabled(disabled) {
+
+    FORM_FIELD_IDS.forEach(id => {
+
+        document.getElementById(id).disabled = disabled;
+
+    });
+
+}
+
+function setSaveButtonDisabled(disabled) {
+
+    document.querySelector(".save-btn").disabled = disabled;
+
+}
+
+function showConfirmModal() {
+
+    document.getElementById("confirmModal").classList.add("show");
+
+}
+
+function hideConfirmModal() {
+
+    document.getElementById("confirmModal").classList.remove("show");
+
+}
+
+function restoreOriginalValues() {
+
+    if (!originalNotificationData)
+        return;
+
+    populateForm(originalNotificationData);
+
+    showMessage("Changes discarded.", "info");
 
 }
 
@@ -139,9 +238,13 @@ async function loadNewNotificationId() {
         document.getElementById("NotificationID").readOnly = true;
 
         isExistingNotification = false;
+        currentIndex = -1;
 
         setSaveButtonText("Save");
         setActiveMode("new");
+
+        setFormFieldsDisabled(false);
+        setSaveButtonDisabled(false);
 
     }
     catch (err) {
@@ -180,6 +283,8 @@ function setSaveButtonText(text) {
 }
 
 function clearForm() {
+
+    originalNotificationData = null;
 
     document.getElementById("TargetRole").value = "";
     document.getElementById("Title").value = "";
@@ -239,6 +344,8 @@ async function populateForm(notification) {
 
     await targetRolesReady;
 
+    originalNotificationData = JSON.parse(JSON.stringify(notification));
+
     document.getElementById("NotificationID").value = notification.notification_id ?? "";
     document.getElementById("Title").value = notification.title ?? "";
     document.getElementById("Message").value = notification.message ?? "";
@@ -262,6 +369,9 @@ async function populateForm(notification) {
         document.getElementById("NotificationID")
     );
 
+    setFormFieldsDisabled(false);
+    setSaveButtonDisabled(false);
+
 }
 
 function startNewMode() {
@@ -269,6 +379,7 @@ function startNewMode() {
     clearForm();
 
     isExistingNotification = false;
+    currentIndex = -1;
 
     const notificationIdInput = document.getElementById("NotificationID");
     removeNotificationIdRequiredError(notificationIdInput);
@@ -288,6 +399,7 @@ function startFindMode() {
     clearForm();
 
     isExistingNotification = false;
+    currentIndex = -1;
 
     const notificationIdInput = document.getElementById("NotificationID");
 
@@ -295,9 +407,12 @@ function startFindMode() {
     notificationIdInput.readOnly = false;
     notificationIdInput.focus();
 
-    setSaveButtonText("Save");
+    setSaveButtonText("Update");
 
     setActiveMode("find");
+
+    setFormFieldsDisabled(true);
+    setSaveButtonDisabled(true);
 
     showMessage("Enter Notification ID and press Enter.", "info");
 
@@ -327,6 +442,10 @@ async function findNotification() {
 
             clearForm();
 
+            setSaveButtonText("Update");
+            setFormFieldsDisabled(true);
+            setSaveButtonDisabled(true);
+
             showMessage("Notification not found.", "error");
 
             notificationIdInput.focus();
@@ -337,6 +456,11 @@ async function findNotification() {
 
         await populateForm(result);
         setActiveMode("find");
+
+        notificationIdInput.readOnly = true;
+
+        // sync currentIndex so navigation works from here
+        currentIndex = notificationList.indexOf(Number(notificationId));
 
         showMessage("Notification loaded successfully.", "success");
 
@@ -388,6 +512,12 @@ async function loadAndPopulateNotification(notificationId) {
 
         if (!result.success) {
 
+            clearForm();
+
+            setSaveButtonText("Update");
+            setFormFieldsDisabled(true);
+            setSaveButtonDisabled(true);
+
             showMessage("Notification not found.", "error");
             return;
 
@@ -398,6 +528,7 @@ async function loadAndPopulateNotification(notificationId) {
 
         document.getElementById("NotificationID").readOnly = true;
 
+        // currentIndex is already set by the caller (previousRecord / nextRecord)
         showMessage("Existing record loaded.", "success");
 
     }
@@ -421,27 +552,36 @@ async function previousRecord() {
 
     }
 
+    // If we are on the new-entry screen, jump to the last record
+    if (!isExistingNotification) {
+
+        currentIndex = notificationList.length - 1;
+        await loadAndPopulateNotification(notificationList[currentIndex]);
+        return;
+
+    }
+
     const currentId = Number(
         document.getElementById("NotificationID").value
     );
 
-    currentIndex = notificationList.indexOf(currentId);
+    // Re-sync in case the list changed
+    const idx = notificationList.indexOf(currentId);
 
-    if (currentIndex === -1) {
+    if (idx === -1) {
 
         currentIndex = notificationList.length - 1;
 
     }
-    else if (currentIndex <= 0) {
+    else if (idx <= 0) {
 
         showMessage("First Record", "info");
-
         return;
 
     }
     else {
 
-        currentIndex--;
+        currentIndex = idx - 1;
 
     }
 
@@ -451,14 +591,6 @@ async function previousRecord() {
 
 async function nextRecord() {
 
-    if (!isExistingNotification) {
-
-        showMessage("Already at new data entry.", "info");
-
-        return;
-
-    }
-
     if (notificationList.length === 0) {
 
         showMessage("No notification records found.", "info");
@@ -467,39 +599,47 @@ async function nextRecord() {
 
     }
 
+    // If already on the new-entry screen, nothing further to go
+    if (!isExistingNotification) {
+
+        showMessage("Already at new data entry.", "info");
+        return;
+
+    }
+
     const currentId = Number(
         document.getElementById("NotificationID").value
     );
 
-    currentIndex = notificationList.indexOf(currentId);
+    // Re-sync in case the list changed
+    const idx = notificationList.indexOf(currentId);
 
-    if (currentIndex === -1) {
+    if (idx === -1) {
 
         currentIndex = 0;
+        await loadAndPopulateNotification(notificationList[currentIndex]);
+        return;
 
     }
-    else if (currentIndex >= notificationList.length - 1) {
 
+    if (idx >= notificationList.length - 1) {
+
+        // Past the last record → switch to new-entry mode
         clearForm();
 
         currentIndex = -1;
 
-        setSaveButtonText("Save");
-
         document.getElementById("NotificationID").readOnly = true;
 
-        loadNewNotificationId();
+        await loadNewNotificationId();
 
         showMessage("New notification record.", "info");
 
         return;
 
     }
-    else {
 
-        currentIndex++;
-
-    }
+    currentIndex = idx + 1;
 
     await loadAndPopulateNotification(notificationList[currentIndex]);
 
@@ -686,6 +826,24 @@ function validateForm(data) {
 }
 
 async function saveNotification() {
+
+    const data = getFormData();
+
+    if (!validateForm(data))
+        return;
+
+    if (isExistingNotification) {
+
+        showConfirmModal();
+        return;
+
+    }
+
+    await performSaveNotification();
+
+}
+
+async function performSaveNotification() {
 
     const data = getFormData();
 

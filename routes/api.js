@@ -1735,6 +1735,213 @@ router.put("/courses/:id", async (req,res)=>{
 
 });
 
+router.get("/notifications/newid", async (req, res) => {
+ 
+    let connection;
+ 
+    try {
+ 
+        connection = await getConnection();
+ 
+        const result = await connection.execute(`
+            SELECT NVL(MAX(NOTIFICATION_ID), 0) + 1
+            FROM NOTIFICATIONS
+        `);
+ 
+        res.json({
+            success: true,
+            notification_id: result.rows[0][0]
+        });
+ 
+    }
+    catch (err) {
+ 
+        console.error(err);
+ 
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+ 
+    }
+    finally {
+ 
+        if (connection)
+            await connection.close();
+ 
+    }
+ 
+});
+ 
+router.get("/notifications", async (req, res) => {
+ 
+    let connection;
+ 
+    try {
+ 
+        connection = await getConnection();
+ 
+        const result = await connection.execute(`
+            SELECT
+                NOTIFICATION_ID,
+                TITLE,
+                TARGET_ROLE
+            FROM NOTIFICATIONS
+            ORDER BY NOTIFICATION_ID
+        `);
+ 
+        const notifications = result.rows.map(row => ({
+            notification_id: row[0],
+            title: row[1],
+            target_role: row[2]
+        }));
+ 
+        res.json(notifications);
+ 
+    }
+    catch (err) {
+ 
+        console.error(err);
+ 
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+ 
+    }
+    finally {
+ 
+        if (connection)
+            await connection.close();
+ 
+    }
+ 
+});
+ 
+router.get("/notifications/:id", async (req, res) => {
+ 
+    let connection;
+ 
+    try {
+ 
+        connection = await getConnection();
+ 
+        const result = await connection.execute(
+            `SELECT
+                NOTIFICATION_ID,
+                TARGET_ROLE,
+                TITLE,
+                MESSAGE
+             FROM NOTIFICATIONS
+             WHERE NOTIFICATION_ID = :id`,
+            {
+                id: req.params.id
+            }
+        );
+ 
+        if (result.rows.length === 0) {
+ 
+            return res.json({
+                success: false,
+                message: "Notification not found."
+            });
+ 
+        }
+ 
+        const row = result.rows[0];
+ 
+        res.json({
+ 
+            success: true,
+ 
+            notification_id: row[0],
+            target_role: row[1],
+            title: row[2],
+            message: row[3]
+ 
+        });
+ 
+    }
+    catch (err) {
+ 
+        console.error(err);
+ 
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+ 
+    }
+    finally {
+ 
+        if (connection)
+            await connection.close();
+ 
+    }
+ 
+});
+ 
+router.post("/notifications", async (req, res) => {
+ 
+    let connection;
+ 
+    try {
+ 
+        connection = await getConnection();
+ 
+        const sql = `
+            INSERT INTO NOTIFICATIONS
+            (
+                NOTIFICATION_ID,
+                TARGET_ROLE,
+                TITLE,
+                MESSAGE
+            )
+            VALUES
+            (
+                :notification_id,
+                :target_role,
+                :title,
+                :message
+            )
+        `;
+ 
+        await connection.execute(sql, {
+ 
+            notification_id: req.body.notification_id,
+            target_role: req.body.target_role,
+            title: req.body.title,
+            message: req.body.message
+ 
+        }, {
+            autoCommit: true
+        });
+ 
+        res.json({
+            success: true,
+            message: "Notification saved successfully."
+        });
+ 
+    }
+    catch (err) {
+ 
+        console.error(err);
+ 
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+ 
+    }
+    finally {
+ 
+        if (connection)
+            await connection.close();
+ 
+    }
+ 
+});
+
 router.put("/notifications/:id", async (req, res) => {
 
     let connection;
