@@ -36,7 +36,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         });
 
-    // --- Required field validation ---
     const requiredFields = [
         document.getElementById("SettingName"),
         document.getElementById("SettingValue")
@@ -133,11 +132,6 @@ function showMessage(message, type = "info") {
 
 }
 
-// Disables/enables SettingName, SettingValue, Save, Previous, Next.
-// SettingID, New, and Find are intentionally excluded so the user can
-// always retry a different ID or switch modes.
-// Also applies/removes a grey background to match the read-only look
-// of SettingID in New mode.
 function setFieldsDisabled(disabled) {
 
     const fields = [
@@ -353,11 +347,8 @@ async function findMode() {
     document.getElementById("findModeBtn").classList.add("active");
     document.getElementById("newModeBtn").classList.remove("active");
 
-    // Strictly enforce: Find mode always shows "Update".
     document.querySelector(".save-btn").innerText = "Update";
 
-    // Disable + grey out fields and Save/Previous/Next as soon as
-    // Find mode starts. SettingID, New, and Find stay usable.
     setFieldsDisabled(true);
 
     showMessage("Enter Setting ID and press Enter.", "info");
@@ -368,7 +359,6 @@ async function findMode() {
 
 async function newSetting() {
 
-    // Always clear any leftover disabled/greyed state first.
     setFieldsDisabled(false);
 
     await clearForm();
@@ -390,7 +380,6 @@ async function newSetting() {
     document.getElementById("findModeBtn").classList.remove("active");
     document.getElementById("newModeBtn").classList.add("active");
 
-    // Strictly enforce: New mode always shows "Save".
     document.querySelector(".save-btn").innerText = "Save";
 
     showMessage("Enter new setting details.", "info");
@@ -422,14 +411,12 @@ async function loadSetting() {
 
             showMessage("Not a valid Setting ID.", "error");
 
-            // Keep fields/buttons disabled and greyed — user must retry.
             setFieldsDisabled(true);
 
             return;
 
         }
 
-        // Valid record found — re-enable and un-grey everything.
         setFieldsDisabled(false);
 
         populateForm(result);
@@ -508,10 +495,6 @@ function nextSetting() {
 
     }
 
-    // The New/unsaved record sits one position past the last real
-    // record (see newSetting(), which sets currentIndex =
-    // settings.length). Give that case its own message instead of
-    // falling through to the generic "last record" message below.
     if (currentIndex >= settings.length) {
 
         showMessage("Already on new record.", "info");
@@ -586,7 +569,6 @@ async function saveSetting() {
 
         if (!confirmed) {
 
-            // Restore the original, unedited values.
             if (currentIndex >= 0 && currentIndex < settings.length) {
                 populateForm(settings[currentIndex]);
             }
@@ -757,28 +739,28 @@ function showInfoModal(message) {
 
     const box = document.createElement("div");
     box.style.background = "#fff";
-    box.style.padding = "32px 40px";          // Increased padding
+    box.style.padding = "32px 40px";          
     box.style.borderRadius = "10px";
     box.style.textAlign = "center";
-    box.style.maxWidth = "420px";             // Increased width
+    box.style.maxWidth = "420px";             
     box.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.25)";
     box.style.fontFamily = "inherit";
 
     const text = document.createElement("p");
     text.textContent = message;
     text.style.marginBottom = "20px";
-    text.style.fontSize = "18px";             // Increased text size
+    text.style.fontSize = "18px";             
     text.style.color = "#222";
 
     const closeBtn = document.createElement("button");
     closeBtn.type = "button";
     closeBtn.textContent = "Close";
-    closeBtn.style.padding = "10px 32px";     // Bigger button
+    closeBtn.style.padding = "10px 32px";     
     closeBtn.style.border = "none";
     closeBtn.style.borderRadius = "6px";
     closeBtn.style.background = "#5535d6";
     closeBtn.style.color = "#fff";
-    closeBtn.style.fontSize = "16px";         // Bigger button text
+    closeBtn.style.fontSize = "16px";         
     closeBtn.style.cursor = "pointer";
 
     closeBtn.addEventListener("click", () => {
