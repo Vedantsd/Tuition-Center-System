@@ -459,7 +459,6 @@ async function findNotification() {
 
         notificationIdInput.readOnly = true;
 
-        // sync currentIndex so navigation works from here
         currentIndex = notificationList.indexOf(Number(notificationId));
 
         showMessage("Notification loaded successfully.", "success");
@@ -528,7 +527,6 @@ async function loadAndPopulateNotification(notificationId) {
 
         document.getElementById("NotificationID").readOnly = true;
 
-        // currentIndex is already set by the caller (previousRecord / nextRecord)
         showMessage("Existing record loaded.", "success");
 
     }
@@ -552,7 +550,6 @@ async function previousRecord() {
 
     }
 
-    // If we are on the new-entry screen, jump to the last record
     if (!isExistingNotification) {
 
         currentIndex = notificationList.length - 1;
@@ -565,7 +562,6 @@ async function previousRecord() {
         document.getElementById("NotificationID").value
     );
 
-    // Re-sync in case the list changed
     const idx = notificationList.indexOf(currentId);
 
     if (idx === -1) {
@@ -599,7 +595,6 @@ async function nextRecord() {
 
     }
 
-    // If already on the new-entry screen, nothing further to go
     if (!isExistingNotification) {
 
         showMessage("Already at new data entry.", "info");
@@ -611,7 +606,6 @@ async function nextRecord() {
         document.getElementById("NotificationID").value
     );
 
-    // Re-sync in case the list changed
     const idx = notificationList.indexOf(currentId);
 
     if (idx === -1) {
@@ -624,7 +618,6 @@ async function nextRecord() {
 
     if (idx >= notificationList.length - 1) {
 
-        // Past the last record → switch to new-entry mode
         clearForm();
 
         currentIndex = -1;

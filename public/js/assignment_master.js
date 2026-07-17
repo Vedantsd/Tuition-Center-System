@@ -449,14 +449,12 @@ async function findAssignment() {
 
             assignmentInput.focus();
 
-            // Keep fields/buttons disabled and greyed — user must retry.
             setFieldsDisabled(true);
 
             return;
 
         }
 
-        // Valid record found — re-enable and un-grey everything.
         setFieldsDisabled(false);
 
         assignmentInput.value = result.assignment_id;
@@ -686,7 +684,6 @@ async function saveAssignment() {
 
         if (!confirmed) {
 
-            // Restore the original, unedited values.
             if (currentIndex >= 0 && currentIndex < assignmentList.length) {
                 populateForm(assignmentList[currentIndex]);
             }

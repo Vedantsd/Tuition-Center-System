@@ -447,7 +447,6 @@ async function loadFee(id, { suppressMessage = false } = {}) {
 
     if (!isManualFind) {
 
-        // Next/Previous navigation case
         clearDetailFields();
 
         document.getElementById("FeeID").value = feeId;
@@ -464,7 +463,6 @@ async function loadFee(id, { suppressMessage = false } = {}) {
 
     } else {
 
-        // Manual Find case
         clearDetailFields();
 
         isExistingFee = false;

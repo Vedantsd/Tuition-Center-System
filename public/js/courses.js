@@ -44,9 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
         .getElementById("nextBtn")
         .addEventListener("click", nextRecord);
 
-    // document
-    //     .querySelector(".save-btn")
-    //     .addEventListener("click", saveCourse);
 
     document
         .querySelector(".save-btn")
@@ -73,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
         overlay.classList.remove("show");
     });
 
-    // Click outside the box also closes it
     overlay.addEventListener("click", (event) => {
         if (event.target === overlay) {
             overlay.classList.remove("show");
@@ -90,14 +86,12 @@ function setupRequiredValidation(fields) {
 
         if (!input) return;
 
-        // Wrap the input in a positioned container
         const wrapper = document.createElement("div");
         wrapper.className = "field-wrapper";
 
         input.parentNode.insertBefore(wrapper, input);
         wrapper.appendChild(input);
 
-        // Error message goes inside the wrapper, absolutely positioned under the input
         const errorEl = document.createElement("div");
         errorEl.className = "field-error-text";
         errorEl.id = id + "ErrorMsg";
@@ -280,7 +274,6 @@ async function loadNewCourseId() {
 
 }
 
-// "New" button clicked
 async function enterNewMode() {
 
     clearForm();
@@ -295,7 +288,6 @@ async function enterNewMode() {
 
 }
 
-// "Find" button clicked — just switches to search mode, does NOT search yet
 function enterFindMode() {
 
     clearForm();
@@ -318,8 +310,7 @@ function enterFindMode() {
 
 }
 
-// Runs the actual search — triggered by pressing Enter while the
-// CourseID field is unlocked (i.e. after clicking "Find").
+
 async function performFind() {
 
     const courseIdInput = document.getElementById("CourseID");
@@ -605,7 +596,6 @@ function handleSaveClick() {
     if (!validateForm(data))
         return;
 
-    // If updating an existing course, ask for confirmation first
     if (isExistingCourse) {
 
         showConfirmModal();
@@ -658,9 +648,6 @@ document.addEventListener("DOMContentLoaded", () => {
 async function saveCourse() {
 
     const data = getFormData();
-
-    // if (!validateForm(data))
-    //     return;
 
     try {
 
