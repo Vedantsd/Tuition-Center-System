@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="styles/reuseable-design.css">
 
 <style>
-/* ===== GLOBAL FONT UPGRADE ===== */
 body {
     font-size: 18px;
     font-family: Arial, sans-serif;
@@ -35,20 +34,10 @@ input, select {
     font-weight: 600;
 }
 
-/* ===== FEE MASTER PAGE-ONLY OVERRIDE =====
-   Scoped to .fee-master-page so it cannot affect any other form
-   that shares reuseable-design.css. Widens the label column just
-   enough that "Registration Fee *" plus the info icon fit on one
-   line, instead of the icon wrapping onto its own line below. */
 .fee-master-page .stackinputs {
     grid-template-columns: 210px minmax(0,1fr) 60px 210px minmax(0,1fr);
 }
 
-/* ===== REQUIRED FIELD VALIDATION (Fee Master only) =====
-   Same visual pattern as Assignment Master / Users: red border +
-   small red message under the field, shown when a required field
-   is left empty, removed as soon as it's filled in. Scoped entirely
-   to this page's own classes so it can't affect other forms. */
 .fee-field-wrapper {
     position: relative;
     width: 100%;
@@ -69,10 +58,6 @@ input, select {
     display: block;
 }
 
-/* ===== LOCKED STATE WHILE A FIND LOOKUP IS PENDING =====
-   Same grey look as the existing input[readonly] rule, applied to
-   the custom course dropdown (since it isn't a real <input>), plus
-   a dimmed look for the Save/Update button while it's disabled. */
 .course-select-locked {
     background-color: #e9ecef !important;
     color: #858c93 !important;
@@ -85,11 +70,7 @@ input, select {
     cursor: not-allowed;
 }
 
-/* ===== INFO ICON -> CLICK POPUP (Fee Master only) =====
-   The hover tooltip that ships in reuseable-design.css is turned
-   off on this page only, and replaced with a click-to-open modal
-   (setup in fee-master.js) so the full explanation is always
-   readable instead of a hover bubble that can get cut off/wrap. */
+
 .fee-master-page .info-icon {
     cursor: pointer;
 }
@@ -98,7 +79,6 @@ input, select {
     display: none !important;
 }
 
-/* ===== MODAL OVERLAYS (info popup + confirm popup) ===== */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -345,7 +325,6 @@ input, select {
 </div>
 </div>
 
-<!-- INFO ICON POPUP (click on any ⓘ opens this with that field's tooltip text) -->
 <div id="infoModalOverlay" class="modal-overlay hidden">
     <div class="modal-box">
         <p id="infoModalText"></p>
@@ -353,7 +332,6 @@ input, select {
     </div>
 </div>
 
-<!-- CONFIRM UPDATE POPUP (shown only when saving over an existing record) -->
 <div id="confirmModalOverlay" class="modal-overlay hidden">
     <div class="modal-box">
         <p>Are you sure you want to update this record?</p>
