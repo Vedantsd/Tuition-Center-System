@@ -48,7 +48,6 @@ router.post("/users", async (req, res) => {
 
         connection = await getConnection();
 
-        // Hash password
         const passwordHash = await bcrypt.hash(req.body.password, 10);
 
         const sql = `
@@ -1818,14 +1817,53 @@ router.get("/notifications", async (req, res) => {
  
 });
  
-router.get("/notifications/:id", async (req, res) => {
- 
+router.get("/notifications/newid", async (req, res) => {
+
     let connection;
- 
+
     try {
- 
+
         connection = await getConnection();
- 
+
+        const result = await connection.execute(`
+            SELECT NVL(MAX(NOTIFICATION_ID),0)+1
+            FROM NOTIFICATIONS
+        `);
+
+        res.json({
+            success: true,
+            notification_id: result.rows[0][0]
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+
+router.get("/notifications/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
         const result = await connection.execute(
             `SELECT
                 NOTIFICATION_ID,
@@ -1836,51 +1874,56 @@ router.get("/notifications/:id", async (req, res) => {
              WHERE NOTIFICATION_ID = :id`,
             {
                 id: req.params.id
+            },
+            {
+                fetchInfo: {
+                    "MESSAGE": { type: oracledb.STRING }
+                }
             }
         );
- 
+
         if (result.rows.length === 0) {
- 
+
             return res.json({
                 success: false,
                 message: "Notification not found."
             });
- 
+
         }
- 
+
         const row = result.rows[0];
- 
+
         res.json({
- 
+
             success: true,
- 
+
             notification_id: row[0],
             target_role: row[1],
             title: row[2],
             message: row[3]
- 
+
         });
- 
+
     }
     catch (err) {
- 
+
         console.error(err);
- 
+
         res.status(500).json({
             success: false,
             message: err.message
         });
- 
+
     }
     finally {
- 
+
         if (connection)
             await connection.close();
- 
+
     }
- 
+
 });
- 
+
 router.post("/notifications", async (req, res) => {
  
     let connection;

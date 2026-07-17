@@ -85,6 +85,7 @@ body{
 }
 
 .stackinputs input,
+.stackinputs textarea,
 .stackinputs select{
     width:100%;
     height:52px;
@@ -95,6 +96,10 @@ body{
     outline:none;
     transition:.3s;
     background:#fff;
+}
+
+.stackinputs textarea{
+    height:120px;
 }
 
 .stackinputs input:focus,
@@ -149,8 +154,6 @@ body{
     white-space: nowrap;
 }
 
-/*================ BUTTONS =================*/
-
 .button-container{
     margin-top:40px;
     display:flex;
@@ -176,10 +179,6 @@ body{
 .save-btn:hover{
     background:#159E75;
 }
-
-/*
-
-*/
 
 .save-btn:disabled {
     opacity: 0.5;
@@ -311,8 +310,6 @@ body{
     background:#ffd8d8;
 }
 
-/*================ STATUS =================*/
-
 .status-message{
     min-height:25px;
     text-align:center;
@@ -331,8 +328,6 @@ body{
 .status-message.info{
     color:#0d6efd;
 }
-
-/*================ MOBILE =================*/
 
 @media(max-width:900px){
 
@@ -358,8 +353,6 @@ body{
         flex-wrap:wrap;
     }
 }
-
-/*================== INFO ICON ================*/
 
 .info-icon{
     position:relative;
@@ -573,8 +566,6 @@ body{
     font-weight: bold;
 }
 
-/* <<<<<<< Updated upstream */
-
 .segmented-toggle {
     display: inline-flex;
     border: 2px solid #6C4CF1;
@@ -610,8 +601,6 @@ body{
 .segmented-toggle button.segment-btn:not(.active):hover {
     background: #e8f1ff;
 }
-
-/*================== CUSTOM COURSE DROPDOWN ================*/
 
 .custom-select-wrapper {
     position: relative;
@@ -738,8 +727,6 @@ input[readonly] {
     cursor: not-allowed;
 }
 
-/*================ INFO MODAL =================*/
-
 .info-icon{
     cursor: pointer;
 }
@@ -775,8 +762,6 @@ input[readonly] {
     color: #333;
     margin-bottom: 20px;
 }
-
-/* --- Confirmation Modal Buttons --- */
 
 .modal-buttons {
     display: flex;
