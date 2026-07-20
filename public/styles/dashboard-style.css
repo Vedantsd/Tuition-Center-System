@@ -1,0 +1,134 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:#fff;
+}
+
+.header{
+    background:#F0F8FF;
+    padding:40px 24px 30px;
+    text-align:center;
+    box-shadow:0px 0px 15px #515050;
+}
+
+.header .title{
+    color:#424141;
+    font-size:clamp(2rem,4vw,2.9rem);
+    letter-spacing:0.04em;
+    font-weight:800;
+}
+
+.header .subtitle{
+    color:#3b3a3a;
+    margin-top:12px;
+    font-size:1rem;
+}
+
+.header .divider{
+    width:90px;
+    height:3px;
+    margin:24px auto 0;
+    background:l#e0a72e;
+    border-radius:2px;
+}
+
+.sections{
+    margin:40px auto 170px;
+    margin-left: 8vw;
+    margin-right: 8vw;
+    padding:0 24px;
+    display:grid;
+    grid-template-columns:1.15fr 1fr 0.78fr;
+    gap:26px;
+    align-items:start;
+}
+
+.section{
+    background:#fff;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 18px 36px #515050;
+}
+
+.section-header{
+    padding:24px 26px;
+    color:#fff;
+    text-align:center;
+    background-color:#515050;
+}
+
+.section-header .section-title{
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:0.03em;
+    margin-bottom:12px;
+}
+
+.section-count{
+    display:inline-block;
+    font-size:13px;
+    font-weight:700;
+    padding:5px 16px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.24);
+}
+
+.section-divider{
+    width:36px;
+    height:4px;
+    background:rgba(255,255,255,0.5);
+    border-radius:2px;
+    margin:14px auto 0;
+}
+
+.section-list{
+    padding:4px 0;
+}
+
+.item-link{
+    display:flex;
+    gap:14px;
+    align-items:center;
+    padding:15px 26px;
+    text-decoration:none;
+    color:#1b2340;
+    border-bottom:1px solid #eef0f7;
+}
+
+.item-link:last-child{
+    border-bottom:none;
+}
+
+.item-icon{
+    flex-shrink:0;
+    width:22px;
+    height:22px;
+}
+
+.item-icon.blue-ink svg{ stroke:#1d5fc4; }
+.item-icon.green-ink svg{ stroke:#189a75; }
+
+.item-text strong{
+    display:block;
+    font-size:16px;
+    font-weight:700;
+}
+
+.item-text span{
+    display:block;
+    font-size:13px;
+    color:#8a8fa8;
+    margin-top:2px;
+}
+
+.section-empty{
+    padding:26px;
+    color:#9a9fb8;
+    font-size:14px;
+    font-weight:600;
+}
