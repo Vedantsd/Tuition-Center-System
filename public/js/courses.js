@@ -70,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
         overlay.classList.remove("show");
     });
 
+
     overlay.addEventListener("click", (event) => {
         if (event.target === overlay) {
             overlay.classList.remove("show");
@@ -86,11 +87,13 @@ function setupRequiredValidation(fields) {
 
         if (!input) return;
 
+
         const wrapper = document.createElement("div");
         wrapper.className = "field-wrapper";
 
         input.parentNode.insertBefore(wrapper, input);
         wrapper.appendChild(input);
+
 
         const errorEl = document.createElement("div");
         errorEl.className = "field-error-text";
@@ -273,6 +276,7 @@ async function loadNewCourseId() {
     }
 
 }
+
 
 async function enterNewMode() {
 
@@ -596,6 +600,7 @@ function handleSaveClick() {
     if (!validateForm(data))
         return;
 
+
     if (isExistingCourse) {
 
         showConfirmModal();
@@ -648,6 +653,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function saveCourse() {
 
     const data = getFormData();
+
 
     try {
 
