@@ -6,25 +6,25 @@
 }
 
 body{
-    background:#fff;
+    background:#F0F8FF;
 }
 
 .header{
-    background:#F0F8FF;
+    background:#FAF9F6;
     padding:40px 24px 30px;
     text-align:center;
-    box-shadow:0px 0px 15px #515050;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
 }
 
 .header .title{
-    color:#424141;
+    color:#6C4CF1;
     font-size:clamp(2rem,4vw,2.9rem);
     letter-spacing:0.04em;
     font-weight:800;
 }
 
 .header .subtitle{
-    color:#3b3a3a;
+    color:#555;
     margin-top:12px;
     font-size:1rem;
 }
@@ -33,7 +33,7 @@ body{
     width:90px;
     height:3px;
     margin:24px auto 0;
-    background:l#e0a72e;
+    background:#6C4CF1;
     border-radius:2px;
 }
 
@@ -49,17 +49,18 @@ body{
 }
 
 .section{
-    background:#fff;
+    background:#fff; 
+    border:2px solid #6C4CF1;
     border-radius:16px;
     overflow:hidden;
-    box-shadow:0 18px 36px #515050;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
 }
 
 .section-header{
     padding:24px 26px;
     color:#fff;
     text-align:center;
-    background-color:#515050;
+    background-color:#6C4CF1;
 }
 
 .section-header .section-title{
@@ -96,8 +97,13 @@ body{
     align-items:center;
     padding:15px 26px;
     text-decoration:none;
-    color:#1b2340;
-    border-bottom:1px solid #eef0f7;
+    color:#333;
+    border-bottom:1px solid #EEE; 
+    transition:.3s;
+}
+
+.item-link:hover{
+    background:#F2EEFF;
 }
 
 .item-link:last-child{
@@ -110,8 +116,8 @@ body{
     height:22px;
 }
 
-.item-icon.blue-ink svg{ stroke:#1d5fc4; }
-.item-icon.green-ink svg{ stroke:#189a75; }
+.item-icon.blue-ink svg{ stroke:#6C4CF1; }
+.item-icon.green-ink svg{ stroke:#6C4CF1; }
 
 .item-text strong{
     display:block;
