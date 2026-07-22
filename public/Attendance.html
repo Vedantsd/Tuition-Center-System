@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/reuseable-design.css">
+    <title>Tuition Centre System</title>
+
+    <Style>
+
+    .toggle-buttons{
+
+    display:flex;
+    border:2px solid #1a73e8;
+    border-radius:10px;
+    overflow:hidden;
+    width:130px;
+
+}
+
+.toggle-btn{
+
+    flex:1;
+    padding:10px 0;
+    border:none;
+    background:white;
+    color:#1a73e8;
+    cursor:pointer;
+    font-weight:bold;
+    font-size:15px;
+
+}
+
+.toggle-btn.active{
+
+    background:#1a73e8;
+    color:white;
+
+} 
+
+</Style>
+
+</head>
+
+<body>
+
+<div class="body">
+<div class="content">
+
+    <div class="main">
+
+        <div class="form">
+
+            <div class="main-title">
+                Tuition Centre System
+            </div>
+
+            <div class="sub-title">
+                Attendance Transaction Entry 
+            </div>
+
+            <div id="statusMessage" class="status-message"></div>
+
+           
+            <div class="stackinputs">
+
+                <label for="AttendanceID">
+                    AttendanceID <span class="required">*</span>
+                    <span class="info-icon" data-info="AttendanceID should be unique.">ⓘ</span>
+                </label>
+
+                <div class="id-find-group">
+                    <input type="number" id="AttendanceID" class="short-input">
+                    <div class="toggle-buttons">
+
+                        <button type="button"
+                                id="newBtn"
+                                class="toggle-btn active">
+                            New
+                        </button>
+
+                        <button type="button"
+                                id="findBtn"
+                                class="toggle-btn">
+                            Find
+                        </button>
+
+                    </div>
+                </div>
+
+                <div></div>
+
+                <label for="AttendanceDate">
+                   Attendance Date<span class="required">*</span>
+                </label>
+                <input type="date" id="AttendanceDate" class="short-input">
+            
+            </div>
+
+            <!-- Row 2 -->
+            <div class="stackinputs">
+
+                <label for="StudentID">
+                    Student ID <span class="required">*</span>
+                    <span class="info-icon" data-info="It will Came from User Form">ⓘ</span>
+                </label>
+                <input type="number" id="Student ID" class="short-input">
+                
+
+                <div></div>
+
+                <label for="BatchID">
+                    Batch ID  <span class="required">*</span>
+                    <span class="info-icon" data-info="It Will came from Batch Form">ⓘ</span>
+                </label>
+                
+                <input type="number" id="BatchID" class="short-input">
+
+            </div>
+
+            <!-- Row 3 -->
+            <div class="stackinputs"> 
+                <label for="Status">
+                    Status <span class="required">*</span>
+                    <span class="info-icon" data-info="It can be Active/Inactive">ⓘ</span>
+                    
+                    
+                </label>
+                <input type="text" id="Status" class="short-input" required>
+                
+                
+
+            </div>
+        </div>
+</div>
+</div>
+
+<script src="js/db-api.js"></script>
+<script src="js/courses.js"></script>
+
+</body>
+</html>
