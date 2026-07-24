@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/reuseable-design.css">
+    <title>Tuition Centre System</title>
+</head>
+
+<body>
+    <div class="body">
+    <div class="content">
+        <div class="main">
+            <div class="form">
+
+                <div class="main-title">
+                    Tuition Centre System
+                </div>
+
+                <div class="sub-title">
+                    Building Master
+                </div>
+
+                <div id="statusMessage" class="status-message"></div>
+
+                <div class="stackinputs">
+
+                    <label for="BuildingID" class="assignment-id-label">
+                        Building ID <span class="required">*</span>
+                        <span class="info-icon">ⓘ
+                            <span class="tooltip">Enter an existing building ID.</span>
+                        </span>
+                    </label>
+
+                    <div class="id-find-group">
+
+                        <input class="short-input"
+                               type="number"
+                               id="BuildingID"
+                               readonly
+                               required>
+
+                        <div class="assignment-mode-toggle">
+
+                            <button type="button"
+                                    class="assignment-mode-btn active"
+                                    id="newModeBtn">
+                                New
+                            </button>
+
+                            <button type="button"
+                                    class="assignment-mode-btn"
+                                    id="findModeBtn">
+                                Find
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div></div>
+
+                    <label for="BuildingName">
+                        Building Name <span class="required">*</span>
+                        <span class="info-icon">ⓘ
+                            <span class="tooltip">Enter a unique name to identify this building.</span>
+                        </span>
+                    </label>
+                    <input type="text" id="BuildingName" required>
+
+                </div>
+
+                <div class="stackinputs">
+
+                    <label for="NoOfFloors">
+                        No Of Floors
+                    </label>
+                    <input type="number" id="NoOfFloors" min="0">
+
+                    <div></div>
+
+                    <label for="Status">
+                        Status <span class="required">*</span>
+                            <span class="info-icon">ⓘ
+                            <span class="tooltip">Select the building status.</span>
+                            </span>
+                    </label>
+                    <select id="Status" required>
+                        <option value="">--Select--</option>
+                    </select>
+
+                </div>
+
+                <div class="stackinputs">
+
+                    <label for="Description">
+                        Description
+                    </label>
+                    <textarea id="Description" rows="3" style="font-size: 18px;"></textarea>
+
+                </div>
+
+                <div class="button-container">
+                    <button class="btn save-btn">Save</button>
+                    <button class="btn nav-btn assignment-nav-btn previous-btn">◀</button>
+                    <button class="btn nav-btn assignment-nav-btn next-btn">▶</button>
+                    <button class="btn exit-btn">Exit</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+    <script src="js/db-api.js"></script>
+    <script src="js/building.js"></script>
+</body>
+
+</html>

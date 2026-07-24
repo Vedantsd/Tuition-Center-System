@@ -1,3 +1,9 @@
+let settings = [];
+let currentIndex = -1;
+let editMode = false;
+let findEnabled = false;
+let messageTimer;
+
 document.addEventListener("DOMContentLoaded", async () => {
 
     await loadSettings();
@@ -76,11 +82,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     settingIdField.addEventListener("blur", function () {
 
-        if (
-            findEnabled &&
-            !this.readOnly &&
-            this.value.trim() === ""
-        ) {
+        if (findEnabled && !this.readOnly && this.value.trim() === "") {
             showSettingIdRequiredError(this);
         }
         else {
@@ -97,18 +99,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     });
 
+    document
+        .querySelector(".exit-btn")
+        .addEventListener("click", () => {
+            window.history.back();
+        });
+
 });
-
-let settings = [];
-
-let currentIndex = -1;
-
-let editMode = false;
-
-let findEnabled = false;
-
-let messageTimer;
-
 
 function showMessage(message, type = "info") {
 
@@ -117,41 +114,38 @@ function showMessage(message, type = "info") {
     clearTimeout(messageTimer);
 
     status.className = "status-message";
-
     status.classList.add(type);
-
     status.textContent = message;
 
     messageTimer = setTimeout(() => {
-
         status.className = "status-message";
-
         status.textContent = "";
-
     }, 5000);
 
 }
 
 function setFieldsDisabled(disabled) {
 
-    const fields = [
-        document.getElementById("SettingName"),
-        document.getElementById("SettingValue")
-    ];
+    const nameField = document.getElementById("SettingName");
+    const valueField = document.getElementById("SettingValue");
 
-    fields.forEach(field => {
+    if (nameField) {
 
-        if (field) {
+        nameField.disabled = disabled;
+        nameField.style.backgroundColor = disabled ? "#e9e9e9" : "";
+        nameField.style.color = disabled ? "#888" : "";
+        nameField.style.cursor = disabled ? "not-allowed" : "";
 
-            field.disabled = disabled;
+    }
 
-            field.style.backgroundColor = disabled ? "#e9e9e9" : "";
-            field.style.color = disabled ? "#888" : "";
-            field.style.cursor = disabled ? "not-allowed" : "";
+    if (valueField) {
 
-        }
+        valueField.disabled = disabled;
+        valueField.style.backgroundColor = disabled ? "#e9e9e9" : "";
+        valueField.style.color = disabled ? "#888" : "";
+        valueField.style.cursor = disabled ? "not-allowed" : "";
 
-    });
+    }
 
     const saveBtn = document.querySelector(".save-btn");
     const prevBtn = document.querySelector(".prevButton");
@@ -162,7 +156,6 @@ function setFieldsDisabled(disabled) {
         if (btn) {
 
             btn.disabled = disabled;
-
             btn.style.opacity = disabled ? "0.5" : "";
             btn.style.cursor = disabled ? "not-allowed" : "";
 
@@ -253,11 +246,9 @@ function showConfirmModal(message) {
 
 }
 
-
 async function clearForm() {
 
     document.getElementById("SettingName").value = "";
-
     document.getElementById("SettingValue").value = "";
 
     [
@@ -267,13 +258,10 @@ async function clearForm() {
 
 }
 
-
 function populateForm(setting) {
 
     document.getElementById("SettingID").value = setting.setting_id;
-
     document.getElementById("SettingName").value = setting.setting_name;
-
     document.getElementById("SettingValue").value = setting.setting_value;
 
     removeSettingIdRequiredError(document.getElementById("SettingID"));
@@ -292,17 +280,13 @@ async function loadSettings() {
         settings = await DatabaseAPI.get("/api/settings");
 
         if (!Array.isArray(settings)) {
-
             settings = [];
-
         }
 
     }
-
     catch (err) {
 
         console.error(err);
-
         showMessage("Unable to load settings.", "error");
 
     }
@@ -316,11 +300,9 @@ async function generateSettingID() {
         const result = await DatabaseAPI.get("/api/settings/new-id");
 
         document.getElementById("SettingID").value = result.setting_id;
-
         document.getElementById("SettingID").readOnly = true;
 
     }
-
     catch (err) {
 
         console.error(err);
@@ -329,11 +311,9 @@ async function generateSettingID() {
 
 }
 
-
 async function findMode() {
 
     findEnabled = true;
-
     editMode = false;
 
     const settingIdField = document.getElementById("SettingID");
@@ -355,8 +335,6 @@ async function findMode() {
 
 }
 
-
-
 async function newSetting() {
 
     setFieldsDisabled(false);
@@ -366,9 +344,7 @@ async function newSetting() {
     await generateSettingID();
 
     editMode = false;
-
     findEnabled = false;
-
     currentIndex = settings.length;
 
     const settingIdField = document.getElementById("SettingID");
@@ -386,19 +362,15 @@ async function newSetting() {
 
 }
 
-
 async function loadSetting() {
 
     const settingIdField = document.getElementById("SettingID");
-
     const id = settingIdField.value.trim();
 
     if (!id) {
 
         showMessage("Enter Setting ID.", "error");
-
         settingIdField.focus();
-
         return;
 
     }
@@ -410,19 +382,15 @@ async function loadSetting() {
         if (!result.success) {
 
             showMessage("Not a valid Setting ID.", "error");
-
             setFieldsDisabled(true);
-
             return;
 
         }
 
         setFieldsDisabled(false);
-
         populateForm(result);
 
         editMode = true;
-
         findEnabled = false;
 
         currentIndex = settings.findIndex(s => s.setting_id == id);
@@ -437,40 +405,30 @@ async function loadSetting() {
         showMessage("Setting loaded successfully.", "success");
 
     }
-
     catch (err) {
 
         console.error(err);
-
         showMessage(err.message, "error");
 
     }
 
 }
 
-
 function previousSetting() {
 
     if (settings.length === 0) {
 
         showMessage("No records available.", "error");
-
         return;
 
     }
 
     if (currentIndex > 0) {
-
         currentIndex--;
-
     }
-
     else {
-
         showMessage("Already on first record.", "info");
-
         return;
-
     }
 
     populateForm(settings[currentIndex]);
@@ -484,13 +442,11 @@ function previousSetting() {
 
 }
 
-
 function nextSetting() {
 
     if (settings.length === 0) {
 
         showMessage("No records available.", "error");
-
         return;
 
     }
@@ -498,23 +454,16 @@ function nextSetting() {
     if (currentIndex >= settings.length) {
 
         showMessage("Already on new record.", "info");
-
         return;
 
     }
 
     if (currentIndex < settings.length - 1) {
-
         currentIndex++;
-
     }
-
     else {
-
         showMessage("Already on last record.", "info");
-
         return;
-
     }
 
     populateForm(settings[currentIndex]);
@@ -528,15 +477,12 @@ function nextSetting() {
 
 }
 
-
 function validateForm() {
 
     if (document.getElementById("SettingName").value.trim() === "") {
 
         showMessage("Enter Setting Name", "error");
-
         document.getElementById("SettingName").focus();
-
         return false;
 
     }
@@ -544,9 +490,7 @@ function validateForm() {
     if (document.getElementById("SettingValue").value.trim() === "") {
 
         showMessage("Enter Setting Value", "error");
-
         document.getElementById("SettingValue").focus();
-
         return false;
 
     }
@@ -554,7 +498,6 @@ function validateForm() {
     return true;
 
 }
-
 
 async function saveSetting() {
 
@@ -599,7 +542,6 @@ async function saveSetting() {
             );
 
         }
-
         else {
 
             result = await DatabaseAPI.post(
@@ -617,23 +559,19 @@ async function saveSetting() {
         if (result.success) {
 
             await loadSettings();
-
             await newSetting();
 
         }
 
     }
-
     catch (err) {
 
         console.error(err);
-
         showMessage(err.message, "error");
 
     }
 
 }
-
 
 function showRequiredError(field) {
 
@@ -713,16 +651,6 @@ function removeSettingIdRequiredError(field) {
 
 }
 
-
-document
-    .querySelector(".exit-btn")
-    .addEventListener("click", () => {
-
-        window.history.back();
-
-    });
-
-
 function showInfoModal(message) {
 
     const overlay = document.createElement("div");
@@ -739,28 +667,28 @@ function showInfoModal(message) {
 
     const box = document.createElement("div");
     box.style.background = "#fff";
-    box.style.padding = "32px 40px";          
+    box.style.padding = "32px 40px";
     box.style.borderRadius = "10px";
     box.style.textAlign = "center";
-    box.style.maxWidth = "420px";             
+    box.style.maxWidth = "420px";
     box.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.25)";
     box.style.fontFamily = "inherit";
 
     const text = document.createElement("p");
     text.textContent = message;
     text.style.marginBottom = "20px";
-    text.style.fontSize = "18px";             
+    text.style.fontSize = "18px";
     text.style.color = "#222";
 
     const closeBtn = document.createElement("button");
     closeBtn.type = "button";
     closeBtn.textContent = "Close";
-    closeBtn.style.padding = "10px 32px";     
+    closeBtn.style.padding = "10px 32px";
     closeBtn.style.border = "none";
     closeBtn.style.borderRadius = "6px";
     closeBtn.style.background = "#5535d6";
     closeBtn.style.color = "#fff";
-    closeBtn.style.fontSize = "16px";         
+    closeBtn.style.fontSize = "16px";
     closeBtn.style.cursor = "pointer";
 
     closeBtn.addEventListener("click", () => {

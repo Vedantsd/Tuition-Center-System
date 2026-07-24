@@ -5,6 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles/reuseable-design.css">
     <title>Tuition Centre System</title>
+
+    <style>
+
+        .multi-select {
+            position: relative;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .multi-select-toggle {
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: #fff;
+            font-size: 16px;
+            font-family: inherit;
+            line-height: 1.4;
+            text-align: left;
+            cursor: pointer;
+            color: #222;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .multi-select-toggle:focus {
+            outline: 2px solid #5535d6;
+            outline-offset: 1px;
+        }
+
+        .multi-select-label {
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            padding-right: 8px;
+        }
+
+        .multi-select-caret {
+            color: #666;
+            flex-shrink: 0;
+        }
+
+        .multi-select-panel {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            max-height: 220px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+        }
+
+        .multi-select-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .multi-select-option:hover {
+            background: #f2f0fb;
+        }
+
+        .multi-select-option input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+    </style>
+
 </head>
 
 <body>
@@ -93,11 +181,13 @@
                     <label for="Classroom">
                         Classroom <span class="required">*</span>
                         <span class="info-icon">ⓘ
-                            <span class="tooltip">Enter the classroom or room number where this batch will be held.</span>
+                            <span class="tooltip">Select the room where this batch will be held. Only active rooms are shown.</span>
                         </span>
                     </label>
                     <div class="assignment-field-wrapper">
-                        <input type="text" id="Classroom" required>
+                        <select class="short-input" id="Classroom" required>
+                            <option value="">Select Classroom</option>
+                        </select>
                     </div>
 
                 </div>
@@ -107,6 +197,9 @@
 
                     <label for="StartTime">
                         Start Time
+                        <span class="info-icon">ⓘ
+                            <span class="tooltip">Select the time this batch starts.</span>
+                        </span>
                     </label>
                     <input type="time" id="StartTime">
 
@@ -114,6 +207,9 @@
 
                     <label for="EndTime">
                         End Time
+                        <span class="info-icon">ⓘ
+                            <span class="tooltip">Select the time this batch ends.</span>
+                        </span>
                     </label>
                     <input type="time" id="EndTime">
 
@@ -122,20 +218,41 @@
                 <!-- Row 4 -->
                 <div class="stackinputs">
 
-                    <label for="DaysOfWeek">
+                    <label for="DaysOfWeekToggle">
                         Days Of Week <span class="required">*</span>
                         <span class="info-icon">ⓘ
-                            <span class="tooltip">Enter the days this batch meets, e.g. Monday, Wednesday, Friday.</span>
+                            <span class="tooltip">Click to select the days this batch meets.</span>
                         </span>
                     </label>
                     <div class="assignment-field-wrapper">
-                        <input type="text" id="DaysOfWeek" required>
+
+                        <div class="multi-select" id="DaysOfWeekMultiSelect">
+
+                            <button type="button"
+                                    class="multi-select-toggle"
+                                    id="DaysOfWeekToggle">
+                                <span class="multi-select-label" id="DaysOfWeekLabel">
+                                    Select Days
+                                </span>
+                                <span class="multi-select-caret">▾</span>
+                            </button>
+
+                            <div class="multi-select-panel" id="DaysOfWeekPanel">
+                            </div>
+
+                        </div>
+
+                        <input type="hidden" id="DaysOfWeek" required>
+
                     </div>
 
                     <div></div>
 
                     <label for="FacultyID">
                         Faculty
+                        <span class="info-icon">ⓘ
+                            <span class="tooltip">Select the faculty member assigned to this batch.</span>
+                        </span>
                     </label>
                     <select id="FacultyID">
                         <option value="">Select Faculty</option>
@@ -148,6 +265,9 @@
 
                     <label for="StartDate">
                         Start Date
+                        <span class="info-icon">ⓘ
+                            <span class="tooltip">Select the date this batch starts.</span>
+                        </span>
                     </label>
                     <input type="date" id="StartDate">
 
@@ -155,16 +275,19 @@
 
                     <label for="EndDate">
                         End Date
+                        <span class="info-icon">ⓘ
+                            <span class="tooltip">Select the date this batch ends.</span>
+                        </span>
                     </label>
                     <input type="date" id="EndDate">
 
                 </div>
 
                 <div class="button-container">
-                    <button class="btn save-btn">Save</button>
-                    <button class="btn nav-btn assignment-nav-btn previous-btn">◀</button>
-                    <button class="btn nav-btn assignment-nav-btn next-btn">▶</button>
-                    <button class="btn exit-btn">Exit</button>
+                    <button type="button" class="btn save-btn">Save</button>
+                    <button type="button" class="btn nav-btn prevButton">◀</button>
+                    <button type="button" class="btn nav-btn nextButton">▶</button>
+                    <button type="button" class="btn exit-btn">Exit</button>
                 </div>
 
             </div>

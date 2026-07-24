@@ -92,7 +92,7 @@ router.post("/users", async (req, res) => {
             mobile_no: req.body.mobile_no,
             email: req.body.email,
             password_hash: passwordHash,
-            gender: req.body.gender.charAt(0), // F, M or O
+            gender: req.body.gender.charAt(0),
             dob: req.body.dob,
             address: req.body.address,
             qualification: req.body.qualification,
@@ -207,7 +207,6 @@ router.get("/users/newid", async (req, res) => {
     }
 
 });
-
 
 router.get("/users/:id", async (req, res) => {
 
@@ -2375,8 +2374,6 @@ router.put("/settings/:id", async (req, res) => {
 
 });
 
-
-
 router.get("/batches-full", async (req, res) => {
 
     let connection;
@@ -2422,6 +2419,842 @@ router.get("/batches-full", async (req, res) => {
         }));
 
         res.json(batches);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/buildings", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+            SELECT BUILDING_ID, BUILDING_NAME
+            FROM BUILDINGS
+            ORDER BY BUILDING_NAME
+        `);
+
+        const buildings = result.rows.map(row => ({
+            building_id: row[0],
+            building_name: row[1]
+        }));
+
+        res.json(buildings);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/buildings/active", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+            SELECT BUILDING_ID, BUILDING_NAME
+            FROM BUILDINGS
+            WHERE UPPER(STATUS) = 'ACTIVE'
+            ORDER BY BUILDING_NAME
+        `);
+
+        const buildings = result.rows.map(row => ({
+            building_id: row[0],
+            building_name: row[1]
+        }));
+
+        res.json(buildings);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/buildings-full", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+            SELECT
+                BUILDING_ID,
+                BUILDING_NAME,
+                NO_OF_FLOORS,
+                STATUS,
+                DESCRIPTION
+            FROM BUILDINGS
+            ORDER BY BUILDING_ID
+        `);
+
+        const buildings = result.rows.map(row => ({
+            building_id: row[0],
+            building_name: row[1],
+            no_of_floors: row[2],
+            status: row[3],
+            description: row[4]
+        }));
+
+        res.json(buildings);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/buildings/new-id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+            SELECT NVL(MAX(BUILDING_ID),0)+1
+            FROM BUILDINGS
+        `);
+
+        res.json({
+            success: true,
+            building_id: result.rows[0][0]
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/buildings/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(
+            `SELECT
+                BUILDING_ID,
+                BUILDING_NAME,
+                NO_OF_FLOORS,
+                STATUS,
+                DESCRIPTION
+             FROM BUILDINGS
+             WHERE BUILDING_ID = :id`,
+            {
+                id: req.params.id
+            }
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.json({
+                success: false,
+                message: "Building not found."
+            });
+
+        }
+
+        const row = result.rows[0];
+
+        res.json({
+
+            success: true,
+
+            building_id: row[0],
+            building_name: row[1],
+            no_of_floors: row[2],
+            status: row[3],
+            description: row[4]
+
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.post("/buildings", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const sql = `
+            INSERT INTO BUILDINGS
+            (
+                BUILDING_ID,
+                BUILDING_NAME,
+                NO_OF_FLOORS,
+                STATUS,
+                DESCRIPTION
+            )
+            VALUES
+            (
+                :building_id,
+                :building_name,
+                :no_of_floors,
+                :status,
+                :description
+            )
+        `;
+
+        await connection.execute(sql, {
+
+            building_id: safeNumber(req.body.building_id),
+            building_name: req.body.building_name,
+            no_of_floors: safeNumber(req.body.no_of_floors),
+            status: req.body.status,
+            description: req.body.description
+
+        }, {
+            autoCommit: true
+        });
+
+        res.json({
+            success: true,
+            message: "Building saved successfully."
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.put("/buildings/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const sql = `
+            UPDATE BUILDINGS SET
+
+                BUILDING_NAME = :building_name,
+                NO_OF_FLOORS = :no_of_floors,
+                STATUS = :status,
+                DESCRIPTION = :description
+
+            WHERE BUILDING_ID = :building_id
+        `;
+
+        await connection.execute(sql, {
+
+            building_id: safeNumber(req.params.id),
+            building_name: req.body.building_name,
+            no_of_floors: safeNumber(req.body.no_of_floors),
+            status: req.body.status,
+            description: req.body.description
+
+        }, {
+            autoCommit: true
+        });
+
+        res.json({
+            success: true,
+            message: "Building updated successfully."
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/staff", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+            SELECT
+
+                USER_ID,
+
+                FIRST_NAME || ' ' || LAST_NAME
+
+            FROM USERS
+
+            WHERE UPPER(USER_TYPE) IN ('ADMIN', 'FACULTY')
+
+            ORDER BY FIRST_NAME
+        `);
+
+        const staff = result.rows.map(row => ({
+            user_id: row[0],
+            name: row[1]
+        }));
+
+        res.json(staff);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/rooms", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+            SELECT ROOM_ID, ROOM_NAME
+            FROM ROOMS
+            ORDER BY ROOM_NAME
+        `);
+
+        const rooms = result.rows.map(row => ({
+            room_id: row[0],
+            room_name: row[1]
+        }));
+
+        res.json(rooms);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/rooms/active", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+            SELECT ROOM_ID, ROOM_NAME
+            FROM ROOMS
+            WHERE UPPER(STATUS) = 'ACTIVE'
+            ORDER BY ROOM_NAME
+        `);
+
+        const rooms = result.rows.map(row => ({
+            room_id: row[0],
+            room_name: row[1]
+        }));
+
+        res.json(rooms);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/rooms-full", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+            SELECT
+                ROOM_ID,
+                BUILDING_ID,
+                ROOM_CODE,
+                ROOM_NAME,
+                ROOM_TYPE,
+                FLOOR_NO,
+                CAPACITY,
+                AREA_SQFT,
+                STATUS,
+                DESCRIPTION,
+                CREATED_BY,
+                TO_CHAR(CREATED_AT, 'YYYY-MM-DD') AS CREATED_AT,
+                UPDATED_BY,
+                TO_CHAR(UPDATED_AT, 'YYYY-MM-DD') AS UPDATED_AT
+            FROM ROOMS
+            ORDER BY ROOM_ID
+        `);
+
+        const rooms = result.rows.map(row => ({
+            room_id: row[0],
+            building_id: row[1],
+            room_code: row[2],
+            room_name: row[3],
+            room_type: row[4],
+            floor_no: row[5],
+            capacity: row[6],
+            area_sqft: row[7],
+            status: row[8],
+            description: row[9],
+            created_by: row[10],
+            created_at: row[11],
+            updated_by: row[12],
+            updated_at: row[13]
+        }));
+
+        res.json(rooms);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/rooms/new-id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+            SELECT NVL(MAX(ROOM_ID),0)+1
+            FROM ROOMS
+        `);
+
+        res.json({
+            success: true,
+            room_id: result.rows[0][0]
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/rooms/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(
+            `SELECT
+                ROOM_ID,
+                BUILDING_ID,
+                ROOM_CODE,
+                ROOM_NAME,
+                ROOM_TYPE,
+                FLOOR_NO,
+                CAPACITY,
+                AREA_SQFT,
+                STATUS,
+                DESCRIPTION,
+                CREATED_BY,
+                TO_CHAR(CREATED_AT, 'YYYY-MM-DD') AS CREATED_AT,
+                UPDATED_BY,
+                TO_CHAR(UPDATED_AT, 'YYYY-MM-DD') AS UPDATED_AT
+             FROM ROOMS
+             WHERE ROOM_ID = :id`,
+            {
+                id: req.params.id
+            }
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.json({
+                success: false,
+                message: "Room not found."
+            });
+
+        }
+
+        const row = result.rows[0];
+
+        res.json({
+
+            success: true,
+
+            room_id: row[0],
+            building_id: row[1],
+            room_code: row[2],
+            room_name: row[3],
+            room_type: row[4],
+            floor_no: row[5],
+            capacity: row[6],
+            area_sqft: row[7],
+            status: row[8],
+            description: row[9],
+            created_by: row[10],
+            created_at: row[11],
+            updated_by: row[12],
+            updated_at: row[13]
+
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.post("/rooms", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const sql = `
+            INSERT INTO ROOMS
+            (
+                ROOM_ID,
+                BUILDING_ID,
+                ROOM_CODE,
+                ROOM_NAME,
+                ROOM_TYPE,
+                FLOOR_NO,
+                CAPACITY,
+                AREA_SQFT,
+                STATUS,
+                DESCRIPTION,
+                CREATED_BY,
+                CREATED_AT,
+                UPDATED_BY,
+                UPDATED_AT
+            )
+            VALUES
+            (
+                :room_id,
+                :building_id,
+                :room_code,
+                :room_name,
+                :room_type,
+                :floor_no,
+                :capacity,
+                :area_sqft,
+                :status,
+                :description,
+                :created_by,
+                TO_DATE(:created_at, 'YYYY-MM-DD'),
+                :updated_by,
+                TO_DATE(:updated_at, 'YYYY-MM-DD')
+            )
+        `;
+
+        await connection.execute(sql, {
+
+            room_id: safeNumber(req.body.room_id),
+            building_id: safeNumber(req.body.building_id),
+            room_code: req.body.room_code,
+            room_name: req.body.room_name,
+            room_type: req.body.room_type,
+            floor_no: safeNumber(req.body.floor_no),
+            capacity: safeNumber(req.body.capacity),
+            area_sqft: safeNumber(req.body.area_sqft),
+            status: req.body.status,
+            description: req.body.description,
+            created_by: safeNumber(req.body.created_by),
+            created_at: req.body.created_at,
+            updated_by: safeNumber(req.body.updated_by),
+            updated_at: req.body.updated_at
+
+        }, {
+            autoCommit: true
+        });
+
+        res.json({
+            success: true,
+            message: "Room saved successfully."
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.put("/rooms/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const sql = `
+            UPDATE ROOMS SET
+
+                BUILDING_ID = :building_id,
+                ROOM_CODE = :room_code,
+                ROOM_NAME = :room_name,
+                ROOM_TYPE = :room_type,
+                FLOOR_NO = :floor_no,
+                CAPACITY = :capacity,
+                AREA_SQFT = :area_sqft,
+                STATUS = :status,
+                DESCRIPTION = :description,
+                UPDATED_BY = :updated_by,
+                UPDATED_AT = TO_DATE(:updated_at, 'YYYY-MM-DD')
+
+            WHERE ROOM_ID = :room_id
+        `;
+
+        await connection.execute(sql, {
+
+            room_id: safeNumber(req.params.id),
+            building_id: safeNumber(req.body.building_id),
+            room_code: req.body.room_code,
+            room_name: req.body.room_name,
+            room_type: req.body.room_type,
+            floor_no: safeNumber(req.body.floor_no),
+            capacity: safeNumber(req.body.capacity),
+            area_sqft: safeNumber(req.body.area_sqft),
+            status: req.body.status,
+            description: req.body.description,
+            updated_by: safeNumber(req.body.updated_by),
+            updated_at: req.body.updated_at
+
+        }, {
+            autoCommit: true
+        });
+
+        res.json({
+            success: true,
+            message: "Room updated successfully."
+        });
 
     }
     catch (err) {

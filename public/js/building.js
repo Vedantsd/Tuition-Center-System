@@ -1,43 +1,15 @@
 let editMode = false;
-let batches = [];
+let buildings = [];
 let currentIndex = -1;
 let currentMode = "new";
 let messageTimer = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    await loadCourseDropdown();
-    await loadFacultyDropdown();
-    await loadRoomDropdown();
-    await loadDaysOfWeekDropdown();
-    await loadBatchList();
+    await loadStatusDropdown();
+    await loadBuildingList();
 
     await startNewMode();
-
-    document
-        .getElementById("DaysOfWeekToggle")
-        .addEventListener("click", function (e) {
-
-            e.stopPropagation();
-
-            const panel = document.getElementById("DaysOfWeekPanel");
-
-            panel.style.display =
-                panel.style.display === "block" ? "none" : "block";
-
-        });
-
-    document.addEventListener("click", function (e) {
-
-        const container = document.getElementById("DaysOfWeekMultiSelect");
-
-        if (!container.contains(e.target)) {
-
-            document.getElementById("DaysOfWeekPanel").style.display = "none";
-
-        }
-
-    });
 
     document
         .getElementById("newModeBtn")
@@ -49,14 +21,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document
         .querySelector(".save-btn")
-        .addEventListener("click", saveBatch);
+        .addEventListener("click", saveBuilding);
 
     document
-        .querySelector(".prevButton")
+        .querySelector(".previous-btn")
         .addEventListener("click", previousRecord);
 
     document
-        .querySelector(".nextButton")
+        .querySelector(".next-btn")
         .addEventListener("click", nextRecord);
 
     document
@@ -66,17 +38,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
     const requiredFields = [
-        document.getElementById("BatchName"),
-        document.getElementById("CourseID"),
-        document.getElementById("Classroom"),
-        document.getElementById("DaysOfWeek")
+        document.getElementById("BuildingName"),
+        document.getElementById("Status")
     ];
 
     requiredFields.forEach(field => {
 
         field.addEventListener("blur", function () {
 
-            if (isFieldEmpty(this)) {
+            if (this.value.trim() === "") {
                 showRequiredError(this);
             }
             else {
@@ -87,7 +57,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         field.addEventListener("input", function () {
 
-            if (!isFieldEmpty(this)) {
+            if (this.value.trim() !== "") {
                 removeRequiredError(this);
             }
 
@@ -95,7 +65,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         field.addEventListener("change", function () {
 
-            if (!isFieldEmpty(this)) {
+            if (this.value.trim() !== "") {
                 removeRequiredError(this);
             }
 
@@ -103,61 +73,40 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     });
 
-    const batchIdField = document.getElementById("BatchID");
+    const buildingIdField = document.getElementById("BuildingID");
 
-    batchIdField.addEventListener("blur", function () {
+    buildingIdField.addEventListener("blur", function () {
 
         if (
             currentMode === "find" &&
             !this.readOnly &&
             this.value.trim() === ""
         ) {
-            showBatchIdRequiredError(this);
+            showBuildingIdRequiredError(this);
         }
         else {
-            removeBatchIdRequiredError(this);
+            removeBuildingIdRequiredError(this);
         }
 
     });
 
-    batchIdField.addEventListener("input", function () {
+    buildingIdField.addEventListener("input", function () {
 
         if (this.value.trim() !== "") {
-            removeBatchIdRequiredError(this);
+            removeBuildingIdRequiredError(this);
         }
 
     });
 
-    batchIdField.addEventListener("keydown", function (event) {
+    buildingIdField.addEventListener("keydown", function (event) {
 
         if (event.key === "Enter" && currentMode === "find") {
-            findBatch();
+            findBuilding();
         }
 
     });
 
-    const startDateInput = document.getElementById("StartDate");
-
-    const today = new Date();
-    const localToday = new Date(
-        today.getTime() - today.getTimezoneOffset() * 60000
-    )
-        .toISOString()
-        .split("T")[0];
-
-    startDateInput.min = localToday;
-
 });
-
-function isFieldEmpty(field) {
-
-    if (field.tagName === "SELECT" && field.multiple) {
-        return field.selectedOptions.length === 0;
-    }
-
-    return field.value.trim() === "";
-
-}
 
 function setActiveMode(mode) {
 
@@ -190,19 +139,13 @@ function showMessage(message, type = "info") {
 
 }
 
-
 function setFieldsDisabled(disabled) {
 
     const fields = [
-        document.getElementById("BatchName"),
-        document.getElementById("CourseID"),
-        document.getElementById("Classroom"),
-        document.getElementById("StartTime"),
-        document.getElementById("EndTime"),
-        document.getElementById("DaysOfWeek"),
-        document.getElementById("FacultyID"),
-        document.getElementById("StartDate"),
-        document.getElementById("EndDate")
+        document.getElementById("BuildingName"),
+        document.getElementById("NoOfFloors"),
+        document.getElementById("Status"),
+        document.getElementById("Description")
     ];
 
     fields.forEach(field => {
@@ -420,20 +363,15 @@ function showSaveConfirmModal(message) {
 function hasUnsavedNewData() {
 
     const fields = [
-        document.getElementById("BatchName"),
-        document.getElementById("CourseID"),
-        document.getElementById("Classroom"),
-        document.getElementById("StartTime"),
-        document.getElementById("EndTime"),
-        document.getElementById("DaysOfWeek"),
-        document.getElementById("FacultyID"),
-        document.getElementById("StartDate"),
-        document.getElementById("EndDate")
+        document.getElementById("BuildingName"),
+        document.getElementById("NoOfFloors"),
+        document.getElementById("Status"),
+        document.getElementById("Description")
     ];
 
     for (let i = 0; i < fields.length; i++) {
 
-        if (!isFieldEmpty(fields[i])) {
+        if (fields[i].value.trim() !== "") {
             return true;
         }
 
@@ -445,203 +383,88 @@ function hasUnsavedNewData() {
 
 function clearForm() {
 
-    document.getElementById("BatchName").value = "";
-    document.getElementById("CourseID").value = "";
-    document.getElementById("Classroom").value = "";
-    document.getElementById("StartTime").value = "";
-    document.getElementById("EndTime").value = "";
+    document.getElementById("BuildingName").value = "";
+    document.getElementById("NoOfFloors").value = "";
+    document.getElementById("Status").value = "";
+    document.getElementById("Description").value = "";
 
-    clearDaysOfWeekSelection();
-
-    document.getElementById("FacultyID").value = "";
-    document.getElementById("StartDate").value = "";
-    document.getElementById("EndDate").value = "";
-
-    [
-        document.getElementById("BatchName"),
-        document.getElementById("CourseID"),
-        document.getElementById("Classroom"),
-        document.getElementById("DaysOfWeek")
-    ].forEach(removeRequiredError);
+    removeRequiredError(document.getElementById("BuildingName"));
+    removeRequiredError(document.getElementById("Status"));
 
     document.querySelector(".save-btn").textContent = "Save";
 
 }
 
-function populateForm(batch) {
+function setSelectValueCaseInsensitive(selectId, storedValue) {
 
-    const batchIdField = document.getElementById("BatchID");
+    const select = document.getElementById(selectId);
+    const target = (storedValue || "").toLowerCase();
 
-    batchIdField.value = batch.batch_id;
-    document.getElementById("BatchName").value = batch.batch_name;
-    document.getElementById("CourseID").value = batch.course_id;
-    document.getElementById("Classroom").value = batch.classroom;
-    document.getElementById("StartTime").value = batch.start_time;
-    document.getElementById("EndTime").value = batch.end_time;
+    let matched = false;
 
-    setDaysOfWeekValue(batch.days_of_week);
+    for (const option of select.options) {
 
-    document.getElementById("FacultyID").value = batch.faculty_id;
-    document.getElementById("StartDate").value = batch.start_date;
-    document.getElementById("EndDate").value = batch.end_date;
+        if (option.value.toLowerCase() === target) {
 
-    removeBatchIdRequiredError(batchIdField);
+            select.value = option.value;
+            matched = true;
+            break;
 
-    [
-        document.getElementById("BatchName"),
-        document.getElementById("CourseID"),
-        document.getElementById("Classroom"),
-        document.getElementById("DaysOfWeek")
-    ].forEach(removeRequiredError);
+        }
+
+    }
+
+    if (!matched)
+        select.value = "";
 
 }
 
-async function loadCourseDropdown() {
+function populateForm(building) {
 
-    const select = document.getElementById("CourseID");
+    const buildingIdField = document.getElementById("BuildingID");
 
-    select.innerHTML = '<option value="">Select Course</option>';
+    buildingIdField.value = building.building_id;
+    document.getElementById("BuildingName").value = building.building_name;
+    document.getElementById("NoOfFloors").value = building.no_of_floors;
 
-    try {
+    setSelectValueCaseInsensitive("Status", building.status);
 
-        const courses = await DatabaseAPI.get("/api/courses");
+    document.getElementById("Description").value = building.description;
 
-        courses.forEach(course => {
+    removeBuildingIdRequiredError(buildingIdField);
 
-            const option = document.createElement("option");
-
-            option.value = course.course_id;
-            option.textContent = course.course_name;
-
-            select.appendChild(option);
-
-        });
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        showMessage("Unable to load courses.", "error");
-
-    }
+    removeRequiredError(document.getElementById("BuildingName"));
+    removeRequiredError(document.getElementById("Status"));
 
 }
 
-async function loadFacultyDropdown() {
+async function loadStatusDropdown() {
 
-    const select = document.getElementById("FacultyID");
+    const select = document.getElementById("Status");
 
-    select.innerHTML = '<option value="">Select Faculty</option>';
-
-    try {
-
-        const faculty = await DatabaseAPI.get("/api/faculty");
-
-        faculty.forEach(f => {
-
-            const option = document.createElement("option");
-
-            option.value = f.user_id;
-            option.textContent = f.faculty_name;
-
-            select.appendChild(option);
-
-        });
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        showMessage("Unable to load faculty.", "error");
-
-    }
-
-}
-
-async function loadRoomDropdown() {
-
-    const select = document.getElementById("Classroom");
-
-    select.innerHTML = '<option value="">Select Classroom</option>';
-
-    try {
-
-        const rooms = await DatabaseAPI.get("/api/rooms/active");
-
-        rooms.forEach(room => {
-
-            const option = document.createElement("option");
-
-            option.value = room.room_name;
-            option.textContent = room.room_name;
-
-            select.appendChild(option);
-
-        });
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        showMessage("Unable to load classrooms.", "error");
-
-    }
-
-}
-
-async function loadDaysOfWeekDropdown() {
-
-    const panel = document.getElementById("DaysOfWeekPanel");
-
-    panel.innerHTML = "";
-
-    const dayOrder = [
-        "monday", "tuesday", "wednesday", "thursday",
-        "friday", "saturday", "sunday"
-    ];
+    select.innerHTML = '<option value="">--Select--</option>';
 
     try {
 
         const result = await DatabaseAPI.get(
-            "/api/lookup-values/active?type=days_of_week"
+            "/api/lookup-values/active?type=building_status"
         );
 
         if (!result.success) {
 
-            showMessage("Unable to load days of week.", "error");
+            showMessage("Unable to load status options.", "error");
             return;
 
         }
 
-        const sortedData = [...result.data].sort((a, b) => {
+        result.data.forEach(item => {
 
-            const idxA = dayOrder.indexOf(a.lookup_value.toLowerCase());
-            const idxB = dayOrder.indexOf(b.lookup_value.toLowerCase());
+            const option = document.createElement("option");
 
-            return (idxA === -1 ? 999 : idxA) - (idxB === -1 ? 999 : idxB);
+            option.value = item.lookup_value;
+            option.textContent = item.lookup_value;
 
-        });
-
-        sortedData.forEach(item => {
-
-            const row = document.createElement("label");
-            row.className = "multi-select-option";
-
-            const text = document.createElement("span");
-            text.textContent = item.lookup_value;
-
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.value = item.lookup_value;
-            checkbox.addEventListener("change", updateDaysOfWeekSelection);
-
-            row.appendChild(text);
-            row.appendChild(checkbox);
-
-            panel.appendChild(row);
+            select.appendChild(option);
 
         });
 
@@ -649,81 +472,20 @@ async function loadDaysOfWeekDropdown() {
     catch (err) {
 
         console.error(err);
-        showMessage("Unable to load days of week.", "error");
+        showMessage("Unable to load status options.", "error");
 
     }
 
 }
 
-function updateDaysOfWeekSelection() {
-
-    const panel = document.getElementById("DaysOfWeekPanel");
-    const hidden = document.getElementById("DaysOfWeek");
-    const label = document.getElementById("DaysOfWeekLabel");
-
-    const checked = Array.from(
-        panel.querySelectorAll("input[type='checkbox']:checked")
-    ).map(cb => cb.value);
-
-    hidden.value = checked.join(", ");
-
-    label.textContent = checked.length > 0
-        ? checked.join(", ")
-        : "Select Days";
-
-    hidden.dispatchEvent(new Event("change"));
-
-}
-
-function setDaysOfWeekValue(storedValue) {
-
-    const panel = document.getElementById("DaysOfWeekPanel");
-    const hidden = document.getElementById("DaysOfWeek");
-    const label = document.getElementById("DaysOfWeekLabel");
-
-    const values = (storedValue || "")
-        .split(",")
-        .map(v => v.trim())
-        .filter(v => v !== "");
-
-    const lowerValues = values.map(v => v.toLowerCase());
-
-    panel.querySelectorAll("input[type='checkbox']").forEach(cb => {
-
-        cb.checked = lowerValues.includes(cb.value.toLowerCase());
-
-    });
-
-    hidden.value = values.join(", ");
-
-    label.textContent = values.length > 0
-        ? values.join(", ")
-        : "Select Days";
-
-}
-
-function clearDaysOfWeekSelection() {
-
-    document
-        .getElementById("DaysOfWeekPanel")
-        .querySelectorAll("input[type='checkbox']")
-        .forEach(cb => {
-            cb.checked = false;
-        });
-
-    document.getElementById("DaysOfWeek").value = "";
-    document.getElementById("DaysOfWeekLabel").textContent = "Select Days";
-
-}
-
-async function loadBatchList() {
+async function loadBuildingList() {
 
     try {
 
-        batches = await DatabaseAPI.get("/api/batches-full");
+        buildings = await DatabaseAPI.get("/api/buildings-full");
 
-        if (!Array.isArray(batches)) {
-            batches = [];
+        if (!Array.isArray(buildings)) {
+            buildings = [];
         }
 
         return true;
@@ -733,9 +495,9 @@ async function loadBatchList() {
 
         console.error(err);
 
-        showMessage("Unable to load batches.", "error");
+        showMessage("Unable to load buildings.", "error");
 
-        batches = [];
+        buildings = [];
 
         return false;
 
@@ -743,21 +505,20 @@ async function loadBatchList() {
 
 }
 
-async function generateBatchID() {
+async function generateBuildingID() {
 
     try {
 
-        const result = await DatabaseAPI.get("/api/batches/new-id");
+        const result = await DatabaseAPI.get("/api/buildings/new-id");
 
-        document.getElementById("BatchID").value = result.batch_id;
-        document.getElementById("BatchID").readOnly = true;
+        document.getElementById("BuildingID").value = result.building_id;
 
     }
     catch (err) {
 
         console.error(err);
 
-        showMessage("Unable to generate Batch ID.", "error");
+        showMessage("Unable to generate Building ID.", "error");
 
     }
 
@@ -772,21 +533,23 @@ async function startNewMode() {
     editMode = false;
     currentIndex = -1;
 
-    const batchIdField = document.getElementById("BatchID");
+    const buildingIdField = document.getElementById("BuildingID");
 
-    removeBatchIdRequiredError(batchIdField);
+    removeBuildingIdRequiredError(buildingIdField);
 
     clearForm();
 
-    batchIdField.readOnly = true;
+    buildingIdField.readOnly = true;
 
     document.querySelector(".save-btn").textContent = "Save";
 
-    await generateBatchID();
+    await generateBuildingID();
 
-    removeBatchIdRequiredError(batchIdField);
+    setSelectValueCaseInsensitive("Status", "Active");
 
-    showMessage("Ready for new batch.", "success");
+    removeBuildingIdRequiredError(buildingIdField);
+
+    showMessage("Ready for new building.", "success");
 
 }
 
@@ -799,33 +562,33 @@ function startFindMode() {
 
     clearForm();
 
-    const batchIdField = document.getElementById("BatchID");
+    const buildingIdField = document.getElementById("BuildingID");
 
-    removeBatchIdRequiredError(batchIdField);
+    removeBuildingIdRequiredError(buildingIdField);
 
-    batchIdField.value = "";
-    batchIdField.readOnly = false;
-    batchIdField.focus();
+    buildingIdField.value = "";
+    buildingIdField.readOnly = false;
+    buildingIdField.focus();
 
     document.querySelector(".save-btn").textContent = "Update";
 
     setFieldsDisabled(true);
 
-    showMessage("Enter Batch ID and press Enter.", "info");
+    showMessage("Enter Building ID and press Enter.", "info");
 
 }
 
-async function findBatch() {
+async function findBuilding() {
 
-    const batchIdField = document.getElementById("BatchID");
+    const buildingIdField = document.getElementById("BuildingID");
 
-    const id = batchIdField.value.trim();
+    const id = buildingIdField.value.trim();
 
     if (id === "") {
 
-        showMessage("Enter Batch ID.", "error");
+        showMessage("Enter Building ID.", "error");
 
-        batchIdField.focus();
+        buildingIdField.focus();
 
         return;
 
@@ -833,19 +596,19 @@ async function findBatch() {
 
     try {
 
-        const result = await DatabaseAPI.get("/api/batches/" + id);
+        const result = await DatabaseAPI.get("/api/buildings/" + id);
 
         if (!result.success) {
 
             clearForm();
 
-            batchIdField.value = id;
+            buildingIdField.value = id;
 
-            showMessage("Not a valid Batch ID.", "error");
+            showMessage("Not a valid Building ID.", "error");
 
             setFieldsDisabled(true);
 
-            batchIdField.focus();
+            buildingIdField.focus();
 
             return;
 
@@ -857,39 +620,39 @@ async function findBatch() {
 
         editMode = true;
 
-        currentIndex = batches.findIndex(
-            b => Number(b.batch_id) === Number(result.batch_id)
+        currentIndex = buildings.findIndex(
+            b => Number(b.building_id) === Number(result.building_id)
         );
 
-        batchIdField.readOnly = true;
+        buildingIdField.readOnly = true;
 
         document.querySelector(".save-btn").textContent = "Update";
 
         setActiveMode("find");
 
-        showMessage("Batch loaded successfully.", "success");
+        showMessage("Building loaded successfully.", "success");
 
     }
     catch (err) {
 
         console.error(err);
 
-        showMessage("Unable to find batch.", "error");
+        showMessage("Unable to find building.", "error");
 
     }
 
 }
 
-function showCurrentBatch() {
+function showCurrentBuilding() {
 
-    if (currentIndex < 0 || currentIndex >= batches.length)
+    if (currentIndex < 0 || currentIndex >= buildings.length)
         return;
 
-    populateForm(batches[currentIndex]);
+    populateForm(buildings[currentIndex]);
 
     editMode = true;
 
-    document.getElementById("BatchID").readOnly = true;
+    document.getElementById("BuildingID").readOnly = true;
 
     document.querySelector(".save-btn").textContent = "Update";
 
@@ -899,21 +662,20 @@ function showCurrentBatch() {
 
 async function previousRecord() {
 
-    if (batches.length === 0) {
+    if (buildings.length === 0) {
 
-        showMessage("No batch records found.", "info");
+        showMessage("No building records found.", "info");
 
         return;
 
     }
-
 
     if (currentIndex === -1) {
 
         if (hasUnsavedNewData()) {
 
             const choice = await showSaveConfirmModal(
-                "Do you want to save this batch before going back?"
+                "Do you want to save this building before going back?"
             );
 
             if (choice === "cancel") {
@@ -922,7 +684,7 @@ async function previousRecord() {
 
             if (choice === "yes") {
 
-                const saved = await saveBatch();
+                const saved = await saveBuilding();
 
                 if (!saved) {
                     return;
@@ -932,9 +694,9 @@ async function previousRecord() {
 
         }
 
-        currentIndex = batches.length - 1;
+        currentIndex = buildings.length - 1;
 
-        showCurrentBatch();
+        showCurrentBuilding();
 
         return;
 
@@ -950,15 +712,15 @@ async function previousRecord() {
 
     currentIndex--;
 
-    showCurrentBatch();
+    showCurrentBuilding();
 
 }
 
 function nextRecord() {
 
-    if (batches.length === 0) {
+    if (buildings.length === 0) {
 
-        showMessage("No batch records found.", "info");
+        showMessage("No building records found.", "info");
 
         return;
 
@@ -972,7 +734,7 @@ function nextRecord() {
 
     }
 
-    if (currentIndex >= batches.length - 1) {
+    if (currentIndex >= buildings.length - 1) {
 
         showMessage("Already on last record.", "info");
 
@@ -982,11 +744,11 @@ function nextRecord() {
 
     currentIndex++;
 
-    showCurrentBatch();
+    showCurrentBuilding();
 
 }
 
-async function saveBatch() {
+async function saveBuilding() {
 
     if (!validateForm())
         return false;
@@ -999,9 +761,8 @@ async function saveBatch() {
 
         if (!confirmed) {
 
-
-            if (currentIndex >= 0 && currentIndex < batches.length) {
-                populateForm(batches[currentIndex]);
+            if (currentIndex >= 0 && currentIndex < buildings.length) {
+                populateForm(buildings[currentIndex]);
             }
 
             return false;
@@ -1012,16 +773,11 @@ async function saveBatch() {
 
     const data = {
 
-        batch_id: document.getElementById("BatchID").value,
-        batch_name: document.getElementById("BatchName").value.trim(),
-        course_id: document.getElementById("CourseID").value,
-        classroom: document.getElementById("Classroom").value.trim(),
-        start_time: document.getElementById("StartTime").value,
-        end_time: document.getElementById("EndTime").value,
-        days_of_week: document.getElementById("DaysOfWeek").value,
-        faculty_id: document.getElementById("FacultyID").value,
-        start_date: document.getElementById("StartDate").value,
-        end_date: document.getElementById("EndDate").value
+        building_id: document.getElementById("BuildingID").value,
+        building_name: document.getElementById("BuildingName").value.trim(),
+        no_of_floors: document.getElementById("NoOfFloors").value,
+        status: document.getElementById("Status").value.trim(),
+        description: document.getElementById("Description").value.trim()
 
     };
 
@@ -1032,14 +788,14 @@ async function saveBatch() {
         if (editMode) {
 
             result = await DatabaseAPI.put(
-                "/api/batches/" + data.batch_id,
+                "/api/buildings/" + data.building_id,
                 data
             );
 
         }
         else {
 
-            result = await DatabaseAPI.post("/api/batches", data);
+            result = await DatabaseAPI.post("/api/buildings", data);
 
         }
 
@@ -1047,12 +803,12 @@ async function saveBatch() {
 
         if (result.success) {
 
-            await loadBatchList();
+            await loadBuildingList();
 
             if (editMode) {
 
-                currentIndex = batches.findIndex(
-                    b => Number(b.batch_id) === Number(data.batch_id)
+                currentIndex = buildings.findIndex(
+                    b => Number(b.building_id) === Number(data.building_id)
                 );
 
             }
@@ -1081,54 +837,28 @@ async function saveBatch() {
 
 function validateForm() {
 
-    const batchNameField = document.getElementById("BatchName");
-    const courseField = document.getElementById("CourseID");
-    const classroomField = document.getElementById("Classroom");
-    const daysField = document.getElementById("DaysOfWeek");
+    const nameField = document.getElementById("BuildingName");
+    const statusField = document.getElementById("Status");
 
-    if (batchNameField.value.trim() === "") {
+    if (nameField.value.trim() === "") {
 
-        showMessage("Enter Batch Name", "error");
+        showMessage("Enter Building Name", "error");
 
-        showRequiredError(batchNameField);
+        showRequiredError(nameField);
 
-        batchNameField.focus();
+        nameField.focus();
 
         return false;
 
     }
 
-    if (courseField.value.trim() === "") {
+    if (statusField.value.trim() === "") {
 
-        showMessage("Select Course", "error");
+        showMessage("Select Status", "error");
 
-        showRequiredError(courseField);
+        showRequiredError(statusField);
 
-        courseField.focus();
-
-        return false;
-
-    }
-
-    if (classroomField.value.trim() === "") {
-
-        showMessage("Select Classroom", "error");
-
-        showRequiredError(classroomField);
-
-        classroomField.focus();
-
-        return false;
-
-    }
-
-    if (daysField.value.trim() === "") {
-
-        showMessage("Select Days Of Week", "error");
-
-        showRequiredError(daysField);
-
-        document.getElementById("DaysOfWeekToggle").focus();
+        statusField.focus();
 
         return false;
 
@@ -1138,24 +868,36 @@ function validateForm() {
 
 }
 
+const rightSideFields = ["BuildingName", "Status"];
+
 function showRequiredError(field) {
 
     field.classList.add("field-error");
 
-    const wrapper = field.closest(".assignment-field-wrapper");
+    const grid = field.closest(".stackinputs");
 
-    if (!wrapper) return;
+    if (!grid) return;
 
-    let errorMessage = wrapper.querySelector(".field-error-message");
+    let errorMessage = grid.querySelector(
+        ".field-error-message[data-for='" + field.id + "']"
+    );
 
     if (!errorMessage) {
 
         errorMessage = document.createElement("span");
 
         errorMessage.className = "field-error-message";
+        errorMessage.setAttribute("data-for", field.id);
         errorMessage.textContent = "This field is required";
 
-        wrapper.appendChild(errorMessage);
+        if (rightSideFields.includes(field.id)) {
+            errorMessage.classList.add("error-right");
+        }
+        else {
+            errorMessage.classList.add("error-left");
+        }
+
+        grid.appendChild(errorMessage);
 
     }
 
@@ -1165,11 +907,13 @@ function removeRequiredError(field) {
 
     field.classList.remove("field-error");
 
-    const wrapper = field.closest(".assignment-field-wrapper");
+    const grid = field.closest(".stackinputs");
 
-    if (!wrapper) return;
+    if (!grid) return;
 
-    const errorMessage = wrapper.querySelector(".field-error-message");
+    const errorMessage = grid.querySelector(
+        ".field-error-message[data-for='" + field.id + "']"
+    );
 
     if (errorMessage) {
         errorMessage.remove();
@@ -1177,7 +921,7 @@ function removeRequiredError(field) {
 
 }
 
-function showBatchIdRequiredError(field) {
+function showBuildingIdRequiredError(field) {
 
     field.classList.add("field-error");
 
@@ -1185,13 +929,13 @@ function showBatchIdRequiredError(field) {
 
     if (!group) return;
 
-    let errorMessage = group.querySelector(".batch-id-error-message");
+    let errorMessage = group.querySelector(".building-id-error-message");
 
     if (!errorMessage) {
 
         errorMessage = document.createElement("span");
 
-        errorMessage.className = "batch-id-error-message";
+        errorMessage.className = "building-id-error-message";
         errorMessage.textContent = "This field is required";
 
         group.appendChild(errorMessage);
@@ -1200,7 +944,7 @@ function showBatchIdRequiredError(field) {
 
 }
 
-function removeBatchIdRequiredError(field) {
+function removeBuildingIdRequiredError(field) {
 
     field.classList.remove("field-error");
 
@@ -1208,7 +952,7 @@ function removeBatchIdRequiredError(field) {
 
     if (!group) return;
 
-    const errorMessage = group.querySelector(".batch-id-error-message");
+    const errorMessage = group.querySelector(".building-id-error-message");
 
     if (errorMessage) {
         errorMessage.remove();
@@ -1232,28 +976,28 @@ function showInfoModal(message) {
 
     const box = document.createElement("div");
     box.style.background = "#fff";
-    box.style.padding = "32px 40px";          
+    box.style.padding = "32px 40px";
     box.style.borderRadius = "10px";
     box.style.textAlign = "center";
-    box.style.maxWidth = "420px";             
+    box.style.maxWidth = "420px";
     box.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.25)";
     box.style.fontFamily = "inherit";
 
     const text = document.createElement("p");
     text.textContent = message;
     text.style.marginBottom = "20px";
-    text.style.fontSize = "18px";             
+    text.style.fontSize = "18px";
     text.style.color = "#222";
 
     const closeBtn = document.createElement("button");
     closeBtn.type = "button";
     closeBtn.textContent = "Close";
-    closeBtn.style.padding = "10px 32px";     
+    closeBtn.style.padding = "10px 32px";
     closeBtn.style.border = "none";
     closeBtn.style.borderRadius = "6px";
     closeBtn.style.background = "#5535d6";
     closeBtn.style.color = "#fff";
-    closeBtn.style.fontSize = "16px";        
+    closeBtn.style.fontSize = "16px";
     closeBtn.style.cursor = "pointer";
 
     closeBtn.addEventListener("click", () => {

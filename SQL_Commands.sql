@@ -189,3 +189,27 @@ Create table audit_log (
     constraint fk_audit_log_user foreign key (user_id)
         references users(user_id)
 );
+
+CREATE TABLE buildings (
+    building_id NUMBER(19) PRIMARY KEY,
+    building_name VARCHAR2(100) NOT NULL,
+    no_of_floors NUMBER(2),
+    status VARCHAR2(20) DEFAULT 'Active',
+    description VARCHAR2(255)
+);
+
+CREATE TABLE rooms (
+    room_id NUMBER(19) PRIMARY KEY,
+    building_id NUMBER(19) NOT NULL,
+    room_code VARCHAR2(20) NOT NULL,
+    room_name VARCHAR2(100) NOT NULL,
+    floor_no NUMBER(2),
+    capacity NUMBER(5),
+    status VARCHAR2(20) DEFAULT 'Active',
+    description VARCHAR2(255),
+    CONSTRAINT fk_rooms_building
+        FOREIGN KEY (building_id)
+        REFERENCES buildings(building_id),
+    CONSTRAINT uk_room_code
+        UNIQUE (room_code)
+);

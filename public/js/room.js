@@ -1,43 +1,17 @@
 let editMode = false;
-let batches = [];
+let roomsList = [];
 let currentIndex = -1;
 let currentMode = "new";
 let messageTimer = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    await loadCourseDropdown();
-    await loadFacultyDropdown();
-    await loadRoomDropdown();
-    await loadDaysOfWeekDropdown();
-    await loadBatchList();
+    await loadBuildingDropdown();
+    await loadStaffDropdown();
+    await loadStatusDropdown();
+    await loadRoomList();
 
     await startNewMode();
-
-    document
-        .getElementById("DaysOfWeekToggle")
-        .addEventListener("click", function (e) {
-
-            e.stopPropagation();
-
-            const panel = document.getElementById("DaysOfWeekPanel");
-
-            panel.style.display =
-                panel.style.display === "block" ? "none" : "block";
-
-        });
-
-    document.addEventListener("click", function (e) {
-
-        const container = document.getElementById("DaysOfWeekMultiSelect");
-
-        if (!container.contains(e.target)) {
-
-            document.getElementById("DaysOfWeekPanel").style.display = "none";
-
-        }
-
-    });
 
     document
         .getElementById("newModeBtn")
@@ -49,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document
         .querySelector(".save-btn")
-        .addEventListener("click", saveBatch);
+        .addEventListener("click", saveRoom);
 
     document
         .querySelector(".prevButton")
@@ -66,17 +40,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
     const requiredFields = [
-        document.getElementById("BatchName"),
-        document.getElementById("CourseID"),
-        document.getElementById("Classroom"),
-        document.getElementById("DaysOfWeek")
+        document.getElementById("BuildingID"),
+        document.getElementById("RoomCode"),
+        document.getElementById("RoomName"),
+        document.getElementById("RoomType"),
+        document.getElementById("FloorNo"),
+        document.getElementById("Capacity"),
+        document.getElementById("Status")
     ];
 
     requiredFields.forEach(field => {
 
         field.addEventListener("blur", function () {
 
-            if (isFieldEmpty(this)) {
+            if (this.value.trim() === "") {
                 showRequiredError(this);
             }
             else {
@@ -87,7 +64,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         field.addEventListener("input", function () {
 
-            if (!isFieldEmpty(this)) {
+            if (this.value.trim() !== "") {
                 removeRequiredError(this);
             }
 
@@ -95,7 +72,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         field.addEventListener("change", function () {
 
-            if (!isFieldEmpty(this)) {
+            if (this.value.trim() !== "") {
                 removeRequiredError(this);
             }
 
@@ -103,61 +80,40 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     });
 
-    const batchIdField = document.getElementById("BatchID");
+    const roomIdField = document.getElementById("RoomID");
 
-    batchIdField.addEventListener("blur", function () {
+    roomIdField.addEventListener("blur", function () {
 
         if (
             currentMode === "find" &&
             !this.readOnly &&
             this.value.trim() === ""
         ) {
-            showBatchIdRequiredError(this);
+            showRoomIdRequiredError(this);
         }
         else {
-            removeBatchIdRequiredError(this);
+            removeRoomIdRequiredError(this);
         }
 
     });
 
-    batchIdField.addEventListener("input", function () {
+    roomIdField.addEventListener("input", function () {
 
         if (this.value.trim() !== "") {
-            removeBatchIdRequiredError(this);
+            removeRoomIdRequiredError(this);
         }
 
     });
 
-    batchIdField.addEventListener("keydown", function (event) {
+    roomIdField.addEventListener("keydown", function (event) {
 
         if (event.key === "Enter" && currentMode === "find") {
-            findBatch();
+            findRoom();
         }
 
     });
 
-    const startDateInput = document.getElementById("StartDate");
-
-    const today = new Date();
-    const localToday = new Date(
-        today.getTime() - today.getTimezoneOffset() * 60000
-    )
-        .toISOString()
-        .split("T")[0];
-
-    startDateInput.min = localToday;
-
 });
-
-function isFieldEmpty(field) {
-
-    if (field.tagName === "SELECT" && field.multiple) {
-        return field.selectedOptions.length === 0;
-    }
-
-    return field.value.trim() === "";
-
-}
 
 function setActiveMode(mode) {
 
@@ -190,19 +146,22 @@ function showMessage(message, type = "info") {
 
 }
 
-
 function setFieldsDisabled(disabled) {
 
     const fields = [
-        document.getElementById("BatchName"),
-        document.getElementById("CourseID"),
-        document.getElementById("Classroom"),
-        document.getElementById("StartTime"),
-        document.getElementById("EndTime"),
-        document.getElementById("DaysOfWeek"),
-        document.getElementById("FacultyID"),
-        document.getElementById("StartDate"),
-        document.getElementById("EndDate")
+        document.getElementById("BuildingID"),
+        document.getElementById("RoomCode"),
+        document.getElementById("RoomName"),
+        document.getElementById("RoomType"),
+        document.getElementById("FloorNo"),
+        document.getElementById("Capacity"),
+        document.getElementById("AreaSqft"),
+        document.getElementById("Status"),
+        document.getElementById("Description"),
+        document.getElementById("CreatedBy"),
+        document.getElementById("CreatedAt"),
+        document.getElementById("UpdatedBy"),
+        document.getElementById("UpdatedAt")
     ];
 
     fields.forEach(field => {
@@ -220,8 +179,8 @@ function setFieldsDisabled(disabled) {
     });
 
     const saveBtn = document.querySelector(".save-btn");
-    const prevBtn = document.querySelector(".previous-btn");
-    const nextBtn = document.querySelector(".next-btn");
+    const prevBtn = document.querySelector(".prevButton");
+    const nextBtn = document.querySelector(".nextButton");
 
     [saveBtn, prevBtn, nextBtn].forEach(btn => {
 
@@ -235,6 +194,16 @@ function setFieldsDisabled(disabled) {
         }
 
     });
+
+}
+
+function setRoomIdGrey(grey) {
+
+    const roomIdField = document.getElementById("RoomID");
+
+    roomIdField.style.backgroundColor = grey ? "#e9e9e9" : "";
+    roomIdField.style.color = grey ? "#888" : "";
+    roomIdField.style.cursor = grey ? "not-allowed" : "";
 
 }
 
@@ -420,20 +389,20 @@ function showSaveConfirmModal(message) {
 function hasUnsavedNewData() {
 
     const fields = [
-        document.getElementById("BatchName"),
-        document.getElementById("CourseID"),
-        document.getElementById("Classroom"),
-        document.getElementById("StartTime"),
-        document.getElementById("EndTime"),
-        document.getElementById("DaysOfWeek"),
-        document.getElementById("FacultyID"),
-        document.getElementById("StartDate"),
-        document.getElementById("EndDate")
+        document.getElementById("BuildingID"),
+        document.getElementById("RoomCode"),
+        document.getElementById("RoomName"),
+        document.getElementById("RoomType"),
+        document.getElementById("FloorNo"),
+        document.getElementById("Capacity"),
+        document.getElementById("AreaSqft"),
+        document.getElementById("Status"),
+        document.getElementById("Description")
     ];
 
     for (let i = 0; i < fields.length; i++) {
 
-        if (!isFieldEmpty(fields[i])) {
+        if (fields[i].value.trim() !== "") {
             return true;
         }
 
@@ -443,75 +412,129 @@ function hasUnsavedNewData() {
 
 }
 
+function setUpdatedFieldsDisabled(disabled) {
+
+    const updatedByField = document.getElementById("UpdatedBy");
+    const updatedAtField = document.getElementById("UpdatedAt");
+
+    updatedByField.disabled = disabled;
+    updatedAtField.disabled = disabled;
+
+    updatedByField.style.backgroundColor = disabled ? "#e9e9e9" : "";
+    updatedByField.style.color = disabled ? "#888" : "";
+    updatedByField.style.cursor = disabled ? "not-allowed" : "";
+
+    updatedAtField.style.backgroundColor = disabled ? "#e9e9e9" : "";
+    updatedAtField.style.color = disabled ? "#888" : "";
+    updatedAtField.style.cursor = disabled ? "not-allowed" : "";
+
+}
+
 function clearForm() {
 
-    document.getElementById("BatchName").value = "";
-    document.getElementById("CourseID").value = "";
-    document.getElementById("Classroom").value = "";
-    document.getElementById("StartTime").value = "";
-    document.getElementById("EndTime").value = "";
-
-    clearDaysOfWeekSelection();
-
-    document.getElementById("FacultyID").value = "";
-    document.getElementById("StartDate").value = "";
-    document.getElementById("EndDate").value = "";
+    document.getElementById("BuildingID").value = "";
+    document.getElementById("RoomCode").value = "";
+    document.getElementById("RoomName").value = "";
+    document.getElementById("RoomType").value = "";
+    document.getElementById("FloorNo").value = "";
+    document.getElementById("Capacity").value = "";
+    document.getElementById("AreaSqft").value = "";
+    document.getElementById("Status").value = "";
+    document.getElementById("Description").value = "";
+    document.getElementById("CreatedBy").value = "";
+    document.getElementById("CreatedAt").value = "";
+    document.getElementById("UpdatedBy").value = "";
+    document.getElementById("UpdatedAt").value = "";
 
     [
-        document.getElementById("BatchName"),
-        document.getElementById("CourseID"),
-        document.getElementById("Classroom"),
-        document.getElementById("DaysOfWeek")
+        document.getElementById("BuildingID"),
+        document.getElementById("RoomCode"),
+        document.getElementById("RoomName"),
+        document.getElementById("RoomType"),
+        document.getElementById("FloorNo"),
+        document.getElementById("Capacity"),
+        document.getElementById("Status")
     ].forEach(removeRequiredError);
 
     document.querySelector(".save-btn").textContent = "Save";
 
 }
 
-function populateForm(batch) {
+function setSelectValueCaseInsensitive(selectId, storedValue) {
 
-    const batchIdField = document.getElementById("BatchID");
+    const select = document.getElementById(selectId);
+    const target = (storedValue || "").toLowerCase();
 
-    batchIdField.value = batch.batch_id;
-    document.getElementById("BatchName").value = batch.batch_name;
-    document.getElementById("CourseID").value = batch.course_id;
-    document.getElementById("Classroom").value = batch.classroom;
-    document.getElementById("StartTime").value = batch.start_time;
-    document.getElementById("EndTime").value = batch.end_time;
+    let matched = false;
 
-    setDaysOfWeekValue(batch.days_of_week);
+    for (const option of select.options) {
 
-    document.getElementById("FacultyID").value = batch.faculty_id;
-    document.getElementById("StartDate").value = batch.start_date;
-    document.getElementById("EndDate").value = batch.end_date;
+        if (option.value.toLowerCase() === target) {
 
-    removeBatchIdRequiredError(batchIdField);
+            select.value = option.value;
+            matched = true;
+            break;
+
+        }
+
+    }
+
+    if (!matched)
+        select.value = "";
+
+}
+
+function populateForm(room) {
+
+    const roomIdField = document.getElementById("RoomID");
+
+    roomIdField.value = room.room_id;
+    document.getElementById("BuildingID").value = room.building_id;
+    document.getElementById("RoomCode").value = room.room_code;
+    document.getElementById("RoomName").value = room.room_name;
+    document.getElementById("RoomType").value = room.room_type;
+    document.getElementById("FloorNo").value = room.floor_no;
+    document.getElementById("Capacity").value = room.capacity;
+    document.getElementById("AreaSqft").value = room.area_sqft;
+
+    setSelectValueCaseInsensitive("Status", room.status);
+
+    document.getElementById("Description").value = room.description;
+    document.getElementById("CreatedBy").value = room.created_by;
+    document.getElementById("CreatedAt").value = room.created_at;
+    document.getElementById("UpdatedBy").value = room.updated_by;
+    document.getElementById("UpdatedAt").value = room.updated_at;
+
+    removeRoomIdRequiredError(roomIdField);
 
     [
-        document.getElementById("BatchName"),
-        document.getElementById("CourseID"),
-        document.getElementById("Classroom"),
-        document.getElementById("DaysOfWeek")
+        document.getElementById("BuildingID"),
+        document.getElementById("RoomCode"),
+        document.getElementById("RoomName"),
+        document.getElementById("RoomType"),
+        document.getElementById("FloorNo"),
+        document.getElementById("Capacity"),
+        document.getElementById("Status")
     ].forEach(removeRequiredError);
 
 }
 
-async function loadCourseDropdown() {
+async function loadBuildingDropdown() {
 
-    const select = document.getElementById("CourseID");
+    const select = document.getElementById("BuildingID");
 
-    select.innerHTML = '<option value="">Select Course</option>';
+    select.innerHTML = '<option value="">Select Building</option>';
 
     try {
 
-        const courses = await DatabaseAPI.get("/api/courses");
+        const buildings = await DatabaseAPI.get("/api/buildings/active");
 
-        courses.forEach(course => {
+        buildings.forEach(building => {
 
             const option = document.createElement("option");
 
-            option.value = course.course_id;
-            option.textContent = course.course_name;
+            option.value = building.building_id;
+            option.textContent = building.building_name;
 
             select.appendChild(option);
 
@@ -522,30 +545,39 @@ async function loadCourseDropdown() {
 
         console.error(err);
 
-        showMessage("Unable to load courses.", "error");
+        showMessage("Unable to load buildings.", "error");
 
     }
 
 }
 
-async function loadFacultyDropdown() {
+async function loadStaffDropdown() {
 
-    const select = document.getElementById("FacultyID");
+    const createdBySelect = document.getElementById("CreatedBy");
+    const updatedBySelect = document.getElementById("UpdatedBy");
 
-    select.innerHTML = '<option value="">Select Faculty</option>';
+    createdBySelect.innerHTML = '<option value="">Select Staff</option>';
+    updatedBySelect.innerHTML = '<option value="">Select Staff</option>';
 
     try {
 
-        const faculty = await DatabaseAPI.get("/api/faculty");
+        const staff = await DatabaseAPI.get("/api/staff");
 
-        faculty.forEach(f => {
+        staff.forEach(person => {
 
-            const option = document.createElement("option");
+            const option1 = document.createElement("option");
 
-            option.value = f.user_id;
-            option.textContent = f.faculty_name;
+            option1.value = person.user_id;
+            option1.textContent = person.name;
 
-            select.appendChild(option);
+            createdBySelect.appendChild(option1);
+
+            const option2 = document.createElement("option");
+
+            option2.value = person.user_id;
+            option2.textContent = person.name;
+
+            updatedBySelect.appendChild(option2);
 
         });
 
@@ -554,94 +586,39 @@ async function loadFacultyDropdown() {
 
         console.error(err);
 
-        showMessage("Unable to load faculty.", "error");
+        showMessage("Unable to load staff list.", "error");
 
     }
 
 }
 
-async function loadRoomDropdown() {
+async function loadStatusDropdown() {
 
-    const select = document.getElementById("Classroom");
+    const select = document.getElementById("Status");
 
-    select.innerHTML = '<option value="">Select Classroom</option>';
-
-    try {
-
-        const rooms = await DatabaseAPI.get("/api/rooms/active");
-
-        rooms.forEach(room => {
-
-            const option = document.createElement("option");
-
-            option.value = room.room_name;
-            option.textContent = room.room_name;
-
-            select.appendChild(option);
-
-        });
-
-    }
-    catch (err) {
-
-        console.error(err);
-
-        showMessage("Unable to load classrooms.", "error");
-
-    }
-
-}
-
-async function loadDaysOfWeekDropdown() {
-
-    const panel = document.getElementById("DaysOfWeekPanel");
-
-    panel.innerHTML = "";
-
-    const dayOrder = [
-        "monday", "tuesday", "wednesday", "thursday",
-        "friday", "saturday", "sunday"
-    ];
+    select.innerHTML = '<option value="">--Select--</option>';
 
     try {
 
         const result = await DatabaseAPI.get(
-            "/api/lookup-values/active?type=days_of_week"
+            "/api/lookup-values/active?type=room_status"
         );
 
         if (!result.success) {
 
-            showMessage("Unable to load days of week.", "error");
+            showMessage("Unable to load status options.", "error");
             return;
 
         }
 
-        const sortedData = [...result.data].sort((a, b) => {
+        result.data.forEach(item => {
 
-            const idxA = dayOrder.indexOf(a.lookup_value.toLowerCase());
-            const idxB = dayOrder.indexOf(b.lookup_value.toLowerCase());
+            const option = document.createElement("option");
 
-            return (idxA === -1 ? 999 : idxA) - (idxB === -1 ? 999 : idxB);
+            option.value = item.lookup_value;
+            option.textContent = item.lookup_value;
 
-        });
-
-        sortedData.forEach(item => {
-
-            const row = document.createElement("label");
-            row.className = "multi-select-option";
-
-            const text = document.createElement("span");
-            text.textContent = item.lookup_value;
-
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.value = item.lookup_value;
-            checkbox.addEventListener("change", updateDaysOfWeekSelection);
-
-            row.appendChild(text);
-            row.appendChild(checkbox);
-
-            panel.appendChild(row);
+            select.appendChild(option);
 
         });
 
@@ -649,81 +626,20 @@ async function loadDaysOfWeekDropdown() {
     catch (err) {
 
         console.error(err);
-        showMessage("Unable to load days of week.", "error");
+        showMessage("Unable to load status options.", "error");
 
     }
 
 }
 
-function updateDaysOfWeekSelection() {
-
-    const panel = document.getElementById("DaysOfWeekPanel");
-    const hidden = document.getElementById("DaysOfWeek");
-    const label = document.getElementById("DaysOfWeekLabel");
-
-    const checked = Array.from(
-        panel.querySelectorAll("input[type='checkbox']:checked")
-    ).map(cb => cb.value);
-
-    hidden.value = checked.join(", ");
-
-    label.textContent = checked.length > 0
-        ? checked.join(", ")
-        : "Select Days";
-
-    hidden.dispatchEvent(new Event("change"));
-
-}
-
-function setDaysOfWeekValue(storedValue) {
-
-    const panel = document.getElementById("DaysOfWeekPanel");
-    const hidden = document.getElementById("DaysOfWeek");
-    const label = document.getElementById("DaysOfWeekLabel");
-
-    const values = (storedValue || "")
-        .split(",")
-        .map(v => v.trim())
-        .filter(v => v !== "");
-
-    const lowerValues = values.map(v => v.toLowerCase());
-
-    panel.querySelectorAll("input[type='checkbox']").forEach(cb => {
-
-        cb.checked = lowerValues.includes(cb.value.toLowerCase());
-
-    });
-
-    hidden.value = values.join(", ");
-
-    label.textContent = values.length > 0
-        ? values.join(", ")
-        : "Select Days";
-
-}
-
-function clearDaysOfWeekSelection() {
-
-    document
-        .getElementById("DaysOfWeekPanel")
-        .querySelectorAll("input[type='checkbox']")
-        .forEach(cb => {
-            cb.checked = false;
-        });
-
-    document.getElementById("DaysOfWeek").value = "";
-    document.getElementById("DaysOfWeekLabel").textContent = "Select Days";
-
-}
-
-async function loadBatchList() {
+async function loadRoomList() {
 
     try {
 
-        batches = await DatabaseAPI.get("/api/batches-full");
+        roomsList = await DatabaseAPI.get("/api/rooms-full");
 
-        if (!Array.isArray(batches)) {
-            batches = [];
+        if (!Array.isArray(roomsList)) {
+            roomsList = [];
         }
 
         return true;
@@ -733,9 +649,9 @@ async function loadBatchList() {
 
         console.error(err);
 
-        showMessage("Unable to load batches.", "error");
+        showMessage("Unable to load rooms.", "error");
 
-        batches = [];
+        roomsList = [];
 
         return false;
 
@@ -743,21 +659,23 @@ async function loadBatchList() {
 
 }
 
-async function generateBatchID() {
+async function generateRoomID() {
 
     try {
 
-        const result = await DatabaseAPI.get("/api/batches/new-id");
+        const result = await DatabaseAPI.get("/api/rooms/new-id");
 
-        document.getElementById("BatchID").value = result.batch_id;
-        document.getElementById("BatchID").readOnly = true;
+        document.getElementById("RoomID").value = result.room_id;
+        document.getElementById("RoomID").readOnly = true;
+
+        setRoomIdGrey(true);
 
     }
     catch (err) {
 
         console.error(err);
 
-        showMessage("Unable to generate Batch ID.", "error");
+        showMessage("Unable to generate Room ID.", "error");
 
     }
 
@@ -772,21 +690,25 @@ async function startNewMode() {
     editMode = false;
     currentIndex = -1;
 
-    const batchIdField = document.getElementById("BatchID");
+    const roomIdField = document.getElementById("RoomID");
 
-    removeBatchIdRequiredError(batchIdField);
+    removeRoomIdRequiredError(roomIdField);
 
     clearForm();
 
-    batchIdField.readOnly = true;
+    roomIdField.readOnly = true;
 
     document.querySelector(".save-btn").textContent = "Save";
 
-    await generateBatchID();
+    await generateRoomID();
 
-    removeBatchIdRequiredError(batchIdField);
+    removeRoomIdRequiredError(roomIdField);
 
-    showMessage("Ready for new batch.", "success");
+    setSelectValueCaseInsensitive("Status", "Active");
+
+    setUpdatedFieldsDisabled(true);
+
+    showMessage("Ready for new room.", "success");
 
 }
 
@@ -799,33 +721,35 @@ function startFindMode() {
 
     clearForm();
 
-    const batchIdField = document.getElementById("BatchID");
+    const roomIdField = document.getElementById("RoomID");
 
-    removeBatchIdRequiredError(batchIdField);
+    removeRoomIdRequiredError(roomIdField);
 
-    batchIdField.value = "";
-    batchIdField.readOnly = false;
-    batchIdField.focus();
+    roomIdField.value = "";
+    roomIdField.readOnly = false;
+    roomIdField.focus();
+
+    setRoomIdGrey(false);
 
     document.querySelector(".save-btn").textContent = "Update";
 
     setFieldsDisabled(true);
 
-    showMessage("Enter Batch ID and press Enter.", "info");
+    showMessage("Enter Room ID and press Enter.", "info");
 
 }
 
-async function findBatch() {
+async function findRoom() {
 
-    const batchIdField = document.getElementById("BatchID");
+    const roomIdField = document.getElementById("RoomID");
 
-    const id = batchIdField.value.trim();
+    const id = roomIdField.value.trim();
 
     if (id === "") {
 
-        showMessage("Enter Batch ID.", "error");
+        showMessage("Enter Room ID.", "error");
 
-        batchIdField.focus();
+        roomIdField.focus();
 
         return;
 
@@ -833,19 +757,19 @@ async function findBatch() {
 
     try {
 
-        const result = await DatabaseAPI.get("/api/batches/" + id);
+        const result = await DatabaseAPI.get("/api/rooms/" + id);
 
         if (!result.success) {
 
             clearForm();
 
-            batchIdField.value = id;
+            roomIdField.value = id;
 
-            showMessage("Not a valid Batch ID.", "error");
+            showMessage("Not a valid Room ID.", "error");
 
             setFieldsDisabled(true);
 
-            batchIdField.focus();
+            roomIdField.focus();
 
             return;
 
@@ -857,39 +781,47 @@ async function findBatch() {
 
         editMode = true;
 
-        currentIndex = batches.findIndex(
-            b => Number(b.batch_id) === Number(result.batch_id)
+        setUpdatedFieldsDisabled(false);
+
+        currentIndex = roomsList.findIndex(
+            r => Number(r.room_id) === Number(result.room_id)
         );
 
-        batchIdField.readOnly = true;
+        roomIdField.readOnly = true;
+
+        setRoomIdGrey(true);
 
         document.querySelector(".save-btn").textContent = "Update";
 
         setActiveMode("find");
 
-        showMessage("Batch loaded successfully.", "success");
+        showMessage("Room loaded successfully.", "success");
 
     }
     catch (err) {
 
         console.error(err);
 
-        showMessage("Unable to find batch.", "error");
+        showMessage("Unable to find room.", "error");
 
     }
 
 }
 
-function showCurrentBatch() {
+function showCurrentRoom() {
 
-    if (currentIndex < 0 || currentIndex >= batches.length)
+    if (currentIndex < 0 || currentIndex >= roomsList.length)
         return;
 
-    populateForm(batches[currentIndex]);
+    populateForm(roomsList[currentIndex]);
 
     editMode = true;
 
-    document.getElementById("BatchID").readOnly = true;
+    setUpdatedFieldsDisabled(false);
+
+    document.getElementById("RoomID").readOnly = true;
+
+    setRoomIdGrey(true);
 
     document.querySelector(".save-btn").textContent = "Update";
 
@@ -899,21 +831,20 @@ function showCurrentBatch() {
 
 async function previousRecord() {
 
-    if (batches.length === 0) {
+    if (roomsList.length === 0) {
 
-        showMessage("No batch records found.", "info");
+        showMessage("No room records found.", "info");
 
         return;
 
     }
-
 
     if (currentIndex === -1) {
 
         if (hasUnsavedNewData()) {
 
             const choice = await showSaveConfirmModal(
-                "Do you want to save this batch before going back?"
+                "Do you want to save this room before going back?"
             );
 
             if (choice === "cancel") {
@@ -922,7 +853,7 @@ async function previousRecord() {
 
             if (choice === "yes") {
 
-                const saved = await saveBatch();
+                const saved = await saveRoom();
 
                 if (!saved) {
                     return;
@@ -932,9 +863,9 @@ async function previousRecord() {
 
         }
 
-        currentIndex = batches.length - 1;
+        currentIndex = roomsList.length - 1;
 
-        showCurrentBatch();
+        showCurrentRoom();
 
         return;
 
@@ -950,15 +881,15 @@ async function previousRecord() {
 
     currentIndex--;
 
-    showCurrentBatch();
+    showCurrentRoom();
 
 }
 
 function nextRecord() {
 
-    if (batches.length === 0) {
+    if (roomsList.length === 0) {
 
-        showMessage("No batch records found.", "info");
+        showMessage("No room records found.", "info");
 
         return;
 
@@ -972,7 +903,7 @@ function nextRecord() {
 
     }
 
-    if (currentIndex >= batches.length - 1) {
+    if (currentIndex >= roomsList.length - 1) {
 
         showMessage("Already on last record.", "info");
 
@@ -982,11 +913,11 @@ function nextRecord() {
 
     currentIndex++;
 
-    showCurrentBatch();
+    showCurrentRoom();
 
 }
 
-async function saveBatch() {
+async function saveRoom() {
 
     if (!validateForm())
         return false;
@@ -999,9 +930,8 @@ async function saveBatch() {
 
         if (!confirmed) {
 
-
-            if (currentIndex >= 0 && currentIndex < batches.length) {
-                populateForm(batches[currentIndex]);
+            if (currentIndex >= 0 && currentIndex < roomsList.length) {
+                populateForm(roomsList[currentIndex]);
             }
 
             return false;
@@ -1012,16 +942,20 @@ async function saveBatch() {
 
     const data = {
 
-        batch_id: document.getElementById("BatchID").value,
-        batch_name: document.getElementById("BatchName").value.trim(),
-        course_id: document.getElementById("CourseID").value,
-        classroom: document.getElementById("Classroom").value.trim(),
-        start_time: document.getElementById("StartTime").value,
-        end_time: document.getElementById("EndTime").value,
-        days_of_week: document.getElementById("DaysOfWeek").value,
-        faculty_id: document.getElementById("FacultyID").value,
-        start_date: document.getElementById("StartDate").value,
-        end_date: document.getElementById("EndDate").value
+        room_id: document.getElementById("RoomID").value,
+        building_id: document.getElementById("BuildingID").value,
+        room_code: document.getElementById("RoomCode").value.trim(),
+        room_name: document.getElementById("RoomName").value.trim(),
+        room_type: document.getElementById("RoomType").value.trim(),
+        floor_no: document.getElementById("FloorNo").value,
+        capacity: document.getElementById("Capacity").value,
+        area_sqft: document.getElementById("AreaSqft").value,
+        status: document.getElementById("Status").value.trim(),
+        description: document.getElementById("Description").value.trim(),
+        created_by: document.getElementById("CreatedBy").value,
+        created_at: document.getElementById("CreatedAt").value,
+        updated_by: document.getElementById("UpdatedBy").value,
+        updated_at: document.getElementById("UpdatedAt").value
 
     };
 
@@ -1032,14 +966,14 @@ async function saveBatch() {
         if (editMode) {
 
             result = await DatabaseAPI.put(
-                "/api/batches/" + data.batch_id,
+                "/api/rooms/" + data.room_id,
                 data
             );
 
         }
         else {
 
-            result = await DatabaseAPI.post("/api/batches", data);
+            result = await DatabaseAPI.post("/api/rooms", data);
 
         }
 
@@ -1047,12 +981,12 @@ async function saveBatch() {
 
         if (result.success) {
 
-            await loadBatchList();
+            await loadRoomList();
 
             if (editMode) {
 
-                currentIndex = batches.findIndex(
-                    b => Number(b.batch_id) === Number(data.batch_id)
+                currentIndex = roomsList.findIndex(
+                    r => Number(r.room_id) === Number(data.room_id)
                 );
 
             }
@@ -1081,54 +1015,95 @@ async function saveBatch() {
 
 function validateForm() {
 
-    const batchNameField = document.getElementById("BatchName");
-    const courseField = document.getElementById("CourseID");
-    const classroomField = document.getElementById("Classroom");
-    const daysField = document.getElementById("DaysOfWeek");
+    const buildingField = document.getElementById("BuildingID");
+    const roomCodeField = document.getElementById("RoomCode");
+    const roomNameField = document.getElementById("RoomName");
+    const roomTypeField = document.getElementById("RoomType");
+    const floorNoField = document.getElementById("FloorNo");
+    const capacityField = document.getElementById("Capacity");
+    const statusField = document.getElementById("Status");
 
-    if (batchNameField.value.trim() === "") {
+    if (buildingField.value.trim() === "") {
 
-        showMessage("Enter Batch Name", "error");
+        showMessage("Select Building", "error");
 
-        showRequiredError(batchNameField);
+        showRequiredError(buildingField);
 
-        batchNameField.focus();
-
-        return false;
-
-    }
-
-    if (courseField.value.trim() === "") {
-
-        showMessage("Select Course", "error");
-
-        showRequiredError(courseField);
-
-        courseField.focus();
+        buildingField.focus();
 
         return false;
 
     }
 
-    if (classroomField.value.trim() === "") {
+    if (roomCodeField.value.trim() === "") {
 
-        showMessage("Select Classroom", "error");
+        showMessage("Enter Room Code", "error");
 
-        showRequiredError(classroomField);
+        showRequiredError(roomCodeField);
 
-        classroomField.focus();
+        roomCodeField.focus();
 
         return false;
 
     }
 
-    if (daysField.value.trim() === "") {
+    if (roomNameField.value.trim() === "") {
 
-        showMessage("Select Days Of Week", "error");
+        showMessage("Enter Room Name", "error");
 
-        showRequiredError(daysField);
+        showRequiredError(roomNameField);
 
-        document.getElementById("DaysOfWeekToggle").focus();
+        roomNameField.focus();
+
+        return false;
+
+    }
+
+    if (roomTypeField.value.trim() === "") {
+
+        showMessage("Enter Room Type", "error");
+
+        showRequiredError(roomTypeField);
+
+        roomTypeField.focus();
+
+        return false;
+
+    }
+
+    if (floorNoField.value.trim() === "") {
+
+        showMessage("Enter Floor No.", "error");
+
+        showRequiredError(floorNoField);
+
+        floorNoField.focus();
+
+        return false;
+
+    }
+
+    if (capacityField.value.trim() === "") {
+
+        showMessage("Enter Capacity", "error");
+
+        showRequiredError(capacityField);
+
+        capacityField.focus();
+
+        return false;
+
+    }
+
+    const statusValue = statusField.value.trim();
+
+    if (statusValue === "") {
+
+        showMessage("Select Status", "error");
+
+        showRequiredError(statusField);
+
+        statusField.focus();
 
         return false;
 
@@ -1138,24 +1113,36 @@ function validateForm() {
 
 }
 
+const rightSideFields = ["BuildingID", "RoomName", "FloorNo"];
+
 function showRequiredError(field) {
 
     field.classList.add("field-error");
 
-    const wrapper = field.closest(".assignment-field-wrapper");
+    const grid = field.closest(".stackinputs");
 
-    if (!wrapper) return;
+    if (!grid) return;
 
-    let errorMessage = wrapper.querySelector(".field-error-message");
+    let errorMessage = grid.querySelector(
+        ".field-error-message[data-for='" + field.id + "']"
+    );
 
     if (!errorMessage) {
 
         errorMessage = document.createElement("span");
 
         errorMessage.className = "field-error-message";
+        errorMessage.setAttribute("data-for", field.id);
         errorMessage.textContent = "This field is required";
 
-        wrapper.appendChild(errorMessage);
+        if (rightSideFields.includes(field.id)) {
+            errorMessage.classList.add("error-right");
+        }
+        else {
+            errorMessage.classList.add("error-left");
+        }
+
+        grid.appendChild(errorMessage);
 
     }
 
@@ -1165,11 +1152,13 @@ function removeRequiredError(field) {
 
     field.classList.remove("field-error");
 
-    const wrapper = field.closest(".assignment-field-wrapper");
+    const grid = field.closest(".stackinputs");
 
-    if (!wrapper) return;
+    if (!grid) return;
 
-    const errorMessage = wrapper.querySelector(".field-error-message");
+    const errorMessage = grid.querySelector(
+        ".field-error-message[data-for='" + field.id + "']"
+    );
 
     if (errorMessage) {
         errorMessage.remove();
@@ -1177,7 +1166,7 @@ function removeRequiredError(field) {
 
 }
 
-function showBatchIdRequiredError(field) {
+function showRoomIdRequiredError(field) {
 
     field.classList.add("field-error");
 
@@ -1185,13 +1174,13 @@ function showBatchIdRequiredError(field) {
 
     if (!group) return;
 
-    let errorMessage = group.querySelector(".batch-id-error-message");
+    let errorMessage = group.querySelector(".room-id-error-message");
 
     if (!errorMessage) {
 
         errorMessage = document.createElement("span");
 
-        errorMessage.className = "batch-id-error-message";
+        errorMessage.className = "room-id-error-message";
         errorMessage.textContent = "This field is required";
 
         group.appendChild(errorMessage);
@@ -1200,7 +1189,7 @@ function showBatchIdRequiredError(field) {
 
 }
 
-function removeBatchIdRequiredError(field) {
+function removeRoomIdRequiredError(field) {
 
     field.classList.remove("field-error");
 
@@ -1208,7 +1197,7 @@ function removeBatchIdRequiredError(field) {
 
     if (!group) return;
 
-    const errorMessage = group.querySelector(".batch-id-error-message");
+    const errorMessage = group.querySelector(".room-id-error-message");
 
     if (errorMessage) {
         errorMessage.remove();
@@ -1232,28 +1221,28 @@ function showInfoModal(message) {
 
     const box = document.createElement("div");
     box.style.background = "#fff";
-    box.style.padding = "32px 40px";          
+    box.style.padding = "32px 40px";
     box.style.borderRadius = "10px";
     box.style.textAlign = "center";
-    box.style.maxWidth = "420px";             
+    box.style.maxWidth = "420px";
     box.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.25)";
     box.style.fontFamily = "inherit";
 
     const text = document.createElement("p");
     text.textContent = message;
     text.style.marginBottom = "20px";
-    text.style.fontSize = "18px";             
+    text.style.fontSize = "18px";
     text.style.color = "#222";
 
     const closeBtn = document.createElement("button");
     closeBtn.type = "button";
     closeBtn.textContent = "Close";
-    closeBtn.style.padding = "10px 32px";     
+    closeBtn.style.padding = "10px 32px";
     closeBtn.style.border = "none";
     closeBtn.style.borderRadius = "6px";
     closeBtn.style.background = "#5535d6";
     closeBtn.style.color = "#fff";
-    closeBtn.style.fontSize = "16px";        
+    closeBtn.style.fontSize = "16px";
     closeBtn.style.cursor = "pointer";
 
     closeBtn.addEventListener("click", () => {
