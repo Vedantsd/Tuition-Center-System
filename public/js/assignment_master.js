@@ -4,192 +4,167 @@ let messageTimer = null;
 let assignmentList = [];
 let currentIndex = -1;
 let currentMode = "new";
-document.addEventListener("DOMContentLoaded", () => {
+
+document.addEventListener("DOMContentLoaded", function () {
+
     startNewMode();
     loadAssignmentList();
 
-    const requiredFields = [
-        document.getElementById("Title"),
-        document.getElementById("BatchID"),
-        document.getElementById("DueDate")
-    ];
+    let titleField = document.getElementById("Title");
+    let batchField = document.getElementById("BatchID");
+    let dueDateField = document.getElementById("DueDate");
 
-    requiredFields.forEach(field => {
-
-        field.addEventListener("blur", function () {
-
-            if (this.value.trim() === "") {
-                showRequiredError(this);
-            }
-            else {
-                removeRequiredError(this);
-            }
-
-        });
-
-        field.addEventListener("input", function () {
-
-            if (this.value.trim() !== "") {
-                removeRequiredError(this);
-            }
-
-        });
-
-        field.addEventListener("change", function () {
-
-            if (this.value.trim() !== "") {
-                removeRequiredError(this);
-            }
-
-        });
-
+    titleField.addEventListener("blur", function () {
+        checkRequiredField(this);
+    });
+    titleField.addEventListener("input", function () {
+        checkRequiredField(this);
+    });
+    titleField.addEventListener("change", function () {
+        checkRequiredField(this);
     });
 
-    const assignmentIdField = document.getElementById("AssignmentID");
+    batchField.addEventListener("blur", function () {
+        checkRequiredField(this);
+    });
+    batchField.addEventListener("input", function () {
+        checkRequiredField(this);
+    });
+    batchField.addEventListener("change", function () {
+        checkRequiredField(this);
+    });
+
+    dueDateField.addEventListener("blur", function () {
+        checkRequiredField(this);
+    });
+    dueDateField.addEventListener("input", function () {
+        checkRequiredField(this);
+    });
+    dueDateField.addEventListener("change", function () {
+        checkRequiredField(this);
+    });
+
+    let assignmentIdField = document.getElementById("AssignmentID");
 
     assignmentIdField.addEventListener("blur", function () {
-
-        if (
-            currentMode === "find" &&
-            !this.readOnly &&
-            this.value.trim() === ""
-        ) {
+        if (currentMode === "find" && !this.readOnly && this.value.trim() === "") {
             showAssignmentIdRequiredError(this);
-        }
-        else {
+        } else {
             removeAssignmentIdRequiredError(this);
         }
-
     });
 
     assignmentIdField.addEventListener("input", function () {
-
         if (this.value.trim() !== "") {
             removeAssignmentIdRequiredError(this);
         }
-
     });
 
-    const dueDateInput = document.getElementById("DueDate");
+    let dueDateInput = document.getElementById("DueDate");
 
-    const today = new Date();
-    const localToday = new Date(
-        today.getTime() - today.getTimezoneOffset() * 60000
-    )
+    let today = new Date();
+    let localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
         .toISOString()
         .split("T")[0];
 
     dueDateInput.min = localToday;
 
-    document
-        .getElementById("newModeBtn")
-        .addEventListener("click", startNewMode);
+    document.getElementById("newModeBtn").addEventListener("click", startNewMode);
+    document.getElementById("findModeBtn").addEventListener("click", startFindMode);
 
-    document
-        .getElementById("findModeBtn")
-        .addEventListener("click", startFindMode);
+    document.getElementById("AssignmentID").addEventListener("keydown", function (event) {
 
-    document
-        .getElementById("AssignmentID")
-        .addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
 
-            if (event.key === "Enter") {
+            event.preventDefault();
 
-                // Stop the native form submit / page reload so the
-                // fetch below actually gets a chance to run.
-                event.preventDefault();
-
-                if (currentMode === "find") {
-
-                    findAssignment();
-
-                }
-
+            if (currentMode === "find") {
+                findAssignment();
             }
 
-        });
+        }
+
+    });
 
     loadBatchDropdown();
 
-    document
-        .querySelector(".save-btn")
-        .addEventListener("click", saveAssignment);
+    document.querySelector(".save-btn").addEventListener("click", saveAssignment);
+    document.querySelector(".previous-btn").addEventListener("click", previousRecord);
+    document.querySelector(".next-btn").addEventListener("click", nextRecord);
 
-    document
-        .querySelector(".previous-btn")
-        .addEventListener("click", previousRecord);
+    let infoIcons = document.querySelectorAll(".info-icon");
 
-    document
-        .querySelector(".next-btn")
-        .addEventListener("click", nextRecord);
+    for (let i = 0; i < infoIcons.length; i++) {
+        let icon = infoIcons[i];
+        icon.style.cursor = "pointer";
+        icon.addEventListener("click", function (e) {
+            e.stopPropagation();
+            let tooltip = icon.querySelector(".tooltip");
+            if (tooltip) {
+                showInfoModal(tooltip.textContent.trim());
+            }
+        });
+    }
 
 });
+
+function checkRequiredField(field) {
+    if (field.value.trim() === "") {
+        showRequiredError(field);
+    } else {
+        removeRequiredError(field);
+    }
+}
 
 function setMode(mode) {
 
     currentMode = mode;
 
-    document
-        .getElementById("newModeBtn")
-        .classList.toggle("active", mode === "new");
+    document.getElementById("newModeBtn").classList.toggle("active", mode === "new");
+    document.getElementById("findModeBtn").classList.toggle("active", mode === "find");
 
-    document
-        .getElementById("findModeBtn")
-        .classList.toggle("active", mode === "find");
-
-  
-    document.querySelector(".save-btn").textContent =
-        mode === "find" ? "Update" : "Save";
-
+    document.querySelector(".save-btn").textContent = mode === "find" ? "Update" : "Save";
 }
-
 
 function setFieldsDisabled(disabled) {
 
-    const fields = [
-        document.getElementById("Title"),
-        document.getElementById("BatchID"),
-        document.getElementById("DueDate")
-    ];
+    let titleField = document.getElementById("Title");
+    let batchField = document.getElementById("BatchID");
+    let dueDateField = document.getElementById("DueDate");
 
-    fields.forEach(field => {
+    let fields = [titleField, batchField, dueDateField];
 
+    for (let i = 0; i < fields.length; i++) {
+        let field = fields[i];
         if (field) {
-
             field.disabled = disabled;
-
             field.style.backgroundColor = disabled ? "#e9e9e9" : "";
             field.style.color = disabled ? "#888" : "";
             field.style.cursor = disabled ? "not-allowed" : "";
-
         }
+    }
 
-    });
+    let saveBtn = document.querySelector(".save-btn");
+    let prevBtn = document.querySelector(".previous-btn");
+    let nextBtn = document.querySelector(".next-btn");
 
-    const saveBtn = document.querySelector(".save-btn");
-    const prevBtn = document.querySelector(".previous-btn");
-    const nextBtn = document.querySelector(".next-btn");
+    let buttons = [saveBtn, prevBtn, nextBtn];
 
-    [saveBtn, prevBtn, nextBtn].forEach(btn => {
-
+    for (let i = 0; i < buttons.length; i++) {
+        let btn = buttons[i];
         if (btn) {
-
             btn.disabled = disabled;
-
             btn.style.opacity = disabled ? "0.5" : "";
             btn.style.cursor = disabled ? "not-allowed" : "";
-
         }
-
-    });
-
+    }
 }
 
 function showConfirmModal(message) {
 
-    return new Promise(resolve => {
+    return new Promise(function (resolve) {
 
-        const overlay = document.createElement("div");
+        let overlay = document.createElement("div");
         overlay.style.position = "fixed";
         overlay.style.top = "0";
         overlay.style.left = "0";
@@ -201,7 +176,7 @@ function showConfirmModal(message) {
         overlay.style.justifyContent = "center";
         overlay.style.zIndex = "9999";
 
-        const box = document.createElement("div");
+        let box = document.createElement("div");
         box.style.background = "#fff";
         box.style.padding = "24px 32px";
         box.style.borderRadius = "10px";
@@ -210,18 +185,18 @@ function showConfirmModal(message) {
         box.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.25)";
         box.style.fontFamily = "inherit";
 
-        const text = document.createElement("p");
+        let text = document.createElement("p");
         text.textContent = message;
         text.style.marginBottom = "20px";
         text.style.fontSize = "16px";
         text.style.color = "#222";
 
-        const btnContainer = document.createElement("div");
+        let btnContainer = document.createElement("div");
         btnContainer.style.display = "flex";
         btnContainer.style.justifyContent = "center";
         btnContainer.style.gap = "12px";
 
-        const yesBtn = document.createElement("button");
+        let yesBtn = document.createElement("button");
         yesBtn.type = "button";
         yesBtn.textContent = "Yes";
         yesBtn.style.padding = "8px 22px";
@@ -232,7 +207,7 @@ function showConfirmModal(message) {
         yesBtn.style.fontSize = "14px";
         yesBtn.style.cursor = "pointer";
 
-        const noBtn = document.createElement("button");
+        let noBtn = document.createElement("button");
         noBtn.type = "button";
         noBtn.textContent = "No";
         noBtn.style.padding = "8px 22px";
@@ -243,12 +218,12 @@ function showConfirmModal(message) {
         noBtn.style.fontSize = "14px";
         noBtn.style.cursor = "pointer";
 
-        yesBtn.addEventListener("click", () => {
+        yesBtn.addEventListener("click", function () {
             document.body.removeChild(overlay);
             resolve(true);
         });
 
-        noBtn.addEventListener("click", () => {
+        noBtn.addEventListener("click", function () {
             document.body.removeChild(overlay);
             resolve(false);
         });
@@ -268,13 +243,11 @@ function showConfirmModal(message) {
 
 async function startNewMode() {
 
-    
     setFieldsDisabled(false);
 
     setMode("new");
 
-    const assignmentInput =
-        document.getElementById("AssignmentID");
+    let assignmentInput = document.getElementById("AssignmentID");
 
     removeAssignmentIdRequiredError(assignmentInput);
 
@@ -301,8 +274,8 @@ function startFindMode() {
     currentAssignmentId = null;
     currentIndex = -1;
 
-    const assignmentInput =
-        document.getElementById("AssignmentID");
+    let assignmentInput = document.getElementById("AssignmentID");
+
     removeAssignmentIdRequiredError(assignmentInput);
 
     assignmentInput.value = "";
@@ -310,134 +283,97 @@ function startFindMode() {
 
     assignmentInput.focus();
 
-   
     setFieldsDisabled(true);
 
-    showMessage(
-        "Enter Assignment ID and press Enter.",
-        "info"
-    );
-
+    showMessage("Enter Assignment ID and press Enter.", "info");
 }
 
 async function generateNextAssignmentID() {
 
     try {
 
-        const result = await DatabaseAPI.get("/api/assignments/newid");
+        let result = await DatabaseAPI.get("/api/assignments/newid");
 
         if (!result.success) {
-
             showMessage(result.message, "error");
             return;
-
         }
 
-        document.getElementById("AssignmentID").value =
-            result.assignment_id;
+        document.getElementById("AssignmentID").value = result.assignment_id;
 
         currentAssignmentId = result.assignment_id;
 
         editMode = false;
 
-    }
-    catch (err) {
-
+    } catch (err) {
         console.error(err);
-
         showMessage("Unable to generate Assignment ID", "error");
-
     }
 
 }
 
-function showMessage(message, type = "info") {
+function showMessage(message, type) {
 
-    const status =
-        document.getElementById("statusMessage");
+    if (!type) type = "info";
+
+    let status = document.getElementById("statusMessage");
 
     clearTimeout(messageTimer);
 
     status.className = "status-message";
-
     status.classList.add(type);
-
     status.textContent = message;
 
-    messageTimer = setTimeout(() => {
-
+    messageTimer = setTimeout(function () {
         status.className = "status-message";
-
         status.textContent = "";
-
     }, 4000);
 
 }
 
 function clearForm() {
-
     document.getElementById("Title").value = "";
-
     document.getElementById("BatchID").value = "";
-
     document.getElementById("DueDate").value = "";
 
     editMode = false;
-
 }
 
 function populateForm(row) {
 
-    const assignmentId =
-        document.getElementById("AssignmentID");
-
-    const title =
-        document.getElementById("Title");
-
-    const batchId =
-        document.getElementById("BatchID");
-
-    const dueDate =
-        document.getElementById("DueDate");
-
+    let assignmentId = document.getElementById("AssignmentID");
+    let title = document.getElementById("Title");
+    let batchId = document.getElementById("BatchID");
+    let dueDate = document.getElementById("DueDate");
 
     assignmentId.value = row[0];
     title.value = row[1];
     batchId.value = row[2];
 
-    const date = new Date(row[3]);
+    let date = new Date(row[3]);
 
-    dueDate.value =
-        date.toISOString().split("T")[0];
+    dueDate.value = date.toISOString().split("T")[0];
+
     removeAssignmentIdRequiredError(assignmentId);
-
     removeRequiredError(title);
     removeRequiredError(batchId);
     removeRequiredError(dueDate);
-
 }
 
 async function findAssignment() {
 
-    const assignmentInput = document.getElementById("AssignmentID");
-
-    const assignmentId = assignmentInput.value.trim();
+    let assignmentInput = document.getElementById("AssignmentID");
+    let assignmentId = assignmentInput.value.trim();
 
     if (assignmentId === "") {
-
         showMessage("Enter Assignment ID.", "error");
-
         assignmentInput.focus();
-
         return;
-
     }
 
     try {
 
-        const result = await DatabaseAPI.get(
-            "/api/assignments/" + assignmentId
-        );
+        let result = await DatabaseAPI.get("/api/assignments/" + assignmentId);
 
         if (!result.success) {
 
@@ -452,7 +388,6 @@ async function findAssignment() {
             setFieldsDisabled(true);
 
             return;
-
         }
 
         setFieldsDisabled(false);
@@ -460,34 +395,29 @@ async function findAssignment() {
         assignmentInput.value = result.assignment_id;
 
         document.getElementById("Title").value = result.title;
-
         document.getElementById("BatchID").value = result.batch_id;
-
         document.getElementById("DueDate").value = result.due_date;
 
         editMode = true;
 
         currentAssignmentId = result.assignment_id;
 
-        currentIndex = assignmentList.findIndex(
-            row => Number(row[0]) === Number(result.assignment_id)
-        );
+        currentIndex = -1;
+        for (let i = 0; i < assignmentList.length; i++) {
+            if (Number(assignmentList[i][0]) === Number(result.assignment_id)) {
+                currentIndex = i;
+                break;
+            }
+        }
 
         showMessage("Assignment loaded successfully.", "success");
 
-        removeAssignmentIdRequiredError(
-            document.getElementById("AssignmentID")
-        );
+        removeAssignmentIdRequiredError(document.getElementById("AssignmentID"));
 
-    }
-    catch (err) {
-
+    } catch (err) {
         console.error(err);
-
         showMessage("Unable to find assignment.", "error");
-
         setFieldsDisabled(true);
-
     }
 
 }
@@ -495,58 +425,45 @@ async function findAssignment() {
 async function loadAssignmentList() {
 
     try {
-
         assignmentList = await DatabaseAPI.get("/api/assignments");
-
         return true;
-
-    }
-    catch (err) {
-
+    } catch (err) {
         console.error(err);
-
         showMessage("Unable to load assignments.", "error");
-
         return false;
-
     }
 
+}
+
+function findIndexById(id) {
+
+    for (let i = 0; i < assignmentList.length; i++) {
+        if (Number(assignmentList[i][0]) === id) {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 function previousRecord() {
 
     if (assignmentList.length === 0) {
-
         showMessage("No assignment records found.", "info");
-
         return;
-
     }
 
-    const currentId = Number(
-        document.getElementById("AssignmentID").value
-    );
+    let currentId = Number(document.getElementById("AssignmentID").value);
 
-    currentIndex = assignmentList.findIndex(
-        row => Number(row[0]) === currentId
-    );
+    currentIndex = findIndexById(currentId);
 
     if (currentIndex === -1) {
-
         currentIndex = assignmentList.length - 1;
-
-    }
-    else if (currentIndex <= 0) {
-
+    } else if (currentIndex <= 0) {
         showMessage("First Record", "info");
-
         return;
-
-    }
-    else {
-
+    } else {
         currentIndex--;
-
     }
 
     populateForm(assignmentList[currentIndex]);
@@ -559,45 +476,31 @@ function previousRecord() {
     editMode = true;
 
     currentAssignmentId = assignmentList[currentIndex][0];
-
 }
 
 function nextRecord() {
 
     if (assignmentList.length === 0) {
-
         showMessage("No assignment records found.", "info");
-
         return;
-
     }
 
-    const currentId = Number(
-        document.getElementById("AssignmentID").value
-    );
+    let currentId = Number(document.getElementById("AssignmentID").value);
 
-    currentIndex = assignmentList.findIndex(
-        row => Number(row[0]) === currentId
-    );
+    currentIndex = findIndexById(currentId);
 
     if (currentIndex === -1) {
 
-        const lastId = Number(
-            assignmentList[assignmentList.length - 1][0]
-        );
+        let lastId = Number(assignmentList[assignmentList.length - 1][0]);
 
         if (currentId > lastId) {
-
             showMessage("Already at new record.", "info");
-
             return;
-
         }
 
         currentIndex = 0;
 
-    }
-    else if (currentIndex >= assignmentList.length - 1) {
+    } else if (currentIndex >= assignmentList.length - 1) {
 
         clearForm();
 
@@ -617,11 +520,8 @@ function nextRecord() {
 
         return;
 
-    }
-    else {
-
+    } else {
         currentIndex++;
-
     }
 
     populateForm(assignmentList[currentIndex]);
@@ -634,76 +534,58 @@ function nextRecord() {
     editMode = true;
 
     currentAssignmentId = assignmentList[currentIndex][0];
-
 }
 
 async function loadBatchDropdown() {
 
-    const batchDropdown = document.getElementById("BatchID");
+    let batchDropdown = document.getElementById("BatchID");
 
     try {
 
-        const batches = await DatabaseAPI.get("/api/batches");
+        let batches = await DatabaseAPI.get("/api/batches");
 
-        batchDropdown.innerHTML =
-            `<option value="">Select Batch</option>`;
+        batchDropdown.innerHTML = "<option value=\"\">Select Batch</option>";
 
-        batches.forEach(row => {
-
-            const option = document.createElement("option");
-
-            option.value = row[0];
-
-            option.textContent = `${row[0]} - ${row[1]}`;
-
+        for (let i = 0; i < batches.length; i++) {
+            let batch = batches[i];
+            let option = document.createElement("option");
+            option.value = batch.batch_id;
+            option.textContent = batch.batch_id + " - " + batch.batch_name;
             batchDropdown.appendChild(option);
+        }
 
-        });
-
-    }
-    catch (err) {
-
+    } catch (err) {
         console.error(err);
-
         showMessage("Unable to load batches.", "error");
-
     }
 
 }
 
 async function saveAssignment() {
 
-    if (!validateForm())
+    if (!validateForm()) {
         return;
+    }
 
     if (editMode) {
 
-        const confirmed = await showConfirmModal(
-            "Do you want to update the changes?"
-        );
+        let confirmed = await showConfirmModal("Do you want to update the changes?");
 
         if (!confirmed) {
 
             if (currentIndex >= 0 && currentIndex < assignmentList.length) {
                 populateForm(assignmentList[currentIndex]);
             }
-
             return;
-
         }
 
     }
 
-    const data = {
-
+    let data = {
         assignment_id: Number(document.getElementById("AssignmentID").value),
-
         title: document.getElementById("Title").value.trim(),
-
         batch_id: Number(document.getElementById("BatchID").value),
-
         due_date: document.getElementById("DueDate").value
-
     };
 
     try {
@@ -711,53 +593,25 @@ async function saveAssignment() {
         let result;
 
         if (editMode) {
-
-            result = await DatabaseAPI.put(
-                "/api/assignments/" + data.assignment_id,
-                data
-            );
-
-        }
-        else {
-
-            result = await DatabaseAPI.post(
-                "/api/assignments",
-                data
-            );
-
+            result = await DatabaseAPI.put("/api/assignments/" + data.assignment_id, data);
+        } else {
+            result = await DatabaseAPI.post("/api/assignments", data);
         }
 
         if (!result.success) {
-
             showMessage(result.message, "error");
-
             return;
-
         }
 
         showMessage(result.message, "success");
 
-        clearForm();
-
-        document.getElementById("AssignmentID").value = "";
-
-        document.getElementById("AssignmentID").readOnly = true;
-
-        currentAssignmentId = null;
-
-        setMode("new");
-
-        setFieldsDisabled(false);
-
         await loadAssignmentList();
 
-    }
-    catch (err) {
+        await startNewMode();
 
+    } catch (err) {
         console.error(err);
-
         showMessage("Unable to save record.", "error");
-
     }
 
 }
@@ -766,139 +620,99 @@ function showAssignmentIdRequiredError(field) {
 
     field.classList.add("field-error");
 
-    const group = field.closest(".id-find-group");
+    let group = field.closest(".id-find-group");
 
-    let errorMessage =
-        group.querySelector(".assignment-id-error-message");
+    let errorMessage = group.querySelector(".assignment-id-error-message");
 
     if (!errorMessage) {
-
         errorMessage = document.createElement("span");
-
-        errorMessage.className =
-            "assignment-id-error-message";
-
-        errorMessage.textContent =
-            "This field is required";
-
+        errorMessage.className = "assignment-id-error-message";
+        errorMessage.textContent = "This field is required";
         group.appendChild(errorMessage);
-
     }
-
 }
 
 function removeAssignmentIdRequiredError(field) {
 
     field.classList.remove("field-error");
 
-    const group = field.closest(".id-find-group");
+    let group = field.closest(".id-find-group");
 
-    const errorMessage =
-        group.querySelector(".assignment-id-error-message");
+    let errorMessage = group.querySelector(".assignment-id-error-message");
 
     if (errorMessage) {
-
         errorMessage.remove();
-
     }
-
 }
 
 function validateForm() {
 
     if (document.getElementById("Title").value.trim() == "") {
-
         showMessage("Enter Assignment Title", "error");
-
         document.getElementById("Title").focus();
-
         return false;
-
     }
 
     if (document.getElementById("BatchID").value.trim() == "") {
-
         showMessage("Select Batch", "error");
-
         document.getElementById("BatchID").focus();
-
         return false;
-
     }
 
     if (document.getElementById("DueDate").value == "") {
-
         showMessage("Select Due Date", "error");
-
         document.getElementById("DueDate").focus();
-
         return false;
-
     }
-    const selectedDate = document.getElementById("DueDate").value;
 
-    const today = new Date();
+    let selectedDate = document.getElementById("DueDate").value;
+
+    let today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const dueDate = new Date(selectedDate + "T00:00:00");
+    let dueDate = new Date(selectedDate + "T00:00:00");
 
     if (dueDate < today) {
-
-        showMessage(
-            "Due Date cannot be before today's date.",
-            "error"
-        );
-
+        showMessage("Due Date cannot be before today's date.", "error");
         document.getElementById("DueDate").focus();
-
         return false;
     }
 
     return true;
-
 }
 
 function showRequiredError(field) {
 
     field.classList.add("field-error");
 
-    const wrapper = field.closest(".assignment-field-wrapper");
+    let wrapper = field.closest(".assignment-field-wrapper");
 
-    let errorMessage =
-        wrapper.querySelector(".field-error-message");
+    let errorMessage = wrapper.querySelector(".field-error-message");
 
     if (!errorMessage) {
-
         errorMessage = document.createElement("span");
-
         errorMessage.className = "field-error-message";
-
         errorMessage.textContent = "This field is required";
-
         wrapper.appendChild(errorMessage);
-
     }
-
 }
 
 function removeRequiredError(field) {
 
     field.classList.remove("field-error");
 
-    const wrapper = field.closest(".assignment-field-wrapper");
+    let wrapper = field.closest(".assignment-field-wrapper");
 
-    const errorMessage =
-        wrapper.querySelector(".field-error-message");
+    let errorMessage = wrapper.querySelector(".field-error-message");
 
     if (errorMessage) {
         errorMessage.remove();
     }
-
 }
 
 function showInfoModal(message) {
 
-    const overlay = document.createElement("div");
+    let overlay = document.createElement("div");
     overlay.style.position = "fixed";
     overlay.style.top = "0";
     overlay.style.left = "0";
@@ -910,7 +724,7 @@ function showInfoModal(message) {
     overlay.style.justifyContent = "center";
     overlay.style.zIndex = "9999";
 
-    const box = document.createElement("div");
+    let box = document.createElement("div");
     box.style.background = "#fff";
     box.style.padding = "32px 40px";
     box.style.borderRadius = "10px";
@@ -919,13 +733,13 @@ function showInfoModal(message) {
     box.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.25)";
     box.style.fontFamily = "inherit";
 
-    const text = document.createElement("p");
+    let text = document.createElement("p");
     text.textContent = message;
     text.style.marginBottom = "20px";
     text.style.fontSize = "18px";
     text.style.color = "#222";
 
-    const closeBtn = document.createElement("button");
+    let closeBtn = document.createElement("button");
     closeBtn.type = "button";
     closeBtn.textContent = "Close";
     closeBtn.style.padding = "10px 32px";
@@ -936,11 +750,11 @@ function showInfoModal(message) {
     closeBtn.style.fontSize = "16px";
     closeBtn.style.cursor = "pointer";
 
-    closeBtn.addEventListener("click", () => {
+    closeBtn.addEventListener("click", function () {
         document.body.removeChild(overlay);
     });
 
-    overlay.addEventListener("click", (e) => {
+    overlay.addEventListener("click", function (e) {
         if (e.target === overlay) {
             document.body.removeChild(overlay);
         }
@@ -953,22 +767,3 @@ function showInfoModal(message) {
     document.body.appendChild(overlay);
 
 }
-
-
-document.querySelectorAll(".info-icon").forEach(icon => {
-
-    icon.style.cursor = "pointer";
-
-    icon.addEventListener("click", (e) => {
-
-        e.stopPropagation();
-
-        const tooltip = icon.querySelector(".tooltip");
-
-        if (tooltip) {
-            showInfoModal(tooltip.textContent.trim());
-        }
-
-    });
-
-});
