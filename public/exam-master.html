@@ -28,23 +28,50 @@
             <!-- Row 1 -->
             <div class="stackinputs">
 
-                <label for="ExamID">
+                <label for="ExamID" class="assignment-id-label">
                     Exam ID <span class="required">*</span>
                     <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter a unique exam ID.</span>
+                        <span class="tooltip">Enter an existing exam ID.</span>
                     </span>
                 </label>
-                <input type="number" id="ExamID" required>
+
+                <div class="id-find-group">
+
+                    <input class="short-input"
+                           type="number"
+                           id="ExamID"
+                           readonly
+                           required>
+
+                    <div class="assignment-mode-toggle">
+
+                        <button type="button"
+                                class="assignment-mode-btn active"
+                                id="newModeBtn">
+                            New
+                        </button>
+
+                        <button type="button"
+                                class="assignment-mode-btn"
+                                id="findModeBtn">
+                            Find
+                        </button>
+
+                    </div>
+
+                </div>
 
                 <div></div>
 
                 <label for="ExamName">
                     Exam Name <span class="required">*</span>
                     <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter the exam name.</span>
+                        <span class="tooltip">Select the exam name.</span>
                     </span>
                 </label>
-                <input type="text" id="ExamName" required>
+                <select id="ExamName" required>
+                    <option value="">--Select--</option>
+                </select>
 
             </div>
 
@@ -52,12 +79,14 @@
             <div class="stackinputs">
 
                 <label for="CourseID">
-                    Course ID
+                    Course <span class="required">*</span>
                     <span class="info-icon">ⓘ
-                        <span class="tooltip">Enter the associated course ID.</span>
+                        <span class="tooltip">Select the associated course.</span>
                     </span>
                 </label>
-                <input type="number" id="CourseID">
+                <select id="CourseID" required>
+                    <option value="">Select Course</option>
+                </select>
 
                 <div></div>
 
@@ -90,10 +119,10 @@
             </div>
 
             <div class="button-container">
-                <button class="btn save-btn">Save</button>
-                <button class="btn nav-btn">◀</button>
-                <button class="btn nav-btn">▶</button>
-                <button class="btn exit-btn">Exit</button>
+                <button type="button" class="btn save-btn">Save</button>
+                <button type="button" class="btn nav-btn prevButton">◀</button>
+                <button type="button" class="btn nav-btn nextButton">▶</button>
+                <button type="button" class="btn exit-btn">Exit</button>
             </div>
 
         </div>
@@ -101,6 +130,9 @@
     </div>
 
 </div>
+
+<script src="js/db-api.js"></script>
+<script src="js/exam_master.js"></script>
 
 </body>
 </html>

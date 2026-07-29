@@ -3276,4 +3276,284 @@ router.put("/rooms/:id", async (req, res) => {
 
 });
 
+
+router.get("/exams/new-id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+            SELECT NVL(MAX(EXAM_ID),0)+1
+            FROM EXAM_MASTER
+        `);
+
+        res.json({
+            success: true,
+            exam_id: result.rows[0][0]
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/exams-full", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+
+            SELECT
+
+                EXAM_ID,
+                EXAM_NAME,
+                COURSE_ID,
+                TOTAL_MARKS,
+                TO_CHAR(EXAM_DATE,'YYYY-MM-DD')
+
+            FROM EXAM_MASTER
+
+            ORDER BY EXAM_ID
+
+        `);
+
+        const exams = result.rows.map(row => ({
+
+            exam_id: row[0],
+            exam_name: row[1],
+            course_id: row[2],
+            total_marks: row[3],
+            exam_date: row[4]
+
+        }));
+
+        res.json(exams);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.get("/exams/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(
+            `SELECT
+                EXAM_ID,
+                EXAM_NAME,
+                COURSE_ID,
+                TOTAL_MARKS,
+                TO_CHAR(EXAM_DATE,'YYYY-MM-DD')
+             FROM EXAM_MASTER
+             WHERE EXAM_ID = :id`,
+            {
+                id: req.params.id
+            }
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.json({
+                success: false,
+                message: "Exam not found."
+            });
+
+        }
+
+        const row = result.rows[0];
+
+        res.json({
+
+            success: true,
+
+            exam_id: row[0],
+            exam_name: row[1],
+            course_id: row[2],
+            total_marks: row[3],
+            exam_date: row[4]
+
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.post("/exams", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const sql = `
+            INSERT INTO EXAM_MASTER
+            (
+                EXAM_ID,
+                EXAM_NAME,
+                COURSE_ID,
+                TOTAL_MARKS,
+                EXAM_DATE
+            )
+            VALUES
+            (
+                :exam_id,
+                :exam_name,
+                :course_id,
+                :total_marks,
+                TO_DATE(:exam_date,'YYYY-MM-DD')
+            )
+        `;
+
+        await connection.execute(sql, {
+
+            exam_id: safeNumber(req.body.exam_id),
+            exam_name: req.body.exam_name,
+            course_id: safeNumber(req.body.course_id),
+            total_marks: safeNumber(req.body.total_marks),
+            exam_date: req.body.exam_date
+
+        }, {
+            autoCommit: true
+        });
+
+        res.json({
+            success: true,
+            message: "Exam saved successfully."
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
+router.put("/exams/:id", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const sql = `
+            UPDATE EXAM_MASTER SET
+
+                EXAM_NAME = :exam_name,
+                COURSE_ID = :course_id,
+                TOTAL_MARKS = :total_marks,
+                EXAM_DATE = TO_DATE(:exam_date,'YYYY-MM-DD')
+
+            WHERE EXAM_ID = :exam_id
+        `;
+
+        await connection.execute(sql, {
+
+            exam_id: safeNumber(req.params.id),
+            exam_name: req.body.exam_name,
+            course_id: safeNumber(req.body.course_id),
+            total_marks: safeNumber(req.body.total_marks),
+            exam_date: req.body.exam_date
+
+        }, {
+            autoCommit: true
+        });
+
+        res.json({
+            success: true,
+            message: "Exam updated successfully."
+        });
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
 module.exports = router;
