@@ -36,3 +36,6 @@ wallet/
 *.pem
 
 package-lock.json
+
+python-backend/__pycache__/
+python-backend/routers/__pycache__/
