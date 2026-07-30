@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routers.assignment_submission import router as submission_router
+from routers.audit_log import router as audit_log_router
 
 app = FastAPI(
     title="Tuition Centre System - Python API",
@@ -24,6 +25,12 @@ app.include_router(
     submission_router,
     prefix="/submissions",
     tags=["Assignment Submissions"],
+)
+
+app.include_router(
+    audit_log_router,
+    prefix="/audit-logs",
+    tags=["Audit Log"],
 )
 
 
