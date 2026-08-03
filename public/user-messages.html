@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styles/reuseable-design.css">
+<title>Tuition Centre System</title>
+</head>
+
+<body>
+
+<div class="body">
+<div class="content">
+
+    <div class="main">
+
+        <div class="form">
+
+            <div class="main-title">
+                Tuition Centre System
+            </div>
+
+            <div class="sub-title">
+                User Messages Entry
+            </div>
+
+            <div id="statusMessage" class="status-message"></div>
+
+            <!-- Row 1 -->
+            <div class="stackinputs">
+
+                <label for="MessageID">
+                    Message ID <span class="required">*</span>
+                    <span class="info-icon" data-info="Auto-generated unique message identifier.">ⓘ</span>
+                </label>
+
+                <div class="id-find-group">
+                    <input type="number" id="MessageID" required class="short-input" readonly>
+                    <div class="mode-toggle" id="modeToggle">
+                        <button type="button" class="mode-btn" id="newModeBtn">New</button>
+                        <button type="button" class="mode-btn" id="findModeBtn">Find</button>
+                    </div>
+                </div>
+
+                <div></div>
+
+                <label for="SentDate">
+                    Sent Date <span class="required">*</span>
+                    <span class="info-icon" data-info="Date and time the message was sent.">ⓘ</span>
+                </label>
+
+                <div class="user-field-wrapper">
+                    <input type="datetime-local" id="SentDate" required class="short-input">
+                </div>
+
+            </div>
+
+            <!-- Row 2 -->
+            <div class="stackinputs">
+
+                <label for="SenderID">
+                    Sender <span class="required">*</span>
+                    <span class="info-icon" data-info="Select the user sending the message.">ⓘ</span>
+                </label>
+
+                <div class="user-field-wrapper">
+                    <select id="SenderID" required>
+                        <option value="">--Select Sender--</option>
+                    </select>
+                </div>
+
+                <div></div>
+
+                <label for="ReceiverID">
+                    Receiver <span class="required">*</span>
+                    <span class="info-icon" data-info="Select the user receiving the message.">ⓘ</span>
+                </label>
+
+                <div class="user-field-wrapper">
+                    <select id="ReceiverID" required>
+                        <option value="">--Select Receiver--</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- Row 3 - Message Text (full width) -->
+            <div class="stackinputs">
+
+                <label for="MessageText">
+                    Message <span class="required">*</span>
+                    <span class="info-icon" data-info="Enter the message content.">ⓘ</span>
+                </label>
+
+                <div class="user-field-wrapper" style="grid-column: span 3;">
+                    <textarea
+                        id="MessageText"
+                        required
+                        rows="4"
+                        style="width:100%; resize:vertical; font-family:inherit; font-size:inherit; padding:6px 10px; box-sizing:border-box;"
+                    ></textarea>
+                </div>
+
+            </div>
+
+            <div class="button-container">
+                <button type="button" class="btn save-btn">Save</button>
+                <button type="button" class="btn nav-btn prevButton">◀</button>
+                <button type="button" class="btn nav-btn nextButton">▶</button>
+                <button type="button" class="btn exit-btn">Exit</button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+</div>
+
+<script src="js/db-api.js"></script>
+<script src="js/user-messages.js"></script>
+
+<div class="modal-overlay" id="infoModalOverlay">
+    <div class="modal-box">
+        <p id="infoModalText"></p>
+        <button type="button" id="infoModalClose" class="btn nav-btn">Close</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-box">
+        <p id="confirmMessage">Are you sure you want to update this record?</p>
+        <div class="modal-buttons">
+            <button id="confirmYesBtn" class="btn confirm-yes-btn">Yes</button>
+            <button id="confirmNoBtn" class="btn confirm-no-btn">No</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

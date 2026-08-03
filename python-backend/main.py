@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routers.assignment_submission import router as submission_router
 from routers.audit_log import router as audit_log_router
+from routers.messages import router as messages_router
 
 app = FastAPI(
     title="Tuition Centre System - Python API",
@@ -33,6 +34,11 @@ app.include_router(
     tags=["Audit Log"],
 )
 
+app.include_router(
+    messages_router,
+    prefix="/messages",
+    tags=["Messages"],
+)
 
 @app.get("/")
 def root():
