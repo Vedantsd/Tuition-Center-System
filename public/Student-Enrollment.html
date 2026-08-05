@@ -140,17 +140,41 @@
                     
                     
                 </label>
-                <input type="text" id="Status" class="short-input" required>
-                
+                <input type="text" id="Status" class="short-input" required> 
 
             </div>
+
+            <div class="button-container">
+                <button type="button" class="btn save-btn">Save</button>
+                <button type="button" class="btn nav-btn prevButton">◀</button>
+                <button type="button" class="btn nav-btn nextButton">▶</button>
+                <button type="button" class="btn exit-btn">Exit</button>
+            </div>
+
         </div>
     </div>
 </div>
 </div>
 
 <script src="js/db-api.js"></script>
-<script src="js/courses.js"></script>
+<script src="js/Student-Enrollment.js"></script>
+
+<div class="modal-overlay" id="infoModalOverlay">
+    <div class="modal-box">
+        <p id="infoModalText"></p>
+        <button type="button" id="infoModalClose" class="btn nav-btn">Close</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-box">
+        <p id="confirmMessage">Are you sure you want to update this record?</p>
+        <div class="modal-buttons">
+            <button id="confirmYesBtn" class="btn confirm-yes-btn">Yes</button>
+            <button id="confirmNoBtn" class="btn confirm-no-btn">No</button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
