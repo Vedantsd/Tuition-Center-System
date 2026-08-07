@@ -134,7 +134,7 @@ function App() {
 
                     <div className="section-list">
 
-                        <a className="item-link" href="student_enrollment.html">
+                        <a className="item-link" href="Student-Enrollment.html">
                             <span className="item-icon green-ink">
                                 <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8" r="3.4"></circle><path d="M3 20c0-3.6 2.7-6 6-6s6 2.4 6 6"></path><path d="M18 8v6M15 11h6"></path></svg>
                             </span>
@@ -144,7 +144,7 @@ function App() {
                             </span>
                         </a>
 
-                        <a className="item-link" href="attendance.html">
+                        <a className="item-link" href="Attendance.html">
                             <span className="item-icon green-ink">
                                 <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4.5" width="16" height="15.5" rx="1.6"></rect><path d="M4 9.5h16"></path><path d="M8.5 13.3l1.8 1.8 3.4-3.6"></path></svg>
                             </span>
@@ -164,7 +164,7 @@ function App() {
                             </span>
                         </a>
 
-                        <a className="item-link" href="assignment_submission.html">
+                        <a className="item-link" href="assignment-submission.html">
                             <span className="item-icon green-ink">
                                 <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 20h12"></path><path d="M12 15V4M8 8l4-4 4 4"></path></svg>
                             </span>
@@ -184,7 +184,7 @@ function App() {
                             </span>
                         </a>
 
-                        <a className="item-link" href="user_messages.html">
+                        <a className="item-link" href="user-messages.html">
                             <span className="item-icon green-ink">
                                 <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5.5h16v10.2H9.5L5 19v-3.3H4z"></path><path d="M8 9.3h8M8 12.3h5"></path></svg>
                             </span>
