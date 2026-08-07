@@ -2844,6 +2844,57 @@ router.get("/staff", async (req, res) => {
 
 });
 
+router.get("/students", async (req, res) => {
+
+    let connection;
+
+    try {
+
+        connection = await getConnection();
+
+        const result = await connection.execute(`
+
+            SELECT
+
+                USER_ID,
+
+                FIRST_NAME || ' ' || LAST_NAME
+
+            FROM USERS
+
+            WHERE UPPER(USER_TYPE) = 'STUDENT'
+
+            ORDER BY FIRST_NAME
+
+        `);
+
+        const students = result.rows.map(row => ({
+            user_id: row[0],
+            name: row[1]
+        }));
+
+        res.json(students);
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+    finally {
+
+        if (connection)
+            await connection.close();
+
+    }
+
+});
+
 router.get("/rooms", async (req, res) => {
 
     let connection;

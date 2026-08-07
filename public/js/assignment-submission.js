@@ -238,13 +238,13 @@ async function loadStudents() {
     select.innerHTML = '<option value="">--Select Student--</option>';
 
     try {
-        const result = await DatabaseAPI.get("/api/users");
-        const rows = Array.isArray(result) ? result : result.data || result.users || [];
+        const result = await DatabaseAPI.get("/api/students");
+        const rows = Array.isArray(result) ? result : result.data || [];
 
         rows.forEach(item => {
             const option = document.createElement("option");
             option.value = item.user_id;
-            option.textContent = `${item.user_id} - ${item.first_name} ${item.last_name}`;
+            option.textContent = item.name;   
             select.appendChild(option);
         });
 
